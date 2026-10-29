@@ -320,38 +320,108 @@
     background: repeating-linear-gradient(45deg, #f6f8fc, #f6f8fc 10px, #f1f4fa 10px, #f1f4fa 20px);
   }
   .mock {
-    --c1: #13224a; --c2: #e0a93b; --c3: #eef2fb;
+    --c1: #13224a; --c2: #e0a93b; --c3: #eef2fb; --hd: var(--c1); --bgm: #fff; --tx: #223; --sec: #fff; --rad: 4px;
+    background: var(--bgm) !important; color: var(--tx) !important;
     width: 340px; aspect-ratio: 210 / 297; background: #fff; border-radius: 6px; overflow: hidden;
     box-shadow: 0 20px 40px -18px rgba(15,27,51,.45), 0 0 0 1px rgba(15,27,51,.06);
     display: flex; flex-direction: column; font-size: 7px; color: #223;
     transition: all .3s;
   }
   .mock.land { width: 460px; aspect-ratio: 297 / 210; }
-  .m-head { background: var(--c1); color: #fff; padding: 10px 12px 9px; position: relative; }
+  .m-head { background: var(--hd); color: var(--hdtx, #fff); padding: 10px 12px 9px; position: relative; }
   .m-head::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--c2); }
   .m-inst { font-size: 6.5px; opacity: .75; letter-spacing: .6px; text-transform: uppercase; }
   .m-title { font-size: 12px; font-weight: 800; line-height: 1.15; margin-top: 3px; }
-  .m-badge { position: absolute; top: 9px; right: 10px; background: var(--c2); color: var(--c1); font-weight: 800; font-size: 6.5px; padding: 2px 6px; border-radius: 3px; }
-  .m-info { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; padding: 6px 8px; background: var(--c3); }
-  .m-info div { background: #fff; border-radius: 3px; padding: 3px 4px; overflow: hidden; }
+  .m-badge { position: absolute; top: 9px; right: 10px; background: var(--c2); color: #111; font-weight: 800; font-size: 6.5px; padding: 2px 6px; border-radius: 3px; }
+  .m-info { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; padding: 6px 8px; }
+  .m-info div { background: var(--sec); border-radius: var(--rad); padding: 3px 4px; overflow: hidden; }
   .m-info b { display: block; font-size: 5px; text-transform: uppercase; letter-spacing: .4px; color: var(--c1); opacity: .7; }
   .m-info span { display: block; font-size: 6px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .m-body { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 7px 8px; }
   .mock.land .m-body { grid-template-columns: 1fr 1fr 1fr; }
-  .m-sec { border: 1px solid #e6e9f0; border-radius: 4px; padding: 4px 5px; display: flex; flex-direction: column; gap: 2px; }
+  .m-sec { background: var(--sec); border: 1px solid rgba(127,127,127,.18); border-radius: var(--rad); padding: 4px 5px; display: flex; flex-direction: column; gap: 2px; }
   .m-sec h6 { margin: 0 0 2px; font-size: 6.4px; color: var(--c1); display: flex; align-items: center; gap: 3px; }
   .m-sec h6::before { content: ""; width: 5px; height: 5px; border-radius: 2px; background: var(--c2); }
-  .m-line { height: 2.5px; border-radius: 2px; background: #e6e9f0; }
+  .m-line { height: 2.5px; border-radius: 2px; background: currentColor; opacity: .14; }
   .m-line.s { width: 70%; }
   .m-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 0 8px 6px; }
-  .m-photo { aspect-ratio: 4/3; border-radius: 3px; background: linear-gradient(135deg, var(--c3), #dfe5f1); display: grid; place-items: center; color: var(--c1); opacity: .9; }
+  .m-photo { aspect-ratio: 4/3; border-radius: var(--rad); background: #cfd6e3; font-size: 5px; font-weight: 800; letter-spacing: .5px; color: #4a5672; display: grid; place-items: center; color: var(--c1); opacity: .9; }
   .m-photo svg { width: 10px; height: 10px; opacity: .5; }
-  .m-foot { display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; background: var(--c1); color: #fff; font-size: 5.5px; }
+  .m-foot { display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; background: var(--hd); color: var(--hdtx, #fff); font-size: 5.5px; }
   .m-foot b { color: var(--c2); }
   .mock-side { max-width: 260px; font-size: 13px; color: var(--ink-2); }
   .mock-side h4 { margin: 0 0 6px; font-size: 15px; color: var(--ink); }
   .mock-side ol { margin: 8px 0 0; padding-left: 18px; }
   .mock-side li { margin-bottom: 4px; }
+
+  /* ---------- Themes ---------- */
+  .theme-tools { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+  .theme-tools .chips { flex: 1; }
+  .chip.sm { padding: 5px 10px; font-size: 12px; }
+  .themes {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+    max-height: 420px; overflow: auto; padding: 2px 4px 4px 2px; margin-right: -4px;
+  }
+  .themes::-webkit-scrollbar { width: 8px; }
+  .themes::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 8px; }
+  .theme {
+    border: 1.5px solid var(--line-2); background: #fff; border-radius: 12px; padding: 6px; cursor: pointer;
+    text-align: left; transition: border-color .15s, transform .15s, box-shadow .15s; position: relative;
+  }
+  .theme:hover { border-color: #b9c3d6; transform: translateY(-1px); }
+  .theme[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .theme[aria-pressed="true"]::after {
+    content: "✓"; position: absolute; top: 10px; right: 10px; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--accent); color: #fff; font-size: 11px; font-weight: 800; display: grid; place-items: center;
+  }
+  .theme-thumb { height: 64px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+  .theme-thumb .t-hd { height: 22px; display: flex; align-items: center; padding: 0 7px; }
+  .theme-thumb .t-hd i { display: block; height: 4px; width: 55%; border-radius: 2px; opacity: .85; }
+  .theme-thumb .t-bd { flex: 1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 6px 7px; }
+  .theme-thumb .t-bd span { border-radius: 3px; }
+  .theme b { display: block; font-size: 12.5px; margin: 7px 3px 0; line-height: 1.25; }
+  .theme small { display: block; font-size: 11px; color: var(--ink-3); margin: 1px 3px 2px; line-height: 1.3; }
+
+  /* photo mode cards */
+  .modes { display: grid; gap: 8px; }
+  .mode {
+    display: flex; gap: 10px; align-items: flex-start; text-align: left; cursor: pointer;
+    border: 1.5px solid var(--line-2); background: #fff; border-radius: 12px; padding: 11px 12px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .mode[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .mode .radio { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--line-2); flex: none; margin-top: 2px; }
+  .mode[aria-pressed="true"] .radio { border: 5px solid var(--accent); }
+  .mode > span > b { font-size: 13px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .mode small { display: block; font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+  .badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 5px; background: var(--ok-soft); color: var(--ok); letter-spacing: .3px; }
+  .badge.warn { background: var(--gold-soft); color: #8a5a00; }
+  .slotmap { margin-top: 8px; font-size: 12px; color: var(--ink-2); display: grid; gap: 4px; }
+  .slotmap div { display: flex; gap: 6px; align-items: center; }
+  .slotmap code { font-family: var(--mono); font-size: 10.5px; background: var(--navy); color: var(--gold); padding: 1px 6px; border-radius: 4px; }
+
+  /* ---------- Studio ---------- */
+  .studio { flex: 1; display: flex; flex-direction: column; padding: 18px 20px 20px; gap: 14px; }
+  .studio-intro { font-size: 13px; color: var(--ink-2); background: var(--ok-soft); border-radius: 12px; padding: 11px 13px; }
+  .studio-intro b { color: var(--ok); }
+  .studio-drop { padding: 34px 16px; }
+  .studio-grid { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 16px; align-items: start; }
+  .canvas-wrap {
+    position: relative; background: repeating-conic-gradient(#eef1f7 0 25%, #f7f9fc 0 50%) 0 0 / 18px 18px;
+    border-radius: 10px; overflow: hidden; border: 1px solid var(--line);
+  }
+  .canvas-wrap canvas { display: block; max-width: 100%; max-height: 72vh; width: auto; height: auto; margin: 0 auto; cursor: crosshair; touch-action: none; }
+  .slots-panel h5 { margin: 0 0 4px; font-size: 13px; }
+  .slots-panel p { margin: 0 0 10px; font-size: 12px; color: var(--ink-3); }
+  .slot-list { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 6px; }
+  .slot-item { display: flex; gap: 6px; align-items: center; border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px; font-size: 12px; }
+  .slot-item code { font-family: var(--mono); font-size: 11px; background: var(--accent); color: #fff; border-radius: 4px; padding: 1px 6px; }
+  .slot-item select { flex: 1; min-width: 0; border: 1px solid var(--line-2); border-radius: 7px; padding: 4px 6px; font-size: 12px; background: #fff; }
+  .slot-item button { border: 0; background: none; cursor: pointer; color: var(--ink-3); padding: 2px 4px; border-radius: 6px; }
+  .slot-item button:hover { background: var(--err-soft); color: var(--err); }
+  .slot-empty { font-size: 12px; color: var(--ink-3); border: 1px dashed var(--line-2); border-radius: 10px; padding: 10px; text-align: center; }
+  .studio-actions { display: grid; gap: 8px; }
+  .studio-actions .btn { justify-content: center; }
 
   /* toast */
   .toast {
@@ -373,7 +443,12 @@
     .wrap { grid-template-columns: 1fr; }
     .preview { position: relative; top: 0; min-height: 520px; }
   }
+  @media (max-width: 760px) {
+    .studio-grid { grid-template-columns: 1fr; }
+  }
   @media (max-width: 560px) {
+    .tabs { width: 100%; }
+    .tab { flex: 1; padding: 7px 6px; font-size: 12px; }
     .form-card { padding: 20px 16px; }
     .row-2 { grid-template-columns: 1fr; }
     .howto { grid-template-columns: 1fr; }
@@ -517,46 +592,73 @@
 
     <!-- 03 -->
     <section class="sec">
-      <div class="sec-title"><span class="sec-num">03</span> Format &amp; arahan visual</div>
+      <div class="sec-title"><span class="sec-num">03</span> Format &amp; tema visual</div>
 
       <div class="field">
         <label for="format">Format OPR</label>
         <select class="select" id="format" name="format"></select>
       </div>
       <div class="field">
-        <label for="gaya">Gaya visual</label>
-        <select class="select" id="gaya" name="gaya"></select>
+        <label>Tema <span class="hint" id="themeCount"></span></label>
+        <input type="hidden" id="gaya" name="gaya">
+        <div class="theme-tools">
+          <div class="chips" id="themeCats" role="group" aria-label="Kategori tema"></div>
+          <button type="button" class="chip sm" id="btnRandomTheme" title="Pilih tema rawak"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg>Rawak</button>
+        </div>
+        <div class="themes" id="themeGrid" role="group" aria-label="Pilihan tema"></div>
       </div>
       <div class="field">
-        <label>Warna utama</label>
-        <div class="chips" id="paletteChips" role="group" aria-label="Pilihan palet warna"></div>
-        <input class="input" id="warna" name="warna" style="margin-top:10px" placeholder="Atau tulis sendiri, contoh: Navy, biru muda, putih dan aksen emas">
+        <label for="warna">Warna utama <span class="hint">ikut tema, boleh ubah</span></label>
+        <input class="input" id="warna" name="warna" placeholder="Contoh: Navy, biru muda, putih dan aksen emas">
       </div>
       <div class="row-2">
         <div class="field">
-          <label>Orientasi</label>
+          <label>Orientasi A4</label>
           <div class="seg" id="segOrient">
-            <button type="button" data-v="potret" aria-pressed="true">A4 Potret</button>
-            <button type="button" data-v="landskap" aria-pressed="false">A4 Landskap</button>
+            <button type="button" data-v="potret" aria-pressed="true">Potret</button>
+            <button type="button" data-v="landskap" aria-pressed="false">Landskap</button>
           </div>
         </div>
         <div class="field">
-          <label for="gambar">Ruang gambar</label>
-          <select class="select" id="gambar" name="gambar">
-            <option value="0">Tiada</option>
-            <option value="2">2 gambar</option>
-            <option value="3" selected>3 gambar</option>
-            <option value="4">4 gambar</option>
-            <option value="6">6 gambar</option>
-          </select>
+          <label>Prompt untuk</label>
+          <div class="seg" id="segAI">
+            <button type="button" data-v="chatgpt" aria-pressed="true"><span class="dot" style="background:#10a37f"></span>ChatGPT</button>
+            <button type="button" data-v="gemini" aria-pressed="false"><span class="dot" style="background:linear-gradient(135deg,#4285f4,#a142f4)"></span>Gemini</button>
+          </div>
         </div>
       </div>
+    </section>
+
+    <!-- 04 -->
+    <section class="sec">
+      <div class="sec-title"><span class="sec-num">04</span> Gambar aktiviti</div>
       <div class="field">
-        <label>Prompt untuk</label>
-        <div class="seg" id="segAI">
-          <button type="button" data-v="chatgpt" aria-pressed="true"><span class="dot" style="background:#10a37f"></span>ChatGPT</button>
-          <button type="button" data-v="gemini" aria-pressed="false"><span class="dot" style="background:linear-gradient(135deg,#4285f4,#a142f4)"></span>Gemini</button>
+        <label for="gambar">Bilangan ruang gambar</label>
+        <select class="select" id="gambar" name="gambar">
+          <option value="0">Tiada gambar</option>
+          <option value="1">1 gambar</option>
+          <option value="2">2 gambar</option>
+          <option value="3" selected>3 gambar</option>
+          <option value="4">4 gambar</option>
+          <option value="5">5 gambar</option>
+          <option value="6">6 gambar</option>
+        </select>
+      </div>
+      <div class="field" id="modeField">
+        <label>Cara letak gambar</label>
+        <div class="modes" id="segMode">
+          <button type="button" class="mode" data-v="kosong" aria-pressed="true">
+            <span class="radio"></span>
+            <span><b>Ruang kosong, tampal gambar sebenar <span class="badge">100% SAMA</span></b>
+            <small>AI reka OPR dengan bingkai kosong berlabel. Lepas itu tampal gambar asal guna tab <strong>Tampal gambar</strong>. Gambar tak disentuh langsung oleh AI.</small></span>
+          </button>
+          <button type="button" class="mode" data-v="kekal" aria-pressed="false">
+            <span class="radio"></span>
+            <span><b>AI masukkan gambar dilampir <span class="badge warn">HAMPIR SAMA</span></b>
+            <small>Prompt beri arahan ketat supaya AI kekalkan gambar asal. Tapi penjana imej melukis semula, jadi wajah, teks atau butiran kecil boleh berubah.</small></span>
+          </button>
         </div>
+        <div class="slotmap" id="slotMap"></div>
       </div>
 
       <button type="submit" class="gen-btn">
@@ -574,7 +676,8 @@
     <div class="pv-head">
       <div class="tabs" role="tablist">
         <button class="tab" role="tab" aria-selected="true" data-tab="prompt">Prompt</button>
-        <button class="tab" role="tab" aria-selected="false" data-tab="layout">Lakaran susun atur</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="layout">Lakaran</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="studio">Tampal gambar</button>
       </div>
       <div class="pv-actions">
         <button class="btn" type="button" id="btnDownload" disabled>
@@ -607,7 +710,7 @@
           <path d="m128 15-1.4 4.4-4.4 1.4 4.4 1.4 1.4 4.4 1.4-4.4 4.4-1.4-4.4-1.4z" fill="#13224a"/>
         </svg>
         <h3>Prompt imej OPR akan muncul di sini</h3>
-        <p>Lengkapkan maklumat wajib dan tekan <b>Jana Prompt OPR</b>. Lakaran susun atur juga boleh dilihat di tab sebelah.</p>
+        <p>Lengkapkan maklumat wajib dan tekan <b>Jana Prompt OPR</b>. Lakaran susun atur ada di tab sebelah, dan tab <b>Tampal gambar</b> untuk masukkan gambar sebenar ke OPR siap.</p>
       </div>
 
       <div class="pane" id="panePrompt">
@@ -615,8 +718,8 @@
         <div class="prompt-box" id="promptBox" tabindex="0" aria-label="Prompt dijana"></div>
         <div class="howto">
           <div><b>1. Salin</b>Tekan butang Salin prompt di atas.</div>
-          <div><b>2. Lampirkan</b>Buka <span id="aiName">ChatGPT</span>, muat naik fail rujukan anda.</div>
-          <div><b>3. Hantar</b>Tampal prompt dan tekan Enter.</div>
+          <div id="howto2"><b>2. Lampirkan</b>Buka ChatGPT, lampirkan dokumen rujukan.</div>
+          <div id="howto3"><b>3. Hantar</b>Tampal prompt dan tekan Enter.</div>
         </div>
         <div class="pv-foot">
           <span id="charCount">0 aksara</span>
@@ -624,6 +727,38 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
             <span>Buka ChatGPT</span>
           </a>
+        </div>
+      </div>
+
+      <div class="pane" id="paneStudio">
+        <div class="studio">
+          <div class="studio-intro"><b>Cara dapat gambar 100% sama:</b> jana OPR dalam mod "Ruang kosong", muat turun imej OPR dari ChatGPT/Gemini, muat naik di sini, kemudian lukis kotak atas setiap bingkai kosong. Gambar asal anda akan ditampal terus tanpa diubah.</div>
+          <div class="drop studio-drop" id="oprDrop" tabindex="0" role="button" aria-label="Muat naik imej OPR">
+            <div class="drop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
+            <strong>Muat naik imej OPR yang dijana AI</strong>
+            <span>PNG atau JPG dari ChatGPT / Gemini</span>
+            <input type="file" id="oprInput" accept="image/*" hidden>
+          </div>
+          <div class="studio-grid" id="studioGrid" hidden>
+            <div class="canvas-wrap"><canvas id="studioCanvas"></canvas></div>
+            <div class="slots-panel">
+              <h5>Bingkai gambar</h5>
+              <p>Klik dan seret atas imej untuk lukis kotak di setiap bingkai. Gambar diisi ikut turutan, boleh tukar di bawah.</p>
+              <ul class="slot-list" id="slotList"></ul>
+              <div class="studio-actions">
+                <button class="btn" type="button" id="btnAddPhotos">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                  Tambah gambar
+                </button>
+                <input type="file" id="studioPhotoInput" accept="image/*" multiple hidden>
+                <button class="btn" type="button" id="btnNewOpr">Tukar imej OPR</button>
+                <button class="btn primary" type="button" id="btnExport" disabled>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="m6 10 6 6 6-6"/><path d="M4 20h16"/></svg>
+                  Muat turun OPR akhir
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -663,22 +798,65 @@
     inovasi:      { label: "OPR PdPc / Inovasi", sections: ["Isu / masalah", "Kaedah / inovasi", "Pelaksanaan", "Dapatan & data", "Impak dan langkah seterusnya"] }
   };
 
-  var STYLES = {
-    institusi: { label: "Infografik institusi moden dan profesional", desc: "infografik institusi moden dan profesional, susun atur grid yang kemas, ikon garis (line icons) yang konsisten, hierarki tipografi yang jelas" },
-    korporat:  { label: "Minimalis korporat (banyak ruang putih)", desc: "reka bentuk minimalis korporat, banyak ruang putih, tipografi sans-serif bersih, aksen warna yang sederhana" },
-    ceria:     { label: "Ceria dan mesra murid", desc: "gaya ceria dan mesra murid, bentuk bulat lembut, ilustrasi kecil yang comel tetapi masih kemas dan mudah dibaca" },
-    editorial: { label: "Editorial gaya majalah", desc: "gaya editorial seperti halaman majalah, tajuk besar yang berani, gambar dominan, blok teks tersusun dalam kolum" },
-    flat3d:    { label: "Ilustrasi flat / 3D lembut", desc: "ilustrasi flat dengan sentuhan 3D lembut (soft 3D), ikon berwarna, latar gradien halus" },
-    rasmi:     { label: "Rasmi kerajaan (formal, berjalur)", desc: "gaya dokumen rasmi kerajaan Malaysia, berjalur warna di header dan footer, susunan formal dan seimbang, tanpa elemen keterlaluan" }
-  };
-
-  var PALETTES = [
-    { id: "navy",   name: "Navy & emas",   text: "Navy, biru muda, putih dan aksen emas",  c: ["#13224a", "#e0a93b", "#eaf0fb"] },
-    { id: "hijau",  name: "Hijau sekolah", text: "Hijau tua, hijau pudina, putih dan aksen kuning", c: ["#14532d", "#facc15", "#e8f5ec"] },
-    { id: "maroon", name: "Maroon & krim", text: "Maroon, krim, putih dan aksen emas", c: ["#6b1d2a", "#d4a64a", "#f8f0e6"] },
-    { id: "teal",   name: "Teal & oren",   text: "Teal, biru laut, putih dan aksen oren", c: ["#0f5e66", "#f08a24", "#e6f4f3"] },
-    { id: "ungu",   name: "Ungu & pic",    text: "Ungu, lavender, putih dan aksen pic", c: ["#4c2a85", "#f4a37c", "#f1ecfa"] }
+  // Setiap tema: prompt gaya untuk AI + warna untuk lakaran (hd header, acc aksen, bg latar, sec kad, tx teks, rad bucu)
+  var THEMES = [
+    { id: "institusi", cat: "Rasmi", name: "Institusi Moden", desc: "Kemas, profesional, grid tersusun",
+      prompt: "infografik institusi moden dan profesional, susun atur grid yang kemas, ikon garis (line icons) yang konsisten, hierarki tipografi yang jelas",
+      warna: "Navy, biru muda, putih dan aksen emas", hd: "#13224a", acc: "#e0a93b", bg: "#f3f6fc", sec: "#ffffff", tx: "#1c2540", rad: "4px" },
+    { id: "kerajaan", cat: "Rasmi", name: "Rasmi Kerajaan", desc: "Formal, berjalur, seimbang",
+      prompt: "gaya dokumen rasmi kerajaan Malaysia, jalur warna biru dan kuning di header dan footer, susunan formal dan seimbang, tanpa hiasan berlebihan",
+      warna: "Biru tua, kuning, putih dan kelabu lembut", hd: "#0b2a6b", acc: "#f5c518", bg: "#ffffff", sec: "#f4f6fb", tx: "#1a1f33", rad: "2px" },
+    { id: "korporat", cat: "Moden", name: "Korporat Minimalis", desc: "Banyak ruang putih, bersih",
+      prompt: "minimalis korporat, banyak ruang putih, tipografi sans-serif bersih, garis pemisah halus, aksen biru yang sederhana",
+      warna: "Kelabu arang, putih dan aksen biru", hd: "#1f2937", acc: "#3b82f6", bg: "#ffffff", sec: "#f8fafc", tx: "#111827", rad: "3px" },
+    { id: "bento", cat: "Moden", name: "Bento Grid", desc: "Kad pelbagai saiz, gaya aplikasi",
+      prompt: "susun atur bento grid moden, kad bersudut bulat besar dalam pelbagai saiz, gradien ungu ke merah jambu, ikon 3D kecil, rasa aplikasi teknologi terkini",
+      warna: "Ungu, merah jambu, lavender dan putih", hd: "linear-gradient(135deg,#6d28d9,#db2777)", acc: "#f472b6", bg: "#f5f3ff", sec: "#ffffff", tx: "#1e1b4b", rad: "8px" },
+    { id: "glass", cat: "Moden", name: "Glassmorphism", desc: "Kad lutsinar atas gradien",
+      prompt: "glassmorphism: kad lutsinar kabur (frosted glass) di atas latar gradien biru ke ungu, cahaya lembut, teks putih berkontras tinggi",
+      warna: "Biru, ungu, cyan lembut dan putih", hd: "rgba(255,255,255,.16)", acc: "#a5f3fc", bg: "linear-gradient(160deg,#1e3a8a,#7c3aed)", sec: "rgba(255,255,255,.16)", tx: "#ffffff", rad: "8px" },
+    { id: "neon", cat: "Moden", name: "Teknologi Futuristik", desc: "Gelap, neon, litar digital",
+      prompt: "teknologi futuristik, latar gelap, corak litar dan grid digital, aksen neon cyan dan ungu yang bercahaya, tipografi tegas seperti papan pemuka",
+      warna: "Biru gelap, hitam, cyan neon dan ungu", hd: "#0a0f1f", acc: "#22d3ee", bg: "#0b1224", sec: "#121c38", tx: "#e2e8f0", rad: "4px" },
+    { id: "ceria", cat: "Kreatif", name: "Ceria Mesra Murid", desc: "Bulat, terang, comel",
+      prompt: "ceria dan mesra murid, bentuk bulat lembut, ilustrasi kecil yang comel, warna terang tetapi masih kemas dan mudah dibaca",
+      warna: "Oren, kuning, biru langit dan putih", hd: "#f97316", acc: "#facc15", bg: "#fff7ed", sec: "#ffffff", tx: "#431407", rad: "10px" },
+    { id: "scrapbook", cat: "Kreatif", name: "Scrapbook Pastel", desc: "Kertas, pita washi, polaroid",
+      prompt: "scrapbook pastel: tekstur kertas, pita washi, nota lekat, bingkai gaya polaroid, tulisan tangan untuk sub-tajuk, warna pastel lembut",
+      warna: "Merah jambu pastel, hijau pudina, krim dan coklat lembut", hd: "#f9a8d4", hdtx: "#4a3b33", acc: "#6ee7b7", bg: "#fdf6ec", sec: "#fffdf8", tx: "#4a3b33", rad: "3px" },
+    { id: "kapur", cat: "Kreatif", name: "Papan Kapur", desc: "Tulisan kapur, nuansa kelas",
+      prompt: "papan hitam hijau dengan tekstur kapur, tajuk dan ikon dilukis seperti tulisan kapur, bingkai kayu nipis, nuansa bilik darjah",
+      warna: "Hijau papan hitam, putih kapur, kuning lembut dan coklat kayu", hd: "#1f3b2d", acc: "#fde68a", bg: "#26453a", sec: "#2e5245", tx: "#f1f5ee", rad: "2px" },
+    { id: "editorial", cat: "Kreatif", name: "Editorial Majalah", desc: "Tajuk besar, kolum, berani",
+      prompt: "editorial gaya majalah, tajuk serif yang besar dan berani, susun atur kolum, gambar dominan, garis nipis hitam, aksen merah",
+      warna: "Hitam, putih dan aksen merah", hd: "#111111", acc: "#e11d48", bg: "#ffffff", sec: "#fafafa", tx: "#111111", rad: "0px" },
+    { id: "retro", cat: "Kreatif", name: "Retro Pop 80-an", desc: "Halftone, bayang tebal",
+      prompt: "retro pop 80-an: warna terang kuning, merah jambu dan biru, bayang tebal (offset shadow), corak titik halftone, tipografi tebal",
+      warna: "Biru gelap, kuning, merah jambu dan krim", hd: "#2b2d42", acc: "#ffd23f", bg: "#fff3e2", sec: "#ffffff", tx: "#2b2d42", rad: "6px" },
+    { id: "flat3d", cat: "Kreatif", name: "Ilustrasi Flat 3D", desc: "Ikon isometrik, gradien halus",
+      prompt: "ilustrasi flat dengan sentuhan 3D lembut (soft 3D), ikon berwarna gaya isometrik, latar gradien halus",
+      warna: "Ungu, lavender, putih dan aksen pic", hd: "linear-gradient(135deg,#4c2a85,#7c3aed)", acc: "#f4a37c", bg: "#f1ecfa", sec: "#ffffff", tx: "#2e1065", rad: "8px" },
+    { id: "alam", cat: "Tematik", name: "Alam Hijau Lestari", desc: "Daun, kertas kitar semula",
+      prompt: "alam hijau lestari: elemen daun dan tumbuhan, tekstur kertas kitar semula, warna hijau semula jadi, sesuai untuk program alam sekitar",
+      warna: "Hijau hutan, hijau limau, krim dan putih", hd: "#14532d", acc: "#a3e635", bg: "#f0f7ee", sec: "#ffffff", tx: "#1a2e1a", rad: "8px" },
+    { id: "batik", cat: "Tematik", name: "Batik Warisan", desc: "Motif batik & songket",
+      prompt: "warisan Malaysia: motif batik dan songket yang halus di sudut dan jalur header, elegan dan bermaruah",
+      warna: "Maroon, krim, putih dan emas", hd: "#6b1d2a", acc: "#d4a64a", bg: "#f8f0e6", sec: "#fffaf3", tx: "#3b1219", rad: "4px" },
+    { id: "islamik", cat: "Tematik", name: "Islamik Elegan", desc: "Geometri islamik, zamrud & emas",
+      prompt: "islamik elegan: corak geometri islamik yang halus, bingkai berbentuk gerbang, sesuai untuk program keagamaan",
+      warna: "Hijau zamrud, putih, krim dan emas", hd: "#064e3b", acc: "#d4af37", bg: "#f4f8f5", sec: "#ffffff", tx: "#052e24", rad: "4px" },
+    { id: "merdeka", cat: "Tematik", name: "Semangat Merdeka", desc: "Warna Jalur Gemilang",
+      prompt: "semangat kemerdekaan: warna Jalur Gemilang, jalur berkibar, bintang dan anak bulan sebagai hiasan yang sederhana",
+      warna: "Biru tua, merah, putih dan kuning", hd: "linear-gradient(90deg,#010066 0 60%,#cc0001 60%)", acc: "#ffcc00", bg: "#ffffff", sec: "#f6f7fb", tx: "#0b0b3b", rad: "4px" },
+    { id: "sukan", cat: "Tematik", name: "Sukan Bertenaga", desc: "Diagonal dinamik, laju",
+      prompt: "sukan bertenaga: potongan diagonal yang dinamik, garis kelajuan, tipografi condong dan tebal",
+      warna: "Merah, hitam, putih dan kelabu", hd: "#b91c1c", acc: "#111827", bg: "#ffffff", sec: "#f3f4f6", tx: "#111111", rad: "2px" },
+    { id: "perayaan", cat: "Tematik", name: "Sambutan Perayaan", desc: "Meriah tapi kemas",
+      prompt: "sambutan perayaan: hiasan meriah tetapi kemas, motif pelita, tanglung dan bunga yang neutral untuk pelbagai perayaan",
+      warna: "Teal, emas, krim dan putih", hd: "#0f766e", acc: "#fbbf24", bg: "#fffbeb", sec: "#ffffff", tx: "#134e4a", rad: "8px" }
   ];
+  var CATS = ["Semua", "Rasmi", "Moden", "Kreatif", "Tematik"];
+  var LEGACY_THEME = { rasmi: "kerajaan" };
 
   var FIELDS = ["tajuk", "institusi", "tarikh", "masa", "tempat", "sasaran", "pelapor", "anjuran", "rujukan", "ekstrak", "penegasan", "format", "gaya", "warna", "gambar"];
   var REQUIRED = ["tajuk", "institusi", "tarikh", "masa", "tempat", "sasaran", "pelapor", "rujukan"];
@@ -697,42 +875,84 @@
     ekstrak: "Pelaksanaan dan penggunaan ChatGPT & Gemini dalam tugas harian pegawai, modul yang diajar, hasil kerja peserta dan cadangan susulan.",
     penegasan: "Masukkan info yang relevan sahaja. Jangan reka statistik yang tiada dalam rujukan.",
     format: "kursus",
-    gaya: "institusi",
-    warna: "Navy, biru muda, putih dan aksen emas",
     gambar: "3"
   };
 
   // ---------- State ----------
-  var state = { orient: "potret", ai: "chatgpt", palette: "navy", files: [], generated: false, tab: "prompt" };
+  var state = { orient: "potret", ai: "chatgpt", mode: "kosong", cat: "Semua", files: [], generated: false, tab: "prompt" };
 
   var $ = function (id) { return document.getElementById(id); };
   var form = $("oprForm");
 
-  // ---------- Build selects & chips ----------
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; });
+  }
+  function themeById(id) {
+    id = LEGACY_THEME[id] || id;
+    return THEMES.filter(function (t) { return t.id === id; })[0] || THEMES[0];
+  }
+  function isImage(f) { return /^image\//.test(f.type); }
+
+  // ---------- Format select ----------
   Object.keys(FORMATS).forEach(function (k) {
     var o = document.createElement("option"); o.value = k; o.textContent = FORMATS[k].label; $("format").appendChild(o);
   });
-  Object.keys(STYLES).forEach(function (k) {
-    var o = document.createElement("option"); o.value = k; o.textContent = STYLES[k].label; $("gaya").appendChild(o);
-  });
-  PALETTES.forEach(function (p) {
-    var b = document.createElement("button");
-    b.type = "button"; b.className = "chip"; b.dataset.id = p.id; b.setAttribute("aria-pressed", "false");
-    b.innerHTML = '<span class="swatch">' + p.c.map(function (c) { return '<i style="background:' + c + '"></i>'; }).join("") + "</span>" + p.name;
-    b.addEventListener("click", function () { selectPalette(p.id, true); });
-    $("paletteChips").appendChild(b);
-  });
 
-  function selectPalette(id, setText) {
-    state.palette = id;
-    Array.prototype.forEach.call($("paletteChips").children, function (c) {
-      c.setAttribute("aria-pressed", c.dataset.id === id ? "true" : "false");
+  // ---------- Themes ----------
+  CATS.forEach(function (c) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "chip sm"; b.dataset.cat = c; b.textContent = c;
+    b.addEventListener("click", function () { state.cat = c; renderThemes(); });
+    $("themeCats").appendChild(b);
+  });
+  $("themeCats").appendChild($("btnRandomTheme"));
+
+  function renderThemes() {
+    Array.prototype.forEach.call($("themeCats").children, function (c) {
+      c.setAttribute("aria-pressed", c.dataset.cat === state.cat ? "true" : "false");
     });
-    var p = PALETTES.filter(function (x) { return x.id === id; })[0];
-    if (p && setText) $("warna").value = p.text;
+    var grid = $("themeGrid"); grid.innerHTML = "";
+    var list = THEMES.filter(function (t) { return state.cat === "Semua" || t.cat === state.cat; });
+    list.forEach(function (t) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "theme"; b.dataset.id = t.id;
+      b.setAttribute("aria-pressed", t.id === $("gaya").value ? "true" : "false");
+      b.innerHTML =
+        '<div class="theme-thumb" style="background:' + t.bg + '">' +
+          '<div class="t-hd" style="background:' + t.hd + '"><i style="background:' + (t.hdtx || "#fff") + '"></i></div>' +
+          '<div class="t-bd">' +
+            '<span style="background:' + t.sec + ';border-radius:' + t.rad + ';box-shadow:inset 0 2px 0 ' + t.acc + '"></span>' +
+            '<span style="background:' + t.sec + ';border-radius:' + t.rad + ';box-shadow:inset 0 2px 0 ' + t.acc + '"></span>' +
+            '<span style="background:' + t.acc + ';border-radius:' + t.rad + ';opacity:.85"></span>' +
+          '</div>' +
+        '</div>' +
+        '<b>' + esc(t.name) + '</b><small>' + esc(t.desc) + '</small>';
+      b.addEventListener("click", function () { selectTheme(t.id, true); });
+      grid.appendChild(b);
+    });
+    $("themeCount").textContent = THEMES.length + " tema";
+  }
+
+  function selectTheme(id, setWarna) {
+    var t = themeById(id);
+    $("gaya").value = t.id;
+    if (setWarna) $("warna").value = t.warna;
+    Array.prototype.forEach.call($("themeGrid").children, function (c) {
+      c.setAttribute("aria-pressed", c.dataset.id === t.id ? "true" : "false");
+    });
     onChange();
   }
 
+  $("btnRandomTheme").addEventListener("click", function () {
+    var pool = THEMES.filter(function (t) { return t.id !== $("gaya").value; });
+    var t = pool[Math.floor(Math.random() * pool.length)];
+    state.cat = "Semua"; renderThemes(); selectTheme(t.id, true);
+    var card = $("themeGrid").querySelector('[data-id="' + t.id + '"]');
+    if (card) card.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    toast("Tema: " + t.name);
+  });
+
+  // ---------- Segmented controls ----------
   function bindSeg(el, key) {
     el.addEventListener("click", function (e) {
       var b = e.target.closest("button"); if (!b) return;
@@ -742,32 +962,48 @@
   }
   function setSeg(el, key, v) {
     state[key] = v;
-    Array.prototype.forEach.call(el.children, function (c) { c.setAttribute("aria-pressed", c.dataset.v === v ? "true" : "false"); });
+    Array.prototype.forEach.call(el.children, function (c) {
+      if (c.dataset.v) c.setAttribute("aria-pressed", c.dataset.v === v ? "true" : "false");
+    });
   }
   bindSeg($("segOrient"), "orient");
   bindSeg($("segAI"), "ai");
+  bindSeg($("segMode"), "mode");
 
   // ---------- Files ----------
   var drop = $("drop"), fileInput = $("fileInput");
-  drop.addEventListener("click", function () { fileInput.click(); });
-  drop.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.click(); } });
-  ["dragenter", "dragover"].forEach(function (ev) {
-    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("drag"); });
-  });
-  ["dragleave", "drop"].forEach(function (ev) {
-    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("drag"); });
-  });
-  drop.addEventListener("drop", function (e) { addFiles(e.dataTransfer.files); });
+  setupDrop(drop, fileInput, addFiles);
   fileInput.addEventListener("change", function () { addFiles(fileInput.files); fileInput.value = ""; });
+
+  function setupDrop(zone, input, handler) {
+    zone.addEventListener("click", function () { input.click(); });
+    zone.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); } });
+    ["dragenter", "dragover"].forEach(function (ev) {
+      zone.addEventListener(ev, function (e) { e.preventDefault(); zone.classList.add("drag"); });
+    });
+    ["dragleave", "drop"].forEach(function (ev) {
+      zone.addEventListener(ev, function (e) { e.preventDefault(); zone.classList.remove("drag"); });
+    });
+    zone.addEventListener("drop", function (e) { handler(e.dataTransfer.files); });
+  }
+
+  function makeItem(f) {
+    var item = { name: f.name, size: f.size, type: f.type, url: null, img: null };
+    if (isImage(f)) {
+      item.url = URL.createObjectURL(f);
+      item.img = new Image();
+      item.img.onload = function () { if (studio.base) drawStudio(true); };
+      item.img.src = item.url;
+    }
+    return item;
+  }
 
   function addFiles(list) {
     Array.prototype.forEach.call(list, function (f) {
       if (state.files.some(function (x) { return x.name === f.name && x.size === f.size; })) return;
-      var item = { name: f.name, size: f.size, type: f.type, url: null };
-      if (/^image\//.test(f.type)) item.url = URL.createObjectURL(f);
-      state.files.push(item);
+      state.files.push(makeItem(f));
     });
-    renderFiles(); onChange();
+    renderFiles(); renderSlotList(); onChange();
   }
   function renderFiles() {
     var ul = $("fileList"); ul.innerHTML = "";
@@ -776,12 +1012,15 @@
       var ext = (f.name.split(".").pop() || "").toUpperCase().slice(0, 4);
       var thumb = f.url ? '<img alt="" src="' + f.url + '">' : esc(ext);
       li.innerHTML = '<div class="file-thumb">' + thumb + '</div>' +
-        '<div class="file-meta"><b></b><small>' + fmtSize(f.size) + '</small></div>' +
+        '<div class="file-meta"><b></b><small>' + fmtSize(f.size) + (isImage(f) ? " · gambar aktiviti" : " · dokumen rujukan") + '</small></div>' +
         '<button type="button" aria-label="Buang fail"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>';
       li.querySelector("b").textContent = f.name;
       li.querySelector("button").addEventListener("click", function () {
+        var removed = photoPool().indexOf(f);
+        state.files.splice(i, 1);
+        fixSlotPhotos(removed);
         if (f.url) URL.revokeObjectURL(f.url);
-        state.files.splice(i, 1); renderFiles(); onChange();
+        renderFiles(); renderSlotList(); drawStudio(true); onChange();
       });
       ul.appendChild(li);
     });
@@ -790,9 +1029,6 @@
     if (b < 1024) return b + " B";
     if (b < 1048576) return (b / 1024).toFixed(0) + " KB";
     return (b / 1048576).toFixed(1) + " MB";
-  }
-  function esc(s) {
-    return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; });
   }
 
   // ---------- Read values ----------
@@ -805,12 +1041,12 @@
   // ---------- Prompt builder ----------
   function buildPrompt(v) {
     var fmt = FORMATS[v.format] || FORMATS.aktiviti;
-    var sty = STYLES[v.gaya] || STYLES.institusi;
+    var theme = themeById(v.gaya);
     var orient = state.orient === "landskap" ? "A4 landskap (nisbah 297:210)" : "A4 potret (nisbah 210:297)";
     var nPhotos = parseInt(v.gambar, 10) || 0;
-    var hasFiles = state.files.length > 0;
-    var fileNames = state.files.map(function (f) { return f.name; }).join(", ");
-    var warna = v.warna || "Navy, putih dan aksen emas";
+    var docs = state.files.filter(function (f) { return !isImage(f); }).map(function (f) { return f.name; });
+    var imgs = state.files.filter(isImage).map(function (f) { return f.name; });
+    var warna = v.warna || theme.warna;
     var L = [];
 
     L.push("## TUGASAN");
@@ -827,8 +1063,8 @@
     L.push("- Disediakan oleh: " + v.pelapor);
     L.push("");
     L.push("## RUJUKAN");
-    if (hasFiles) {
-      L.push("Saya lampirkan fail rujukan berikut: " + fileNames + ". Baca fail ini dengan teliti sebelum menghasilkan imej.");
+    if (docs.length) {
+      L.push("Saya lampirkan dokumen rujukan berikut: " + docs.join(", ") + ". Baca dokumen ini dengan teliti sebelum menghasilkan imej.");
     } else {
       L.push("Saya akan lampirkan dokumen rujukan bersama prompt ini. Baca dokumen tersebut dengan teliti sebelum menghasilkan imej.");
     }
@@ -839,22 +1075,44 @@
     L.push("## STRUKTUR KANDUNGAN");
     L.push("1. Header: nama institusi (kecil, di atas), tajuk program (besar dan menonjol), label \"LAPORAN SATU MUKA\" di penjuru.");
     L.push("2. Jalur maklumat: tarikh, masa, tempat dan kumpulan sasaran dalam 4 kotak kecil dengan ikon masing-masing.");
-    fmt.sections.forEach(function (s, i) {
-      L.push((i + 3) + ". " + s + ".");
-    });
+    fmt.sections.forEach(function (s, i) { L.push((i + 3) + ". " + s + "."); });
     var n = fmt.sections.length + 3;
     if (nPhotos > 0) {
-      L.push(n + ". Ruang gambar: " + nPhotos + " bingkai gambar aktiviti tersusun kemas dalam grid, dengan kapsyen pendek di bawah setiap satu." + (state.files.some(function (f) { return /^image\//.test(f.type); }) ? " Gunakan gambar yang saya lampirkan untuk mengisi bingkai ini." : " Biarkan bingkai sebagai ruang kosong (placeholder) berlabel \"Gambar " + "1\", \"Gambar 2\" dan seterusnya, supaya saya boleh tampal gambar sebenar."));
+      L.push(n + ". Ruang gambar: " + nPhotos + " bingkai gambar aktiviti bernisbah 4:3, tersusun kemas dalam grid, dengan ruang kapsyen pendek di bawah setiap satu.");
       n++;
     }
     L.push(n + ". Footer: \"Disediakan oleh: " + v.pelapor + "\" di kiri, ruang tandatangan dan tarikh di kanan.");
     L.push("");
-    L.push("## ARAHAN VISUAL");
-    L.push("- Gaya: " + sty.desc + ".");
+
+    if (nPhotos > 0 && state.mode === "kosong") {
+      L.push("## BINGKAI GAMBAR (PENTING)");
+      L.push("- JANGAN lukis, jana atau reka sebarang gambar orang atau aktiviti dalam bingkai gambar.");
+      L.push("- Isi setiap bingkai dengan warna kelabu rata #D9D9D9 dan label kecil di tengah: " + labels(nPhotos) + ".");
+      L.push("- Bingkai mesti bersih: tiada teks, ikon, corak atau hiasan yang bertindih di atasnya, kerana gambar sebenar akan ditampal kemudian.");
+      L.push("- Bucu bingkai tajam (tidak bulat), tanpa bayang dan tanpa kesan senget, supaya mudah ditampal dengan tepat.");
+      L.push("");
+    } else if (nPhotos > 0) {
+      L.push("## GAMBAR SEBENAR (PALING PENTING)");
+      if (imgs.length) {
+        L.push("Saya lampirkan " + imgs.length + " gambar aktiviti sebenar. Padankan ikut turutan:");
+        imgs.slice(0, nPhotos).forEach(function (name, i) { L.push("- Gambar " + (i + 1) + " = " + name); });
+      } else {
+        L.push("Saya akan lampirkan " + nPhotos + " gambar aktiviti sebenar. Padankan ikut turutan lampiran (gambar pertama untuk bingkai 1, dan seterusnya).");
+      }
+      L.push("- Masukkan setiap gambar SEBAGAI FOTO ASAL, seolah-olah foto itu ditampal ke dalam bingkai. Jangan lukis semula dan jangan jana versi baharu.");
+      L.push("- Kekalkan sepenuhnya wajah, bilangan orang, pakaian, kedudukan, latar belakang, teks dan objek dalam setiap gambar.");
+      L.push("- Jangan tambah filter, kesan kartun atau ilustrasi, pencahayaan baharu, orang tambahan atau objek tambahan.");
+      L.push("- Hanya ubah saiz dan crop sedikit di bahagian tepi supaya gambar muat dalam bingkai.");
+      L.push("- Jika tidak dapat mengekalkan gambar asal dengan tepat, biarkan bingkai itu kelabu kosong berlabel \"GAMBAR n\". Jangan reka gambar pengganti.");
+      L.push("");
+    }
+
+    L.push("## TEMA & ARAHAN VISUAL");
+    L.push("- Tema: " + theme.name + ". Gaya: " + theme.prompt + ".");
     L.push("- Palet warna: " + warna + ". Gunakan warna utama untuk header dan footer, warna aksen untuk ikon dan garis pemisah.");
     L.push("- Tipografi: tajuk tebal dan besar, sub-tajuk seksyen jelas, teks isi saiz seragam dan mudah dibaca bila dicetak.");
     L.push("- Setiap seksyen dalam kad atau blok tersendiri dengan ikon kecil yang sesuai dengan tajuknya.");
-    L.push("- Margin seimbang, tiada teks bertindih, tiada teks terpotong di tepi.");
+    L.push("- Hiasan tema tidak boleh mengganggu kebolehbacaan teks. Margin seimbang, tiada teks bertindih atau terpotong.");
     L.push("");
     L.push("## PENEGASAN");
     L.push("- Gunakan HANYA maklumat daripada rujukan dan maklumat header di atas. Jangan reka nama, angka, statistik atau petikan yang tiada dalam rujukan.");
@@ -862,14 +1120,20 @@
     if (v.penegasan) L.push("- " + v.penegasan.replace(/\n+/g, " "));
     L.push("- Semak ejaan Bahasa Melayu sebelum menjana imej. Elak huruf berselerak atau perkataan yang tidak wujud.");
     L.push("");
+    var ai = state.ai === "gemini" ? "Gemini" : "ChatGPT";
+    L.push("## CARA MENJANA (" + ai + ")");
     if (state.ai === "gemini") {
-      L.push("## CARA MENJANA (Gemini)");
       L.push("Jana terus sebagai imej. Jika tidak dapat menjana imej dengan teks yang tepat, berikan dahulu ringkasan kandungan setiap seksyen untuk saya semak, kemudian jana imej selepas saya sahkan.");
     } else {
-      L.push("## CARA MENJANA (ChatGPT)");
       L.push("Jana terus sebagai imej menggunakan penjana imej ChatGPT. Selepas imej siap, senaraikan teks yang digunakan dalam setiap seksyen supaya saya boleh semak ketepatannya.");
     }
     return L.join("\n");
+  }
+
+  function labels(n) {
+    var out = [];
+    for (var i = 1; i <= n; i++) out.push('"GAMBAR ' + i + '"');
+    return out.join(", ");
   }
 
   function highlight(text) {
@@ -878,18 +1142,42 @@
       .replace(/^(- [^:\n]{1,28}:)/gm, '<span class="k">$1</span>');
   }
 
+  // ---------- Slot map (bawah mod gambar) ----------
+  function renderSlotMap() {
+    var n = parseInt($("gambar").value, 10) || 0;
+    $("modeField").style.display = n ? "" : "none";
+    var imgs = state.files.filter(isImage);
+    var box = $("slotMap"); box.innerHTML = "";
+    if (!n) return;
+    if (!imgs.length) {
+      box.innerHTML = '<div style="color:var(--ink-3)">Muat naik gambar aktiviti di bahagian 02 supaya boleh dipadankan dengan bingkai.</div>';
+      return;
+    }
+    for (var i = 0; i < n; i++) {
+      var d = document.createElement("div");
+      d.innerHTML = "<code>GAMBAR " + (i + 1) + "</code> <span></span>";
+      d.querySelector("span").textContent = imgs[i] ? imgs[i].name : "(belum ada gambar)";
+      box.appendChild(d);
+    }
+  }
+
   // ---------- Layout mock ----------
   function renderMock(v) {
     var fmt = FORMATS[v.format] || FORMATS.aktiviti;
-    var pal = PALETTES.filter(function (p) { return p.id === state.palette; })[0];
+    var t = themeById(v.gaya);
     var m = $("mock");
     m.classList.toggle("land", state.orient === "landskap");
-    if (pal) {
-      m.style.setProperty("--c1", pal.c[0]); m.style.setProperty("--c2", pal.c[1]); m.style.setProperty("--c3", pal.c[2]);
-    }
+    m.style.setProperty("--hd", t.hd);
+    m.style.setProperty("--hdtx", t.hdtx || "#fff");
+    m.style.setProperty("--c2", t.acc);
+    m.style.setProperty("--c1", t.tx);
+    m.style.setProperty("--bgm", t.bg);
+    m.style.setProperty("--sec", t.sec);
+    m.style.setProperty("--tx", t.tx);
+    m.style.setProperty("--rad", t.rad);
     var nPhotos = parseInt(v.gambar, 10) || 0;
+    var imgs = state.files.filter(isImage);
     var info = [["Tarikh", v.tarikh], ["Masa", v.masa], ["Tempat", v.tempat], ["Sasaran", v.sasaran]];
-    var photoSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 17-5-5-8 7"/></svg>';
     var html = '<div class="m-head"><div class="m-inst">' + esc(v.institusi || "Nama Institusi") + '</div>' +
       '<div class="m-title">' + esc(v.tajuk || "Tajuk Program") + '</div><div class="m-badge">OPR</div></div>' +
       '<div class="m-info">' + info.map(function (i) { return '<div><b>' + i[0] + '</b><span>' + esc(i[1] || "–") + '</span></div>'; }).join("") + '</div>' +
@@ -898,7 +1186,12 @@
       }).join("") + '</div>';
     if (nPhotos) {
       html += '<div class="m-photos" style="grid-template-columns:repeat(' + Math.min(nPhotos, state.orient === "landskap" ? 6 : 3) + ',1fr)">';
-      for (var i = 0; i < nPhotos; i++) html += '<div class="m-photo">' + photoSvg + '</div>';
+      for (var i = 0; i < nPhotos; i++) {
+        var im = imgs[i];
+        html += im && state.mode === "kekal"
+          ? '<div class="m-photo" style="background:url(' + im.url + ') center/cover"></div>'
+          : '<div class="m-photo">GAMBAR ' + (i + 1) + '</div>';
+      }
       html += '</div>';
     }
     html += '<div class="m-foot"><span>Disediakan oleh: <b>' + esc(v.pelapor || "Nama Pelapor") + '</b></span><span>Tandatangan ________</span></div>';
@@ -937,21 +1230,27 @@
     currentPrompt = buildPrompt(v);
     $("promptBox").innerHTML = highlight(currentPrompt);
     $("charCount").textContent = currentPrompt.length.toLocaleString("ms-MY") + " aksara · " + currentPrompt.split(/\s+/).length + " patah perkataan";
-    var fmt = FORMATS[v.format], sty = STYLES[v.gaya];
+    var fmt = FORMATS[v.format], t = themeById(v.gaya);
+    var nPhotos = parseInt(v.gambar, 10) || 0;
     $("metaStrip").innerHTML =
       '<span class="tag gold">' + esc(fmt.label) + '</span>' +
-      '<span class="tag blue">' + esc(sty.label) + '</span>' +
+      '<span class="tag blue">Tema: ' + esc(t.name) + '</span>' +
       '<span class="tag">' + (state.orient === "landskap" ? "A4 Landskap" : "A4 Potret") + '</span>' +
-      '<span class="tag green">' + state.files.length + ' fail rujukan</span>';
+      (nPhotos ? '<span class="tag green">' + (state.mode === "kosong" ? nPhotos + " bingkai kosong" : nPhotos + " gambar asal") + '</span>' : "");
     var isG = state.ai === "gemini";
-    $("aiName").textContent = isG ? "Gemini" : "ChatGPT";
+    var aiName = isG ? "Gemini" : "ChatGPT";
+    $("howto2").innerHTML = "<b>2. Lampirkan</b>" + (nPhotos && state.mode === "kosong"
+      ? "Buka " + aiName + ", lampirkan dokumen rujukan sahaja."
+      : "Buka " + aiName + ", lampirkan dokumen rujukan dan gambar ikut turutan.");
+    $("howto3").innerHTML = nPhotos && state.mode === "kosong"
+      ? "<b>3. Tampal</b>Muat turun hasil AI, buka tab Tampal gambar."
+      : "<b>3. Hantar</b>Tampal prompt dan tekan Enter.";
     $("btnOpenAI").href = isG ? "https://gemini.google.com/app" : "https://chatgpt.com/";
-    $("btnOpenAI").querySelector("span").textContent = isG ? "Buka Gemini" : "Buka ChatGPT";
+    $("btnOpenAI").querySelector("span").textContent = "Buka " + aiName;
     renderMock(v);
   }
 
   function showGenerated() {
-    $("emptyState").style.display = "none";
     $("btnCopy").disabled = false; $("btnDownload").disabled = false;
     setTab(state.tab);
   }
@@ -959,13 +1258,169 @@
   function setTab(t) {
     state.tab = t;
     document.querySelectorAll(".tab").forEach(function (b) { b.setAttribute("aria-selected", b.dataset.tab === t ? "true" : "false"); });
-    if (!state.generated) { renderMock(values()); }
+    if (t === "layout") renderMock(values());
     $("panePrompt").classList.toggle("active", t === "prompt" && state.generated);
     $("paneLayout").classList.toggle("active", t === "layout");
+    $("paneStudio").classList.toggle("active", t === "studio");
     $("emptyState").style.display = (t === "prompt" && !state.generated) ? "" : "none";
+    if (t === "studio") { renderSlotList(); drawStudio(true); }
   }
   document.querySelectorAll(".tab").forEach(function (b) {
     b.addEventListener("click", function () { setTab(b.dataset.tab); });
+  });
+
+  // ---------- Studio tampal gambar ----------
+  // Gambar asal ditampal terus ke atas imej OPR dari AI, jadi piksel gambar tidak diubah (hanya diskala dan dicrop).
+  var studio = { base: null, slots: [], extra: [], drag: null };
+  var canvas = $("studioCanvas"), ctx = canvas.getContext("2d");
+
+  function photoPool() { return state.files.filter(isImage).concat(studio.extra); }
+
+  function fixSlotPhotos(removedIndex) {
+    if (removedIndex < 0) return;
+    studio.slots.forEach(function (s) {
+      if (s.photo === removedIndex) s.photo = -1;
+      else if (s.photo > removedIndex) s.photo--;
+    });
+  }
+
+  setupDrop($("oprDrop"), $("oprInput"), loadBase);
+  $("oprInput").addEventListener("change", function () { loadBase(this.files); this.value = ""; });
+  $("btnNewOpr").addEventListener("click", function () { $("oprInput").click(); });
+  $("btnAddPhotos").addEventListener("click", function () { $("studioPhotoInput").click(); });
+  $("studioPhotoInput").addEventListener("change", function () {
+    Array.prototype.forEach.call(this.files, function (f) { if (isImage(f)) studio.extra.push(makeItem(f)); });
+    this.value = "";
+    // isi slot yang belum ada gambar
+    studio.slots.forEach(function (s) { if (s.photo < 0) s.photo = nextPhoto(); });
+    renderSlotList(); setTimeout(function () { drawStudio(true); }, 50);
+  });
+
+  function loadBase(files) {
+    var f = files && files[0];
+    if (!f || !isImage(f)) { toast("Sila pilih fail imej OPR (PNG/JPG)"); return; }
+    var img = new Image();
+    img.onload = function () {
+      studio.base = img; studio.slots = [];
+      canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+      $("oprDrop").hidden = true; $("studioGrid").hidden = false;
+      renderSlotList(); drawStudio(true);
+      toast("Imej OPR dimuat. Lukis kotak atas bingkai gambar");
+    };
+    img.src = URL.createObjectURL(f);
+  }
+
+  function nextPhoto() {
+    var pool = photoPool(); if (!pool.length) return -1;
+    var used = studio.slots.map(function (s) { return s.photo; });
+    for (var i = 0; i < pool.length; i++) if (used.indexOf(i) < 0) return i;
+    return studio.slots.length % pool.length;
+  }
+
+  function drawCover(img, x, y, w, h) {
+    var iw = img.naturalWidth, ih = img.naturalHeight;
+    if (!iw || !ih) return;
+    var scale = Math.max(w / iw, h / ih);
+    var sw = w / scale, sh = h / scale;
+    ctx.drawImage(img, (iw - sw) / 2, (ih - sh) / 2, sw, sh, x, y, w, h);
+  }
+
+  function drawStudio(guides) {
+    if (!studio.base) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(studio.base, 0, 0);
+    var pool = photoPool();
+    var lw = Math.max(2, canvas.width / 400);
+    studio.slots.forEach(function (s, i) {
+      var p = pool[s.photo];
+      if (p && p.img && p.img.complete) drawCover(p.img, s.x, s.y, s.w, s.h);
+      if (guides) {
+        ctx.lineWidth = lw; ctx.strokeStyle = "#2f5bea"; ctx.setLineDash([]);
+        ctx.strokeRect(s.x, s.y, s.w, s.h);
+        var r = Math.max(12, canvas.width / 70);
+        ctx.fillStyle = "#2f5bea";
+        ctx.beginPath(); ctx.arc(s.x + r + lw, s.y + r + lw, r, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#fff"; ctx.font = "bold " + Math.round(r * 1.1) + "px sans-serif";
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(String(i + 1), s.x + r + lw, s.y + r + lw + 1);
+      }
+    });
+    if (guides && studio.drag && studio.drag.w) {
+      var d = norm(studio.drag);
+      ctx.lineWidth = lw; ctx.strokeStyle = "#e0a93b"; ctx.setLineDash([lw * 4, lw * 3]);
+      ctx.fillStyle = "rgba(224,169,59,.18)";
+      ctx.fillRect(d.x, d.y, d.w, d.h); ctx.strokeRect(d.x, d.y, d.w, d.h);
+      ctx.setLineDash([]);
+    }
+    $("btnExport").disabled = !studio.slots.some(function (s) { return s.photo >= 0; });
+  }
+
+  function norm(r) {
+    return { x: Math.min(r.x, r.x + r.w), y: Math.min(r.y, r.y + r.h), w: Math.abs(r.w), h: Math.abs(r.h) };
+  }
+  function toCanvas(e) {
+    var rect = canvas.getBoundingClientRect();
+    return { x: (e.clientX - rect.left) * canvas.width / rect.width, y: (e.clientY - rect.top) * canvas.height / rect.height };
+  }
+  canvas.addEventListener("pointerdown", function (e) {
+    if (!studio.base) return;
+    var p = toCanvas(e);
+    studio.drag = { x: p.x, y: p.y, w: 0, h: 0 };
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener("pointermove", function (e) {
+    if (!studio.drag) return;
+    var p = toCanvas(e);
+    studio.drag.w = p.x - studio.drag.x; studio.drag.h = p.y - studio.drag.y;
+    drawStudio(true);
+  });
+  canvas.addEventListener("pointerup", function () {
+    if (!studio.drag) return;
+    var d = norm(studio.drag); studio.drag = null;
+    if (d.w > canvas.width / 60 && d.h > canvas.height / 80) {
+      d.photo = nextPhoto();
+      studio.slots.push(d);
+      renderSlotList();
+      if (d.photo < 0) toast("Tambah gambar dahulu untuk isi bingkai ini");
+    }
+    drawStudio(true);
+  });
+
+  function renderSlotList() {
+    var ul = $("slotList"); if (!ul) return;
+    ul.innerHTML = "";
+    var pool = photoPool();
+    if (!studio.slots.length) {
+      ul.innerHTML = '<li class="slot-empty">Belum ada bingkai. Seret atas imej untuk mula.</li>';
+      return;
+    }
+    studio.slots.forEach(function (s, i) {
+      var li = document.createElement("li"); li.className = "slot-item";
+      var sel = document.createElement("select");
+      sel.setAttribute("aria-label", "Gambar untuk bingkai " + (i + 1));
+      sel.innerHTML = '<option value="-1">Tiada gambar</option>' + pool.map(function (p, j) {
+        return '<option value="' + j + '"' + (j === s.photo ? " selected" : "") + '>' + esc(p.name) + '</option>';
+      }).join("");
+      sel.addEventListener("change", function () { s.photo = parseInt(sel.value, 10); drawStudio(true); });
+      var del = document.createElement("button");
+      del.type = "button"; del.setAttribute("aria-label", "Buang bingkai"); del.innerHTML = "&times;";
+      del.addEventListener("click", function () { studio.slots.splice(i, 1); renderSlotList(); drawStudio(true); });
+      li.innerHTML = "<code>" + (i + 1) + "</code>";
+      li.appendChild(sel); li.appendChild(del);
+      ul.appendChild(li);
+    });
+  }
+
+  $("btnExport").addEventListener("click", function () {
+    drawStudio(false);
+    canvas.toBlob(function (blob) {
+      var name = "OPR-" + ($("tajuk").value.trim() || "akhir").replace(/[^\w\- ]+/g, "").replace(/\s+/g, "-").slice(0, 50) + ".png";
+      var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+      drawStudio(true);
+      toast("OPR akhir dimuat turun: " + name);
+    }, "image/png");
   });
 
   // ---------- Events ----------
@@ -982,13 +1437,6 @@
   form.addEventListener("input", function (e) {
     var f = e.target.closest(".field");
     if (f && f.classList.contains("invalid") && e.target.value.trim()) f.classList.remove("invalid");
-    if (e.target.id === "warna") {
-      var match = PALETTES.filter(function (p) { return p.text === e.target.value.trim(); })[0];
-      Array.prototype.forEach.call($("paletteChips").children, function (c) {
-        c.setAttribute("aria-pressed", match && c.dataset.id === match.id ? "true" : "false");
-      });
-      if (match) state.palette = match.id;
-    }
     onChange();
   });
   form.addEventListener("change", onChange);
@@ -996,6 +1444,7 @@
   var saveTimer;
   function onChange() {
     updateMeter();
+    renderSlotMap();
     if (state.generated) renderOutput();
     else if (state.tab === "layout") renderMock(values());
     clearTimeout(saveTimer);
@@ -1032,7 +1481,7 @@
 
   $("btnSample").addEventListener("click", function () {
     Object.keys(SAMPLE).forEach(function (k) { $(k).value = SAMPLE[k]; });
-    selectPalette("navy", false);
+    selectTheme("institusi", true);
     setSeg($("segOrient"), "orient", "potret");
     document.querySelectorAll(".field.invalid").forEach(function (f) { f.classList.remove("invalid"); });
     onChange();
@@ -1046,9 +1495,11 @@
     state.files = []; renderFiles();
     state.generated = false;
     $("btnCopy").disabled = true; $("btnDownload").disabled = true;
-    selectPalette("navy", true);
+    state.cat = "Semua"; renderThemes();
+    selectTheme("institusi", true);
     setSeg($("segOrient"), "orient", "potret");
     setSeg($("segAI"), "ai", "chatgpt");
+    setSeg($("segMode"), "mode", "kosong");
     document.querySelectorAll(".field.invalid").forEach(function (f) { f.classList.remove("invalid"); });
     setTab("prompt");
     onChange();
@@ -1058,7 +1509,7 @@
   // ---------- Persistence (per pelayar) ----------
   function save() {
     try {
-      var data = values(); data._orient = state.orient; data._ai = state.ai; data._palette = state.palette;
+      var data = values(); data._orient = state.orient; data._ai = state.ai; data._mode = state.mode;
       localStorage.setItem(STORE_KEY, JSON.stringify(data));
     } catch (e) { /* storage tak tersedia */ }
   }
@@ -1066,10 +1517,12 @@
     try {
       var raw = localStorage.getItem(STORE_KEY); if (!raw) return false;
       var d = JSON.parse(raw);
-      FIELDS.forEach(function (k) { if (typeof d[k] === "string" && d[k] !== "") $(k).value = d[k]; });
+      FIELDS.forEach(function (k) { if (typeof d[k] === "string" && d[k] !== "" && $(k)) $(k).value = d[k]; });
       if (d._orient) setSeg($("segOrient"), "orient", d._orient);
       if (d._ai) setSeg($("segAI"), "ai", d._ai);
-      if (d._palette) selectPalette(d._palette, false);
+      if (d._mode) setSeg($("segMode"), "mode", d._mode);
+      if (!$("gambar").value) $("gambar").value = "3";
+      selectTheme(d.gaya || "institusi", !d.warna);
       return true;
     } catch (e) { return false; }
   }
@@ -1084,8 +1537,10 @@
   }
 
   // ---------- Init ----------
-  if (!load()) selectPalette("navy", true);
+  renderThemes();
+  if (!load()) selectTheme("institusi", true);
   updateMeter();
+  renderSlotMap();
   setTab("prompt");
 })();
 </script>
