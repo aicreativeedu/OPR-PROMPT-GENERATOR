@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OPR Prompt Generator</title>
+<meta name="description" content="Jana prompt imej One Page Report (OPR) untuk ChatGPT atau Gemini dengan cepat. Untuk guru dan warga sekolah.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f1b33;
+    --ink-2: #3b4a66;
+    --ink-3: #6b7a94;
+    --line: #e3e8f1;
+    --line-2: #d3dae6;
+    --bg: #f3f5fa;
+    --card: #ffffff;
+    --navy: #13224a;
+    --navy-2: #1d3270;
+    --gold: #e0a93b;
+    --gold-soft: #fbf1dc;
+    --accent: #2f5bea;
+    --accent-soft: #e8eefe;
+    --ok: #1f9d6b;
+    --ok-soft: #e3f6ee;
+    --err: #d64545;
+    --err-soft: #fdecec;
+    --radius: 16px;
+    --shadow: 0 1px 2px rgba(15,27,51,.04), 0 8px 24px -8px rgba(15,27,51,.10);
+    --shadow-lg: 0 2px 4px rgba(15,27,51,.04), 0 24px 48px -16px rgba(15,27,51,.22);
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(1200px 400px at 85% -20%, rgba(224,169,59,.28), transparent 60%),
+                radial-gradient(800px 360px at 0% 120%, rgba(47,91,234,.35), transparent 60%),
+                linear-gradient(135deg, var(--navy) 0%, #0b1530 100%);
+    color: #fff;
+    padding: 28px 16px 96px;
+  }
+  .hero::after {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: linear-gradient(180deg, rgba(0,0,0,.7), transparent 85%);
+    pointer-events: none;
+  }
+  .hero-inner { position: relative; z-index: 1; max-width: 1240px; margin: 0 auto; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: .2px; }
+  .brand-mark {
+    width: 40px; height: 40px; border-radius: 11px;
+    background: linear-gradient(145deg, var(--gold), #c98a1c);
+    display: grid; place-items: center;
+    box-shadow: 0 6px 18px -6px rgba(224,169,59,.8);
+  }
+  .brand-mark svg { width: 22px; height: 22px; }
+  .brand small { display: block; font-weight: 500; font-size: 12px; color: rgba(255,255,255,.6); letter-spacing: .3px; }
+  .top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .ghost-btn {
+    border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.06);
+    color: #fff; border-radius: 999px; padding: 8px 14px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: background .2s, border-color .2s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .ghost-btn:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.4); }
+  .ghost-btn svg { width: 15px; height: 15px; }
+  .hero h1 {
+    margin: 40px 0 10px; font-size: clamp(28px, 4.4vw, 46px); line-height: 1.08;
+    font-weight: 800; letter-spacing: -1px; max-width: 760px;
+  }
+  .hero h1 em { font-style: normal; color: var(--gold); }
+  .hero p.lead { margin: 0; max-width: 640px; color: rgba(255,255,255,.75); font-size: 16px; }
+  .steps {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px;
+  }
+  .step-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 12px 7px 7px; border-radius: 999px;
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+    font-size: 13px; color: rgba(255,255,255,.88);
+  }
+  .step-pill b {
+    width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--gold); color: var(--navy); font-size: 11px;
+  }
+
+  /* ---------- Layout ---------- */
+  .wrap {
+    position: relative; z-index: 2;
+    max-width: 1240px; margin: -64px auto 48px; padding: 0 16px;
+    display: grid; grid-template-columns: minmax(0, 440px) minmax(0, 1fr); gap: 24px;
+    align-items: start;
+  }
+  .card {
+    background: var(--card); border-radius: var(--radius);
+    box-shadow: var(--shadow-lg); border: 1px solid rgba(15,27,51,.04);
+  }
+
+  /* ---------- Form ---------- */
+  .form-card { padding: 24px 24px 20px; }
+  .form-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .form-head h2 { margin: 0; font-size: 20px; letter-spacing: -.3px; }
+  .form-head p { margin: 4px 0 0; color: var(--ink-3); font-size: 13.5px; }
+  .meter { margin: 18px 0 6px; }
+  .meter-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-3); font-weight: 600; }
+  .meter-row span:last-child { color: var(--ink); }
+  .meter-track { height: 6px; border-radius: 99px; background: var(--line); overflow: hidden; margin-top: 6px; }
+  .meter-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--gold)); border-radius: 99px; transition: width .35s ease; }
+
+  .sec { padding-top: 22px; margin-top: 22px; border-top: 1px dashed var(--line-2); }
+  .sec-title {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11.5px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--ink-2);
+    margin-bottom: 14px;
+  }
+  .sec-num {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0;
+    background: var(--navy); color: var(--gold); padding: 3px 7px; border-radius: 6px;
+  }
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: flex; align-items: baseline; gap: 2px;
+    font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 6px;
+  }
+  .field label .req { color: var(--err); margin-left: 2px; }
+  .field label .hint { margin-left: auto; font-weight: 500; color: var(--ink-3); font-size: 11.5px; }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .input, .select, .textarea {
+    width: 100%; border: 1.5px solid var(--line-2); background: #fbfcfe;
+    border-radius: 11px; padding: 11px 13px; font-size: 14px; outline: none;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+  .textarea { min-height: 84px; resize: vertical; line-height: 1.5; }
+  .input::placeholder, .textarea::placeholder { color: #9aa6ba; }
+  .input:hover, .select:hover, .textarea:hover { border-color: #b9c3d6; }
+  .input:focus, .select:focus, .textarea:focus {
+    border-color: var(--accent); background: #fff; box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+  .field.invalid .input, .field.invalid .textarea { border-color: var(--err); background: var(--err-soft); }
+  .field .err-msg { display: none; color: var(--err); font-size: 12px; margin-top: 5px; font-weight: 500; }
+  .field.invalid .err-msg { display: block; }
+  .select {
+    appearance: none; cursor: pointer; padding-right: 38px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%233b4a66' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 13px center;
+  }
+
+  /* dropzone */
+  .drop {
+    border: 1.5px dashed #b5c0d4; border-radius: 14px; padding: 20px 16px; text-align: center;
+    background: linear-gradient(180deg, #fafbff, #f4f7fd); cursor: pointer;
+    transition: border-color .2s, background .2s, transform .2s;
+  }
+  .drop:hover, .drop.drag { border-color: var(--accent); background: var(--accent-soft); }
+  .drop.drag { transform: scale(1.01); }
+  .drop-icon {
+    width: 42px; height: 42px; margin: 0 auto 8px; border-radius: 12px;
+    display: grid; place-items: center; background: #fff; box-shadow: var(--shadow); color: var(--accent);
+  }
+  .drop-icon svg { width: 22px; height: 22px; }
+  .drop strong { display: block; font-size: 14px; }
+  .drop span { display: block; font-size: 12px; color: var(--ink-3); margin-top: 3px; }
+  .drop .tags { margin-top: 8px; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+  .drop .tags i {
+    font-style: normal; font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+    padding: 2px 7px; border-radius: 5px; background: #fff; border: 1px solid var(--line-2); color: var(--ink-2);
+  }
+  .files { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 6px; }
+  .file {
+    display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+    border: 1px solid var(--line); border-radius: 10px; background: #fff; font-size: 13px;
+    animation: pop .25s ease;
+  }
+  .file-thumb {
+    width: 34px; height: 34px; border-radius: 8px; flex: none; background: var(--accent-soft);
+    display: grid; place-items: center; overflow: hidden; color: var(--accent);
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+  }
+  .file-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .file-meta { flex: 1; min-width: 0; }
+  .file-meta b { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file-meta small { color: var(--ink-3); font-size: 11.5px; }
+  .file button {
+    border: 0; background: transparent; color: var(--ink-3); cursor: pointer; padding: 6px; border-radius: 8px;
+  }
+  .file button:hover { background: var(--err-soft); color: var(--err); }
+  .note {
+    display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: #8a5a00;
+    background: var(--gold-soft); border-radius: 10px; padding: 9px 11px; margin-top: 10px;
+  }
+  .note svg { flex: none; width: 15px; height: 15px; margin-top: 1px; }
+
+  /* chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    border: 1.5px solid var(--line-2); background: #fff; border-radius: 999px;
+    padding: 7px 12px; font-size: 12.5px; font-weight: 600; cursor: pointer;
+    transition: all .15s; display: inline-flex; align-items: center; gap: 7px;
+  }
+  .chip:hover { border-color: #b9c3d6; }
+  .chip[aria-pressed="true"] { border-color: var(--navy); background: var(--navy); color: #fff; }
+  .swatch { display: inline-flex; }
+  .swatch i { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #fff; margin-left: -4px; box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
+  .swatch i:first-child { margin-left: 0; }
+
+  .seg {
+    display: grid; grid-template-columns: 1fr 1fr; background: var(--bg); padding: 4px; border-radius: 12px; gap: 4px;
+  }
+  .seg button {
+    border: 0; background: transparent; padding: 9px; border-radius: 9px; font-size: 13px; font-weight: 600;
+    cursor: pointer; color: var(--ink-2); display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  }
+  .seg button[aria-pressed="true"] { background: #fff; color: var(--ink); box-shadow: var(--shadow); }
+  .seg .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .gen-btn {
+    width: 100%; margin-top: 8px; border: 0; cursor: pointer;
+    padding: 15px 18px; border-radius: 13px; font-size: 15px; font-weight: 700; letter-spacing: .2px;
+    color: var(--navy);
+    background: linear-gradient(135deg, #f3c35e, var(--gold) 55%, #cf8f1d);
+    box-shadow: 0 10px 24px -10px rgba(207,143,29,.9), inset 0 1px 0 rgba(255,255,255,.45);
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .gen-btn:hover { transform: translateY(-1px); box-shadow: 0 14px 30px -10px rgba(207,143,29,.95), inset 0 1px 0 rgba(255,255,255,.45); }
+  .gen-btn:active { transform: translateY(0); }
+  .gen-btn svg { width: 18px; height: 18px; }
+  .form-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 12px; color: var(--ink-3); }
+  .link-btn { border: 0; background: none; color: var(--ink-2); font-weight: 600; font-size: 12.5px; cursor: pointer; padding: 4px 6px; border-radius: 6px; }
+  .link-btn:hover { background: var(--bg); color: var(--ink); }
+
+  /* ---------- Preview ---------- */
+  .preview { position: sticky; top: 16px; display: flex; flex-direction: column; min-height: 640px; overflow: hidden; }
+  .pv-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    padding: 16px 20px; border-bottom: 1px solid var(--line);
+  }
+  .tabs { display: flex; gap: 4px; background: var(--bg); padding: 4px; border-radius: 11px; }
+  .tab {
+    border: 0; background: transparent; padding: 7px 13px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    color: var(--ink-3); cursor: pointer;
+  }
+  .tab[aria-selected="true"] { background: #fff; color: var(--ink); box-shadow: var(--shadow); }
+  .pv-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn {
+    border: 1.5px solid var(--line-2); background: #fff; border-radius: 10px; padding: 8px 12px;
+    font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    transition: all .15s; text-decoration: none; color: var(--ink);
+  }
+  .btn:hover:not(:disabled) { border-color: var(--ink-3); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn svg { width: 15px; height: 15px; }
+  .btn.primary { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .btn.primary:hover:not(:disabled) { background: var(--navy-2); border-color: var(--navy-2); }
+  .btn.copied { background: var(--ok); border-color: var(--ok); color: #fff; }
+
+  .pv-body { flex: 1; position: relative; display: flex; flex-direction: column; }
+  .empty {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    padding: 48px 24px; color: var(--ink-3);
+    background: radial-gradient(500px 260px at 50% 40%, var(--accent-soft), transparent 70%);
+  }
+  .empty-art { width: 150px; margin-bottom: 18px; }
+  .empty h3 { margin: 0 0 6px; color: var(--ink); font-size: 18px; }
+  .empty p { margin: 0; max-width: 340px; font-size: 14px; }
+
+  .pane { display: none; flex: 1; flex-direction: column; }
+  .pane.active { display: flex; }
+  .meta-strip { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 20px 0; }
+  .tag {
+    font-size: 11.5px; font-weight: 600; padding: 4px 9px; border-radius: 999px;
+    background: var(--bg); color: var(--ink-2); display: inline-flex; align-items: center; gap: 5px;
+  }
+  .tag.gold { background: var(--gold-soft); color: #8a5a00; }
+  .tag.blue { background: var(--accent-soft); color: var(--accent); }
+  .tag.green { background: var(--ok-soft); color: var(--ok); }
+  .prompt-box {
+    margin: 14px 20px 0; flex: 1; position: relative;
+    background: #0d1630; color: #e6ebf7; border-radius: 14px; padding: 18px 20px 20px;
+    font-family: var(--mono); font-size: 12.8px; line-height: 1.7; white-space: pre-wrap; word-wrap: break-word;
+    max-height: 620px; overflow: auto;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+  }
+  .prompt-box .h { color: var(--gold); font-weight: 600; }
+  .prompt-box .k { color: #8fb3ff; }
+  .prompt-box::-webkit-scrollbar { width: 10px; }
+  .prompt-box::-webkit-scrollbar-thumb { background: #2a3760; border-radius: 10px; border: 3px solid #0d1630; }
+  .pv-foot {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 12px 20px 18px; font-size: 12px; color: var(--ink-3);
+  }
+  .howto { display: grid; gap: 8px; margin: 14px 20px 0; grid-template-columns: repeat(3, 1fr); }
+  .howto div {
+    background: var(--bg); border-radius: 12px; padding: 10px 12px; font-size: 12px; color: var(--ink-2);
+  }
+  .howto b { display: block; color: var(--ink); font-size: 12.5px; margin-bottom: 2px; }
+
+  /* ---------- Layout mock ---------- */
+  .mock-wrap {
+    flex: 1; display: flex; gap: 24px; padding: 20px; align-items: flex-start; justify-content: center; flex-wrap: wrap;
+    background: repeating-linear-gradient(45deg, #f6f8fc, #f6f8fc 10px, #f1f4fa 10px, #f1f4fa 20px);
+  }
+  .mock {
+    --c1: #13224a; --c2: #e0a93b; --c3: #eef2fb; --hd: var(--c1); --bgm: #fff; --tx: #223; --sec: #fff; --rad: 4px;
+    background: var(--bgm) !important; color: var(--tx) !important;
+    width: 340px; aspect-ratio: 210 / 297; background: #fff; border-radius: 6px; overflow: hidden;
+    box-shadow: 0 20px 40px -18px rgba(15,27,51,.45), 0 0 0 1px rgba(15,27,51,.06);
+    display: flex; flex-direction: column; font-size: 7px; color: #223;
+    transition: all .3s;
+  }
+  .mock.land { width: 460px; aspect-ratio: 297 / 210; }
+  .m-head { background: var(--hd); color: var(--hdtx, #fff); padding: 10px 12px 9px; position: relative; }
+  .m-head::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--c2); }
+  .m-inst { font-size: 6.5px; opacity: .75; letter-spacing: .6px; text-transform: uppercase; }
+  .m-title { font-size: 12px; font-weight: 800; line-height: 1.15; margin-top: 3px; }
+  .m-badge { position: absolute; top: 9px; right: 10px; background: var(--c2); color: #111; font-weight: 800; font-size: 6.5px; padding: 2px 6px; border-radius: 3px; }
+  .m-info { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; padding: 6px 8px; }
+  .m-info div { background: var(--sec); border-radius: var(--rad); padding: 3px 4px; overflow: hidden; }
+  .m-info b { display: block; font-size: 5px; text-transform: uppercase; letter-spacing: .4px; color: var(--c1); opacity: .7; }
+  .m-info span { display: block; font-size: 6px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .m-body { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 7px 8px; }
+  .mock.land .m-body { grid-template-columns: 1fr 1fr 1fr; }
+  .m-sec { background: var(--sec); border: 1px solid rgba(127,127,127,.18); border-radius: var(--rad); padding: 4px 5px; display: flex; flex-direction: column; gap: 2px; }
+  .m-sec h6 { margin: 0 0 2px; font-size: 6.4px; color: var(--c1); display: flex; align-items: center; gap: 3px; }
+  .m-sec h6::before { content: ""; width: 5px; height: 5px; border-radius: 2px; background: var(--c2); }
+  .m-line { height: 2.5px; border-radius: 2px; background: currentColor; opacity: .14; }
+  .m-line.s { width: 70%; }
+  .m-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 0 8px 6px; }
+  .m-photo { aspect-ratio: 4/3; border-radius: var(--rad); background: #cfd6e3; font-size: 5px; font-weight: 800; letter-spacing: .5px; color: #4a5672; display: grid; place-items: center; color: var(--c1); opacity: .9; }
+  .m-photo svg { width: 10px; height: 10px; opacity: .5; }
+  .m-foot { display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; background: var(--hd); color: var(--hdtx, #fff); font-size: 5.5px; }
+  .m-foot b { color: var(--c2); }
+  .mock-side { max-width: 260px; font-size: 13px; color: var(--ink-2); }
+  .mock-side h4 { margin: 0 0 6px; font-size: 15px; color: var(--ink); }
+  .mock-side ol { margin: 8px 0 0; padding-left: 18px; }
+  .mock-side li { margin-bottom: 4px; }
+
+  /* ---------- Themes ---------- */
+  .theme-tools { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+  .theme-tools .chips { flex: 1; }
+  .chip.sm { padding: 5px 10px; font-size: 12px; }
+  .themes {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+    max-height: 420px; overflow: auto; padding: 2px 4px 4px 2px; margin-right: -4px;
+  }
+  .themes::-webkit-scrollbar { width: 8px; }
+  .themes::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 8px; }
+  .theme {
+    border: 1.5px solid var(--line-2); background: #fff; border-radius: 12px; padding: 6px; cursor: pointer;
+    text-align: left; transition: border-color .15s, transform .15s, box-shadow .15s; position: relative;
+  }
+  .theme:hover { border-color: #b9c3d6; transform: translateY(-1px); }
+  .theme[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .theme[aria-pressed="true"]::after {
+    content: "✓"; position: absolute; top: 10px; right: 10px; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--accent); color: #fff; font-size: 11px; font-weight: 800; display: grid; place-items: center;
+  }
+  .theme-thumb { height: 64px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+  .theme-thumb .t-hd { height: 22px; display: flex; align-items: center; padding: 0 7px; }
+  .theme-thumb .t-hd i { display: block; height: 4px; width: 55%; border-radius: 2px; opacity: .85; }
+  .theme-thumb .t-bd { flex: 1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 6px 7px; }
+  .theme-thumb .t-bd span { border-radius: 3px; }
+  .theme b { display: block; font-size: 12.5px; margin: 7px 3px 0; line-height: 1.25; }
+  .theme small { display: block; font-size: 11px; color: var(--ink-3); margin: 1px 3px 2px; line-height: 1.3; }
+
+  /* photo mode cards */
+  .modes { display: grid; gap: 8px; }
+  .mode {
+    display: flex; gap: 10px; align-items: flex-start; text-align: left; cursor: pointer;
+    border: 1.5px solid var(--line-2); background: #fff; border-radius: 12px; padding: 11px 12px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .mode[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .mode .radio { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--line-2); flex: none; margin-top: 2px; }
+  .mode[aria-pressed="true"] .radio { border: 5px solid var(--accent); }
+  .mode > span > b { font-size: 13px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .mode small { display: block; font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+  .badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 5px; background: var(--ok-soft); color: var(--ok); letter-spacing: .3px; }
+  .badge.warn { background: var(--gold-soft); color: #8a5a00; }
+  .slotmap { margin-top: 8px; font-size: 12px; color: var(--ink-2); display: grid; gap: 4px; }
+  .slotmap div { display: flex; gap: 6px; align-items: center; }
+  .slotmap code { font-family: var(--mono); font-size: 10.5px; background: var(--navy); color: var(--gold); padding: 1px 6px; border-radius: 4px; }
+
+  /* ---------- Studio ---------- */
+  .studio { flex: 1; display: flex; flex-direction: column; padding: 18px 20px 20px; gap: 14px; }
+  .studio-intro { font-size: 13px; color: var(--ink-2); background: var(--ok-soft); border-radius: 12px; padding: 11px 13px; }
+  .studio-intro b { color: var(--ok); }
+  .studio-drop { padding: 34px 16px; }
+  .studio-grid { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 16px; align-items: start; }
+  .canvas-wrap {
+    position: relative; background: repeating-conic-gradient(#eef1f7 0 25%, #f7f9fc 0 50%) 0 0 / 18px 18px;
+    border-radius: 10px; overflow: hidden; border: 1px solid var(--line);
+  }
+  .canvas-wrap canvas { display: block; max-width: 100%; max-height: 72vh; width: auto; height: auto; margin: 0 auto; cursor: crosshair; touch-action: none; }
+  .slots-panel h5 { margin: 0 0 4px; font-size: 13px; }
+  .slots-panel p { margin: 0 0 10px; font-size: 12px; color: var(--ink-3); }
+  .slot-list { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 6px; }
+  .slot-item { display: flex; gap: 6px; align-items: center; border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px; font-size: 12px; }
+  .slot-item code { font-family: var(--mono); font-size: 11px; background: var(--accent); color: #fff; border-radius: 4px; padding: 1px 6px; }
+  .slot-item select { flex: 1; min-width: 0; border: 1px solid var(--line-2); border-radius: 7px; padding: 4px 6px; font-size: 12px; background: #fff; }
+  .slot-item button { border: 0; background: none; cursor: pointer; color: var(--ink-3); padding: 2px 4px; border-radius: 6px; }
+  .slot-item button:hover { background: var(--err-soft); color: var(--err); }
+  .slot-empty { font-size: 12px; color: var(--ink-3); border: 1px dashed var(--line-2); border-radius: 10px; padding: 10px; text-align: center; }
+  .studio-actions { display: grid; gap: 8px; }
+  .studio-actions .btn { justify-content: center; }
+
+  /* toast */
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); opacity: 0;
+    background: var(--ink); color: #fff; padding: 11px 16px; border-radius: 12px; font-size: 13.5px; font-weight: 600;
+    box-shadow: var(--shadow-lg); transition: all .25s; pointer-events: none; z-index: 50;
+    display: flex; align-items: center; gap: 8px; max-width: calc(100% - 32px);
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .toast svg { width: 16px; height: 16px; color: var(--gold); flex: none; }
+
+  footer.site { text-align: center; color: var(--ink-3); font-size: 12px; padding: 0 16px 32px; }
+
+  @keyframes pop { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .pane.active { animation: fadeIn .25s ease; }
+
+  @media (max-width: 980px) {
+    .wrap { grid-template-columns: 1fr; }
+    .preview { position: relative; top: 0; min-height: 520px; }
+  }
+  @media (max-width: 760px) {
+    .studio-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .tabs { width: 100%; }
+    .tab { flex: 1; padding: 7px 6px; font-size: 12px; }
+    .form-card { padding: 20px 16px; }
+    .row-2 { grid-template-columns: 1fr; }
+    .howto { grid-template-columns: 1fr; }
+    .pv-head { padding: 14px 16px; }
+    .prompt-box { margin: 14px 12px 0; padding: 14px; font-size: 12px; }
+    .mock, .mock.land { width: 100%; }
+  }
+  @media print {
+    .hero, .form-card, .pv-head, .pv-foot, .howto, footer.site { display: none !important; }
+    .wrap { display: block; margin: 0; }
+    .prompt-box { background: #fff; color: #000; max-height: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#13224a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>
+        </div>
+        <div>OPR Prompt Generator<small>One Page Report untuk warga sekolah</small></div>
+      </div>
+      <div class="top-actions">
+        <button class="ghost-btn" type="button" id="btnSample">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+          Isi contoh
+        </button>
+        <button class="ghost-btn" type="button" id="btnReset">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+          Kosongkan
+        </button>
+      </div>
+    </div>
+    <h1>Siapkan OPR dalam <em>beberapa minit</em>, bukan berjam-jam.</h1>
+    <p class="lead">Isi maklumat program, muat naik rujukan, dan pilih gaya. Sistem akan susun prompt lengkap untuk jana OPR berbentuk imej dalam ChatGPT atau Gemini.</p>
+    <div class="steps">
+      <span class="step-pill"><b>1</b> Isi maklumat</span>
+      <span class="step-pill"><b>2</b> Muat naik rujukan</span>
+      <span class="step-pill"><b>3</b> Salin prompt ke AI</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- ================= FORM ================= -->
+  <form class="card form-card" id="oprForm" novalidate autocomplete="off">
+    <div class="form-head">
+      <div>
+        <h2>Maklumat OPR</h2>
+        <p>Medan bertanda <span style="color:var(--err)">*</span> wajib diisi. Sistem tak akan benarkan ruang penting dibiar kosong.</p>
+      </div>
+    </div>
+    <div class="meter" aria-live="polite">
+      <div class="meter-row"><span>Kelengkapan maklumat wajib</span><span id="meterText">0 / 8</span></div>
+      <div class="meter-track"><div class="meter-fill" id="meterFill"></div></div>
+    </div>
+
+    <!-- 01 -->
+    <section class="sec" style="border-top:0;margin-top:8px;padding-top:12px">
+      <div class="sec-title"><span class="sec-num">01</span> Header &amp; maklumat program</div>
+
+      <div class="field" data-req>
+        <label for="tajuk">Tajuk OPR / program / aktiviti<span><span class="req">*</span></span></label>
+        <input class="input" id="tajuk" name="tajuk" placeholder="Contoh: Bengkel Literasi AI untuk Guru">
+        <div class="err-msg">Sila isi tajuk program.</div>
+      </div>
+      <div class="field" data-req>
+        <label for="institusi">Nama institusi<span><span class="req">*</span></span></label>
+        <input class="input" id="institusi" name="institusi" placeholder="Contoh: SK Taman Bestari, Seremban">
+        <div class="err-msg">Sila isi nama institusi.</div>
+      </div>
+      <div class="row-2">
+        <div class="field" data-req>
+          <label for="tarikh">Tarikh<span><span class="req">*</span></span></label>
+          <input class="input" id="tarikh" name="tarikh" placeholder="Contoh: 29 Oktober 2026">
+          <div class="err-msg">Sila isi tarikh.</div>
+        </div>
+        <div class="field" data-req>
+          <label for="masa">Masa<span><span class="req">*</span></span></label>
+          <input class="input" id="masa" name="masa" placeholder="Contoh: 8.00 pagi – 1.00 tgh">
+          <div class="err-msg">Sila isi masa.</div>
+        </div>
+      </div>
+      <div class="field" data-req>
+        <label for="tempat">Tempat<span><span class="req">*</span></span></label>
+        <input class="input" id="tempat" name="tempat" placeholder="Contoh: Dewan Bestari">
+        <div class="err-msg">Sila isi tempat.</div>
+      </div>
+      <div class="field" data-req>
+        <label for="sasaran">Kumpulan sasaran<span><span class="req">*</span></span></label>
+        <input class="input" id="sasaran" name="sasaran" placeholder="Contoh: 40 orang guru">
+        <div class="err-msg">Sila isi kumpulan sasaran.</div>
+      </div>
+      <div class="field" data-req>
+        <label for="pelapor">Guru / pegawai pelapor<span><span class="req">*</span></span></label>
+        <input class="input" id="pelapor" name="pelapor" placeholder="Nama dan jawatan, contoh: Pn. Aisyah, Guru Penyelaras ICT">
+        <div class="err-msg">Sila isi nama pelapor.</div>
+      </div>
+      <div class="field">
+        <label for="anjuran">Anjuran / kerjasama <span class="hint">pilihan</span></label>
+        <input class="input" id="anjuran" name="anjuran" placeholder="Contoh: Unit Kurikulum dengan kerjasama PPD Seremban">
+      </div>
+      <div class="field" data-req>
+        <label for="rujukan">Rujukan / sumber dokumen<span><span class="req">*</span></span></label>
+        <input class="input" id="rujukan" name="rujukan" placeholder="Contoh: Buku Panduan Literasi AI KPM 2026">
+        <div class="err-msg">Sila nyatakan sumber rujukan.</div>
+      </div>
+    </section>
+
+    <!-- 02 -->
+    <section class="sec">
+      <div class="sec-title"><span class="sec-num">02</span> Rujukan &amp; arahan ekstrak</div>
+
+      <div class="drop" id="drop" tabindex="0" role="button" aria-label="Muat naik fail rujukan">
+        <div class="drop-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m6 10 6-6 6 6"/><path d="M4 20h16"/></svg>
+        </div>
+        <strong>Seret fail ke sini atau klik untuk pilih</strong>
+        <span>Kertas kerja, minit, laporan, gambar aktiviti</span>
+        <div class="tags"><i>PDF</i><i>DOCX</i><i>TXT</i><i>JPG</i><i>PNG</i></div>
+        <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.webp" hidden>
+      </div>
+      <ul class="files" id="fileList"></ul>
+      <div class="note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>Fail tak dihantar ke mana-mana pelayan. Nama fail cuma dimasukkan dalam prompt. Anda perlu muat naik fail yang sama sekali lagi bersama prompt dalam ChatGPT atau Gemini.</span>
+      </div>
+
+      <div class="field" style="margin-top:16px">
+        <label for="ekstrak">Apa yang AI perlu ekstrak daripada rujukan?</label>
+        <textarea class="textarea" id="ekstrak" name="ekstrak" placeholder="Contoh: Kenal pasti objektif, empat fokus utama, aktiviti atau kandungan, fakta penting, data/angka, impak dan cadangan tindakan."></textarea>
+      </div>
+      <div class="field">
+        <label for="penegasan">Penegasan / arahan tambahan</label>
+        <textarea class="textarea" id="penegasan" name="penegasan" placeholder="Contoh: Jangan masukkan statistik nasional jika bukan pencapaian sebenar program."></textarea>
+      </div>
+    </section>
+
+    <!-- 03 -->
+    <section class="sec">
+      <div class="sec-title"><span class="sec-num">03</span> Format &amp; tema visual</div>
+
+      <div class="field">
+        <label for="format">Format OPR</label>
+        <select class="select" id="format" name="format"></select>
+      </div>
+      <div class="field">
+        <label>Tema <span class="hint" id="themeCount"></span></label>
+        <input type="hidden" id="gaya" name="gaya">
+        <div class="theme-tools">
+          <div class="chips" id="themeCats" role="group" aria-label="Kategori tema"></div>
+          <button type="button" class="chip sm" id="btnRandomTheme" title="Pilih tema rawak"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg>Rawak</button>
+        </div>
+        <div class="themes" id="themeGrid" role="group" aria-label="Pilihan tema"></div>
+      </div>
+      <div class="field">
+        <label for="warna">Warna utama <span class="hint">ikut tema, boleh ubah</span></label>
+        <input class="input" id="warna" name="warna" placeholder="Contoh: Navy, biru muda, putih dan aksen emas">
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label>Orientasi A4</label>
+          <div class="seg" id="segOrient">
+            <button type="button" data-v="potret" aria-pressed="true">Potret</button>
+            <button type="button" data-v="landskap" aria-pressed="false">Landskap</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Prompt untuk</label>
+          <div class="seg" id="segAI">
+            <button type="button" data-v="chatgpt" aria-pressed="true"><span class="dot" style="background:#10a37f"></span>ChatGPT</button>
+            <button type="button" data-v="gemini" aria-pressed="false"><span class="dot" style="background:linear-gradient(135deg,#4285f4,#a142f4)"></span>Gemini</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 -->
+    <section class="sec">
+      <div class="sec-title"><span class="sec-num">04</span> Gambar aktiviti</div>
+      <div class="field">
+        <label for="gambar">Bilangan ruang gambar</label>
+        <select class="select" id="gambar" name="gambar">
+          <option value="0">Tiada gambar</option>
+          <option value="1">1 gambar</option>
+          <option value="2">2 gambar</option>
+          <option value="3" selected>3 gambar</option>
+          <option value="4">4 gambar</option>
+          <option value="5">5 gambar</option>
+          <option value="6">6 gambar</option>
+        </select>
+      </div>
+      <div class="field" id="modeField">
+        <label>Cara letak gambar</label>
+        <div class="modes" id="segMode">
+          <button type="button" class="mode" data-v="kosong" aria-pressed="true">
+            <span class="radio"></span>
+            <span><b>Ruang kosong, tampal gambar sebenar <span class="badge">100% SAMA</span></b>
+            <small>AI reka OPR dengan bingkai kosong berlabel. Lepas itu tampal gambar asal guna tab <strong>Tampal gambar</strong>. Gambar tak disentuh langsung oleh AI.</small></span>
+          </button>
+          <button type="button" class="mode" data-v="kekal" aria-pressed="false">
+            <span class="radio"></span>
+            <span><b>AI masukkan gambar dilampir <span class="badge warn">HAMPIR SAMA</span></b>
+            <small>Prompt beri arahan ketat supaya AI kekalkan gambar asal. Tapi penjana imej melukis semula, jadi wajah, teks atau butiran kecil boleh berubah.</small></span>
+          </button>
+        </div>
+        <div class="slotmap" id="slotMap"></div>
+      </div>
+
+      <button type="submit" class="gen-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+        Jana Prompt OPR
+      </button>
+      <div class="form-foot">
+        <span id="saveState">Draf disimpan automatik dalam pelayar ini</span>
+      </div>
+    </section>
+  </form>
+
+  <!-- ================= PREVIEW ================= -->
+  <section class="card preview" aria-label="Pratonton prompt">
+    <div class="pv-head">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" aria-selected="true" data-tab="prompt">Prompt</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="layout">Lakaran</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="studio">Tampal gambar</button>
+      </div>
+      <div class="pv-actions">
+        <button class="btn" type="button" id="btnDownload" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="m6 10 6 6 6-6"/><path d="M4 20h16"/></svg>
+          .txt
+        </button>
+        <button class="btn primary" type="button" id="btnCopy" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          <span>Salin prompt</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="pv-body">
+      <div class="empty" id="emptyState">
+        <svg class="empty-art" viewBox="0 0 160 120" fill="none" aria-hidden="true">
+          <rect x="40" y="8" width="80" height="104" rx="6" fill="#fff" stroke="#d3dae6" stroke-width="1.5"/>
+          <rect x="40" y="8" width="80" height="22" rx="6" fill="#13224a"/>
+          <rect x="40" y="26" width="80" height="4" fill="#e0a93b"/>
+          <rect x="48" y="14" width="40" height="4" rx="2" fill="#fff" opacity=".6"/>
+          <rect x="48" y="20" width="56" height="4" rx="2" fill="#fff"/>
+          <rect x="48" y="38" width="30" height="24" rx="3" fill="#e8eefe"/>
+          <rect x="82" y="38" width="30" height="24" rx="3" fill="#e8eefe"/>
+          <rect x="48" y="68" width="64" height="3" rx="1.5" fill="#e3e8f1"/>
+          <rect x="48" y="75" width="48" height="3" rx="1.5" fill="#e3e8f1"/>
+          <rect x="48" y="84" width="20" height="16" rx="2" fill="#fbf1dc"/>
+          <rect x="70" y="84" width="20" height="16" rx="2" fill="#fbf1dc"/>
+          <rect x="92" y="84" width="20" height="16" rx="2" fill="#fbf1dc"/>
+          <circle cx="128" cy="22" r="12" fill="#e0a93b"/>
+          <path d="m128 15-1.4 4.4-4.4 1.4 4.4 1.4 1.4 4.4 1.4-4.4 4.4-1.4-4.4-1.4z" fill="#13224a"/>
+        </svg>
+        <h3>Prompt imej OPR akan muncul di sini</h3>
+        <p>Lengkapkan maklumat wajib dan tekan <b>Jana Prompt OPR</b>. Lakaran susun atur ada di tab sebelah, dan tab <b>Tampal gambar</b> untuk masukkan gambar sebenar ke OPR siap.</p>
+      </div>
+
+      <div class="pane" id="panePrompt">
+        <div class="meta-strip" id="metaStrip"></div>
+        <div class="prompt-box" id="promptBox" tabindex="0" aria-label="Prompt dijana"></div>
+        <div class="howto">
+          <div><b>1. Salin</b>Tekan butang Salin prompt di atas.</div>
+          <div id="howto2"><b>2. Lampirkan</b>Buka ChatGPT, lampirkan dokumen rujukan.</div>
+          <div id="howto3"><b>3. Hantar</b>Tampal prompt dan tekan Enter.</div>
+        </div>
+        <div class="pv-foot">
+          <span id="charCount">0 aksara</span>
+          <a class="btn" id="btnOpenAI" href="https://chatgpt.com/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
+            <span>Buka ChatGPT</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="pane" id="paneStudio">
+        <div class="studio">
+          <div class="studio-intro"><b>Cara dapat gambar 100% sama:</b> jana OPR dalam mod "Ruang kosong", muat turun imej OPR dari ChatGPT/Gemini, muat naik di sini, kemudian lukis kotak atas setiap bingkai kosong. Gambar asal anda akan ditampal terus tanpa diubah.</div>
+          <div class="drop studio-drop" id="oprDrop" tabindex="0" role="button" aria-label="Muat naik imej OPR">
+            <div class="drop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
+            <strong>Muat naik imej OPR yang dijana AI</strong>
+            <span>PNG atau JPG dari ChatGPT / Gemini</span>
+            <input type="file" id="oprInput" accept="image/*" hidden>
+          </div>
+          <div class="studio-grid" id="studioGrid" hidden>
+            <div class="canvas-wrap"><canvas id="studioCanvas"></canvas></div>
+            <div class="slots-panel">
+              <h5>Bingkai gambar</h5>
+              <p>Klik dan seret atas imej untuk lukis kotak di setiap bingkai. Gambar diisi ikut turutan, boleh tukar di bawah.</p>
+              <ul class="slot-list" id="slotList"></ul>
+              <div class="studio-actions">
+                <button class="btn" type="button" id="btnAddPhotos">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                  Tambah gambar
+                </button>
+                <input type="file" id="studioPhotoInput" accept="image/*" multiple hidden>
+                <button class="btn" type="button" id="btnNewOpr">Tukar imej OPR</button>
+                <button class="btn primary" type="button" id="btnExport" disabled>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="m6 10 6 6 6-6"/><path d="M4 20h16"/></svg>
+                  Muat turun OPR akhir
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pane" id="paneLayout">
+        <div class="mock-wrap">
+          <div class="mock" id="mock"></div>
+          <div class="mock-side">
+            <h4>Lakaran kasar</h4>
+            Ini cuma gambaran struktur yang diminta dalam prompt, bukan hasil akhir. AI akan hasilkan reka bentuk sendiri berdasarkan susunan ini.
+            <ol id="mockList"></ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">OPR Prompt Generator · Dibina untuk guru dan warga sekolah Malaysia</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+  <span id="toastText"></span>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- Data ----------
+  var FORMATS = {
+    aktiviti:     { label: "OPR Aktiviti / Program", sections: ["Objektif", "Butiran pelaksanaan", "Aktiviti utama", "Impak / pencapaian", "Cadangan penambahbaikan"] },
+    mesyuarat:    { label: "OPR Mesyuarat", sections: ["Agenda utama", "Perkara dibincangkan", "Keputusan mesyuarat", "Tindakan susulan (siapa & bila)"] },
+    kursus:       { label: "OPR Kursus / Bengkel / Latihan", sections: ["Objektif kursus", "Modul / kandungan", "Penceramah / fasilitator", "Refleksi peserta", "Impak kepada PdP"] },
+    lawatan:      { label: "OPR Lawatan / Lawatan Sambil Belajar", sections: ["Objektif lawatan", "Aturcara", "Dapatan / pengalaman", "Cadangan"] },
+    pertandingan: { label: "OPR Pertandingan / Kejohanan", sections: ["Objektif", "Kategori pertandingan", "Keputusan & pemenang", "Pencapaian sekolah", "Penambahbaikan"] },
+    majlis:       { label: "OPR Majlis / Sambutan", sections: ["Objektif", "Aturcara majlis", "Pengisian & kemuncak", "Kehadiran", "Rumusan"] },
+    inovasi:      { label: "OPR PdPc / Inovasi", sections: ["Isu / masalah", "Kaedah / inovasi", "Pelaksanaan", "Dapatan & data", "Impak dan langkah seterusnya"] }
+  };
+
+  // Setiap tema: prompt gaya untuk AI + warna untuk lakaran (hd header, acc aksen, bg latar, sec kad, tx teks, rad bucu)
+  var THEMES = [
+    { id: "institusi", cat: "Rasmi", name: "Institusi Moden", desc: "Kemas, profesional, grid tersusun",
+      prompt: "infografik institusi moden dan profesional, susun atur grid yang kemas, ikon garis (line icons) yang konsisten, hierarki tipografi yang jelas",
+      warna: "Navy, biru muda, putih dan aksen emas", hd: "#13224a", acc: "#e0a93b", bg: "#f3f6fc", sec: "#ffffff", tx: "#1c2540", rad: "4px" },
+    { id: "kerajaan", cat: "Rasmi", name: "Rasmi Kerajaan", desc: "Formal, berjalur, seimbang",
+      prompt: "gaya dokumen rasmi kerajaan Malaysia, jalur warna biru dan kuning di header dan footer, susunan formal dan seimbang, tanpa hiasan berlebihan",
+      warna: "Biru tua, kuning, putih dan kelabu lembut", hd: "#0b2a6b", acc: "#f5c518", bg: "#ffffff", sec: "#f4f6fb", tx: "#1a1f33", rad: "2px" },
+    { id: "korporat", cat: "Moden", name: "Korporat Minimalis", desc: "Banyak ruang putih, bersih",
+      prompt: "minimalis korporat, banyak ruang putih, tipografi sans-serif bersih, garis pemisah halus, aksen biru yang sederhana",
+      warna: "Kelabu arang, putih dan aksen biru", hd: "#1f2937", acc: "#3b82f6", bg: "#ffffff", sec: "#f8fafc", tx: "#111827", rad: "3px" },
+    { id: "bento", cat: "Moden", name: "Bento Grid", desc: "Kad pelbagai saiz, gaya aplikasi",
+      prompt: "susun atur bento grid moden, kad bersudut bulat besar dalam pelbagai saiz, gradien ungu ke merah jambu, ikon 3D kecil, rasa aplikasi teknologi terkini",
+      warna: "Ungu, merah jambu, lavender dan putih", hd: "linear-gradient(135deg,#6d28d9,#db2777)", acc: "#f472b6", bg: "#f5f3ff", sec: "#ffffff", tx: "#1e1b4b", rad: "8px" },
+    { id: "glass", cat: "Moden", name: "Glassmorphism", desc: "Kad lutsinar atas gradien",
+      prompt: "glassmorphism: kad lutsinar kabur (frosted glass) di atas latar gradien biru ke ungu, cahaya lembut, teks putih berkontras tinggi",
+      warna: "Biru, ungu, cyan lembut dan putih", hd: "rgba(255,255,255,.16)", acc: "#a5f3fc", bg: "linear-gradient(160deg,#1e3a8a,#7c3aed)", sec: "rgba(255,255,255,.16)", tx: "#ffffff", rad: "8px" },
+    { id: "neon", cat: "Moden", name: "Teknologi Futuristik", desc: "Gelap, neon, litar digital",
+      prompt: "teknologi futuristik, latar gelap, corak litar dan grid digital, aksen neon cyan dan ungu yang bercahaya, tipografi tegas seperti papan pemuka",
+      warna: "Biru gelap, hitam, cyan neon dan ungu", hd: "#0a0f1f", acc: "#22d3ee", bg: "#0b1224", sec: "#121c38", tx: "#e2e8f0", rad: "4px" },
+    { id: "ceria", cat: "Kreatif", name: "Ceria Mesra Murid", desc: "Bulat, terang, comel",
+      prompt: "ceria dan mesra murid, bentuk bulat lembut, ilustrasi kecil yang comel, warna terang tetapi masih kemas dan mudah dibaca",
+      warna: "Oren, kuning, biru langit dan putih", hd: "#f97316", acc: "#facc15", bg: "#fff7ed", sec: "#ffffff", tx: "#431407", rad: "10px" },
+    { id: "scrapbook", cat: "Kreatif", name: "Scrapbook Pastel", desc: "Kertas, pita washi, polaroid",
+      prompt: "scrapbook pastel: tekstur kertas, pita washi, nota lekat, bingkai gaya polaroid, tulisan tangan untuk sub-tajuk, warna pastel lembut",
+      warna: "Merah jambu pastel, hijau pudina, krim dan coklat lembut", hd: "#f9a8d4", hdtx: "#4a3b33", acc: "#6ee7b7", bg: "#fdf6ec", sec: "#fffdf8", tx: "#4a3b33", rad: "3px" },
+    { id: "kapur", cat: "Kreatif", name: "Papan Kapur", desc: "Tulisan kapur, nuansa kelas",
+      prompt: "papan hitam hijau dengan tekstur kapur, tajuk dan ikon dilukis seperti tulisan kapur, bingkai kayu nipis, nuansa bilik darjah",
+      warna: "Hijau papan hitam, putih kapur, kuning lembut dan coklat kayu", hd: "#1f3b2d", acc: "#fde68a", bg: "#26453a", sec: "#2e5245", tx: "#f1f5ee", rad: "2px" },
+    { id: "editorial", cat: "Kreatif", name: "Editorial Majalah", desc: "Tajuk besar, kolum, berani",
+      prompt: "editorial gaya majalah, tajuk serif yang besar dan berani, susun atur kolum, gambar dominan, garis nipis hitam, aksen merah",
+      warna: "Hitam, putih dan aksen merah", hd: "#111111", acc: "#e11d48", bg: "#ffffff", sec: "#fafafa", tx: "#111111", rad: "0px" },
+    { id: "retro", cat: "Kreatif", name: "Retro Pop 80-an", desc: "Halftone, bayang tebal",
+      prompt: "retro pop 80-an: warna terang kuning, merah jambu dan biru, bayang tebal (offset shadow), corak titik halftone, tipografi tebal",
+      warna: "Biru gelap, kuning, merah jambu dan krim", hd: "#2b2d42", acc: "#ffd23f", bg: "#fff3e2", sec: "#ffffff", tx: "#2b2d42", rad: "6px" },
+    { id: "flat3d", cat: "Kreatif", name: "Ilustrasi Flat 3D", desc: "Ikon isometrik, gradien halus",
+      prompt: "ilustrasi flat dengan sentuhan 3D lembut (soft 3D), ikon berwarna gaya isometrik, latar gradien halus",
+      warna: "Ungu, lavender, putih dan aksen pic", hd: "linear-gradient(135deg,#4c2a85,#7c3aed)", acc: "#f4a37c", bg: "#f1ecfa", sec: "#ffffff", tx: "#2e1065", rad: "8px" },
+    { id: "alam", cat: "Tematik", name: "Alam Hijau Lestari", desc: "Daun, kertas kitar semula",
+      prompt: "alam hijau lestari: elemen daun dan tumbuhan, tekstur kertas kitar semula, warna hijau semula jadi, sesuai untuk program alam sekitar",
+      warna: "Hijau hutan, hijau limau, krim dan putih", hd: "#14532d", acc: "#a3e635", bg: "#f0f7ee", sec: "#ffffff", tx: "#1a2e1a", rad: "8px" },
+    { id: "batik", cat: "Tematik", name: "Batik Warisan", desc: "Motif batik & songket",
+      prompt: "warisan Malaysia: motif batik dan songket yang halus di sudut dan jalur header, elegan dan bermaruah",
+      warna: "Maroon, krim, putih dan emas", hd: "#6b1d2a", acc: "#d4a64a", bg: "#f8f0e6", sec: "#fffaf3", tx: "#3b1219", rad: "4px" },
+    { id: "islamik", cat: "Tematik", name: "Islamik Elegan", desc: "Geometri islamik, zamrud & emas",
+      prompt: "islamik elegan: corak geometri islamik yang halus, bingkai berbentuk gerbang, sesuai untuk program keagamaan",
+      warna: "Hijau zamrud, putih, krim dan emas", hd: "#064e3b", acc: "#d4af37", bg: "#f4f8f5", sec: "#ffffff", tx: "#052e24", rad: "4px" },
+    { id: "merdeka", cat: "Tematik", name: "Semangat Merdeka", desc: "Warna Jalur Gemilang",
+      prompt: "semangat kemerdekaan: warna Jalur Gemilang, jalur berkibar, bintang dan anak bulan sebagai hiasan yang sederhana",
+      warna: "Biru tua, merah, putih dan kuning", hd: "linear-gradient(90deg,#010066 0 60%,#cc0001 60%)", acc: "#ffcc00", bg: "#ffffff", sec: "#f6f7fb", tx: "#0b0b3b", rad: "4px" },
+    { id: "sukan", cat: "Tematik", name: "Sukan Bertenaga", desc: "Diagonal dinamik, laju",
+      prompt: "sukan bertenaga: potongan diagonal yang dinamik, garis kelajuan, tipografi condong dan tebal",
+      warna: "Merah, hitam, putih dan kelabu", hd: "#b91c1c", acc: "#111827", bg: "#ffffff", sec: "#f3f4f6", tx: "#111111", rad: "2px" },
+    { id: "perayaan", cat: "Tematik", name: "Sambutan Perayaan", desc: "Meriah tapi kemas",
+      prompt: "sambutan perayaan: hiasan meriah tetapi kemas, motif pelita, tanglung dan bunga yang neutral untuk pelbagai perayaan",
+      warna: "Teal, emas, krim dan putih", hd: "#0f766e", acc: "#fbbf24", bg: "#fffbeb", sec: "#ffffff", tx: "#134e4a", rad: "8px" }
+  ];
+  var CATS = ["Semua", "Rasmi", "Moden", "Kreatif", "Tematik"];
+  var LEGACY_THEME = { rasmi: "kerajaan" };
+
+  var FIELDS = ["tajuk", "institusi", "tarikh", "masa", "tempat", "sasaran", "pelapor", "anjuran", "rujukan", "ekstrak", "penegasan", "format", "gaya", "warna", "gambar"];
+  var REQUIRED = ["tajuk", "institusi", "tarikh", "masa", "tempat", "sasaran", "pelapor", "rujukan"];
+  var STORE_KEY = "opr-prompt-generator:v1";
+
+  var SAMPLE = {
+    tajuk: "Bengkel Automasi ChatGPT & Gemini",
+    institusi: "Bahagian Pendidikan Guru (BPG), KPM",
+    tarikh: "29 Oktober 2026",
+    masa: "8.00 pagi – 5.00 petang",
+    tempat: "Hotel Pacific Regency, Port Dickson",
+    sasaran: "35 orang pegawai PPD & JPN",
+    pelapor: "En. Zulhilmi, Penolong Pengarah",
+    anjuran: "BPG dengan kerjasama TCC",
+    rujukan: "Nota Bengkel KPM x TCC",
+    ekstrak: "Pelaksanaan dan penggunaan ChatGPT & Gemini dalam tugas harian pegawai, modul yang diajar, hasil kerja peserta dan cadangan susulan.",
+    penegasan: "Masukkan info yang relevan sahaja. Jangan reka statistik yang tiada dalam rujukan.",
+    format: "kursus",
+    gambar: "3"
+  };
+
+  // ---------- State ----------
+  var state = { orient: "potret", ai: "chatgpt", mode: "kosong", cat: "Semua", files: [], generated: false, tab: "prompt" };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var form = $("oprForm");
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; });
+  }
+  function themeById(id) {
+    id = LEGACY_THEME[id] || id;
+    return THEMES.filter(function (t) { return t.id === id; })[0] || THEMES[0];
+  }
+  function isImage(f) { return /^image\//.test(f.type); }
+
+  // ---------- Format select ----------
+  Object.keys(FORMATS).forEach(function (k) {
+    var o = document.createElement("option"); o.value = k; o.textContent = FORMATS[k].label; $("format").appendChild(o);
+  });
+
+  // ---------- Themes ----------
+  CATS.forEach(function (c) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "chip sm"; b.dataset.cat = c; b.textContent = c;
+    b.addEventListener("click", function () { state.cat = c; renderThemes(); });
+    $("themeCats").appendChild(b);
+  });
+  $("themeCats").appendChild($("btnRandomTheme"));
+
+  function renderThemes() {
+    Array.prototype.forEach.call($("themeCats").children, function (c) {
+      c.setAttribute("aria-pressed", c.dataset.cat === state.cat ? "true" : "false");
+    });
+    var grid = $("themeGrid"); grid.innerHTML = "";
+    var list = THEMES.filter(function (t) { return state.cat === "Semua" || t.cat === state.cat; });
+    list.forEach(function (t) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "theme"; b.dataset.id = t.id;
+      b.setAttribute("aria-pressed", t.id === $("gaya").value ? "true" : "false");
+      b.innerHTML =
+        '<div class="theme-thumb" style="background:' + t.bg + '">' +
+          '<div class="t-hd" style="background:' + t.hd + '"><i style="background:' + (t.hdtx || "#fff") + '"></i></div>' +
+          '<div class="t-bd">' +
+            '<span style="background:' + t.sec + ';border-radius:' + t.rad + ';box-shadow:inset 0 2px 0 ' + t.acc + '"></span>' +
+            '<span style="background:' + t.sec + ';border-radius:' + t.rad + ';box-shadow:inset 0 2px 0 ' + t.acc + '"></span>' +
+            '<span style="background:' + t.acc + ';border-radius:' + t.rad + ';opacity:.85"></span>' +
+          '</div>' +
+        '</div>' +
+        '<b>' + esc(t.name) + '</b><small>' + esc(t.desc) + '</small>';
+      b.addEventListener("click", function () { selectTheme(t.id, true); });
+      grid.appendChild(b);
+    });
+    $("themeCount").textContent = THEMES.length + " tema";
+  }
+
+  function selectTheme(id, setWarna) {
+    var t = themeById(id);
+    $("gaya").value = t.id;
+    if (setWarna) $("warna").value = t.warna;
+    Array.prototype.forEach.call($("themeGrid").children, function (c) {
+      c.setAttribute("aria-pressed", c.dataset.id === t.id ? "true" : "false");
+    });
+    onChange();
+  }
+
+  $("btnRandomTheme").addEventListener("click", function () {
+    var pool = THEMES.filter(function (t) { return t.id !== $("gaya").value; });
+    var t = pool[Math.floor(Math.random() * pool.length)];
+    state.cat = "Semua"; renderThemes(); selectTheme(t.id, true);
+    var card = $("themeGrid").querySelector('[data-id="' + t.id + '"]');
+    if (card) card.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    toast("Tema: " + t.name);
+  });
+
+  // ---------- Segmented controls ----------
+  function bindSeg(el, key) {
+    el.addEventListener("click", function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      setSeg(el, key, b.dataset.v);
+      onChange();
+    });
+  }
+  function setSeg(el, key, v) {
+    state[key] = v;
+    Array.prototype.forEach.call(el.children, function (c) {
+      if (c.dataset.v) c.setAttribute("aria-pressed", c.dataset.v === v ? "true" : "false");
+    });
+  }
+  bindSeg($("segOrient"), "orient");
+  bindSeg($("segAI"), "ai");
+  bindSeg($("segMode"), "mode");
+
+  // ---------- Files ----------
+  var drop = $("drop"), fileInput = $("fileInput");
+  setupDrop(drop, fileInput, addFiles);
+  fileInput.addEventListener("change", function () { addFiles(fileInput.files); fileInput.value = ""; });
+
+  function setupDrop(zone, input, handler) {
+    zone.addEventListener("click", function () { input.click(); });
+    zone.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); } });
+    ["dragenter", "dragover"].forEach(function (ev) {
+      zone.addEventListener(ev, function (e) { e.preventDefault(); zone.classList.add("drag"); });
+    });
+    ["dragleave", "drop"].forEach(function (ev) {
+      zone.addEventListener(ev, function (e) { e.preventDefault(); zone.classList.remove("drag"); });
+    });
+    zone.addEventListener("drop", function (e) { handler(e.dataTransfer.files); });
+  }
+
+  function makeItem(f) {
+    var item = { name: f.name, size: f.size, type: f.type, url: null, img: null };
+    if (isImage(f)) {
+      item.url = URL.createObjectURL(f);
+      item.img = new Image();
+      item.img.onload = function () { if (studio.base) drawStudio(true); };
+      item.img.src = item.url;
+    }
+    return item;
+  }
+
+  function addFiles(list) {
+    Array.prototype.forEach.call(list, function (f) {
+      if (state.files.some(function (x) { return x.name === f.name && x.size === f.size; })) return;
+      state.files.push(makeItem(f));
+    });
+    renderFiles(); renderSlotList(); onChange();
+  }
+  function renderFiles() {
+    var ul = $("fileList"); ul.innerHTML = "";
+    state.files.forEach(function (f, i) {
+      var li = document.createElement("li"); li.className = "file";
+      var ext = (f.name.split(".").pop() || "").toUpperCase().slice(0, 4);
+      var thumb = f.url ? '<img alt="" src="' + f.url + '">' : esc(ext);
+      li.innerHTML = '<div class="file-thumb">' + thumb + '</div>' +
+        '<div class="file-meta"><b></b><small>' + fmtSize(f.size) + (isImage(f) ? " · gambar aktiviti" : " · dokumen rujukan") + '</small></div>' +
+        '<button type="button" aria-label="Buang fail"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>';
+      li.querySelector("b").textContent = f.name;
+      li.querySelector("button").addEventListener("click", function () {
+        var removed = photoPool().indexOf(f);
+        state.files.splice(i, 1);
+        fixSlotPhotos(removed);
+        if (f.url) URL.revokeObjectURL(f.url);
+        renderFiles(); renderSlotList(); drawStudio(true); onChange();
+      });
+      ul.appendChild(li);
+    });
+  }
+  function fmtSize(b) {
+    if (b < 1024) return b + " B";
+    if (b < 1048576) return (b / 1024).toFixed(0) + " KB";
+    return (b / 1048576).toFixed(1) + " MB";
+  }
+
+  // ---------- Read values ----------
+  function values() {
+    var v = {};
+    FIELDS.forEach(function (k) { v[k] = ($(k).value || "").trim(); });
+    return v;
+  }
+
+  // ---------- Prompt builder ----------
+  function buildPrompt(v) {
+    var fmt = FORMATS[v.format] || FORMATS.aktiviti;
+    var theme = themeById(v.gaya);
+    var orient = state.orient === "landskap" ? "A4 landskap (nisbah 297:210)" : "A4 potret (nisbah 210:297)";
+    var nPhotos = parseInt(v.gambar, 10) || 0;
+    var docs = state.files.filter(function (f) { return !isImage(f); }).map(function (f) { return f.name; });
+    var imgs = state.files.filter(isImage).map(function (f) { return f.name; });
+    var warna = v.warna || theme.warna;
+    var L = [];
+
+    L.push("## TUGASAN");
+    L.push("Hasilkan SATU imej One Page Report (OPR) berformat " + orient + ", resolusi tinggi dan sedia dicetak, untuk " + fmt.label.replace("OPR ", "") + " di bawah. Semua teks dalam imej mesti dalam Bahasa Melayu standard dengan ejaan yang betul.");
+    L.push("");
+    L.push("## MAKLUMAT HEADER (gunakan tepat seperti ditulis)");
+    L.push("- Tajuk: " + v.tajuk);
+    L.push("- Institusi: " + v.institusi);
+    if (v.anjuran) L.push("- Anjuran: " + v.anjuran);
+    L.push("- Tarikh: " + v.tarikh);
+    L.push("- Masa: " + v.masa);
+    L.push("- Tempat: " + v.tempat);
+    L.push("- Kumpulan sasaran: " + v.sasaran);
+    L.push("- Disediakan oleh: " + v.pelapor);
+    L.push("");
+    L.push("## RUJUKAN");
+    if (docs.length) {
+      L.push("Saya lampirkan dokumen rujukan berikut: " + docs.join(", ") + ". Baca dokumen ini dengan teliti sebelum menghasilkan imej.");
+    } else {
+      L.push("Saya akan lampirkan dokumen rujukan bersama prompt ini. Baca dokumen tersebut dengan teliti sebelum menghasilkan imej.");
+    }
+    L.push("Sumber dokumen: " + v.rujukan + ".");
+    L.push("Ekstrak daripada rujukan: " + (v.ekstrak.replace(/[.\s]+$/, "") || "objektif, aktiviti utama, fakta penting, data atau angka, impak dan cadangan tindakan") + ".");
+    L.push("Ringkaskan setiap isi kepada 2 hingga 4 poin pendek (maksimum 12 patah perkataan setiap poin) supaya muat dalam satu halaman dan mudah dibaca.");
+    L.push("");
+    L.push("## STRUKTUR KANDUNGAN");
+    L.push("1. Header: nama institusi (kecil, di atas), tajuk program (besar dan menonjol), label \"LAPORAN SATU MUKA\" di penjuru.");
+    L.push("2. Jalur maklumat: tarikh, masa, tempat dan kumpulan sasaran dalam 4 kotak kecil dengan ikon masing-masing.");
+    fmt.sections.forEach(function (s, i) { L.push((i + 3) + ". " + s + "."); });
+    var n = fmt.sections.length + 3;
+    if (nPhotos > 0) {
+      L.push(n + ". Ruang gambar: " + nPhotos + " bingkai gambar aktiviti bernisbah 4:3, tersusun kemas dalam grid, dengan ruang kapsyen pendek di bawah setiap satu.");
+      n++;
+    }
+    L.push(n + ". Footer: \"Disediakan oleh: " + v.pelapor + "\" di kiri, ruang tandatangan dan tarikh di kanan.");
+    L.push("");
+
+    if (nPhotos > 0 && state.mode === "kosong") {
+      L.push("## BINGKAI GAMBAR (PENTING)");
+      L.push("- JANGAN lukis, jana atau reka sebarang gambar orang atau aktiviti dalam bingkai gambar.");
+      L.push("- Isi setiap bingkai dengan warna kelabu rata #D9D9D9 dan label kecil di tengah: " + labels(nPhotos) + ".");
+      L.push("- Bingkai mesti bersih: tiada teks, ikon, corak atau hiasan yang bertindih di atasnya, kerana gambar sebenar akan ditampal kemudian.");
+      L.push("- Bucu bingkai tajam (tidak bulat), tanpa bayang dan tanpa kesan senget, supaya mudah ditampal dengan tepat.");
+      L.push("");
+    } else if (nPhotos > 0) {
+      L.push("## GAMBAR SEBENAR (PALING PENTING)");
+      if (imgs.length) {
+        L.push("Saya lampirkan " + imgs.length + " gambar aktiviti sebenar. Padankan ikut turutan:");
+        imgs.slice(0, nPhotos).forEach(function (name, i) { L.push("- Gambar " + (i + 1) + " = " + name); });
+      } else {
+        L.push("Saya akan lampirkan " + nPhotos + " gambar aktiviti sebenar. Padankan ikut turutan lampiran (gambar pertama untuk bingkai 1, dan seterusnya).");
+      }
+      L.push("- Masukkan setiap gambar SEBAGAI FOTO ASAL, seolah-olah foto itu ditampal ke dalam bingkai. Jangan lukis semula dan jangan jana versi baharu.");
+      L.push("- Kekalkan sepenuhnya wajah, bilangan orang, pakaian, kedudukan, latar belakang, teks dan objek dalam setiap gambar.");
+      L.push("- Jangan tambah filter, kesan kartun atau ilustrasi, pencahayaan baharu, orang tambahan atau objek tambahan.");
+      L.push("- Hanya ubah saiz dan crop sedikit di bahagian tepi supaya gambar muat dalam bingkai.");
+      L.push("- Jika tidak dapat mengekalkan gambar asal dengan tepat, biarkan bingkai itu kelabu kosong berlabel \"GAMBAR n\". Jangan reka gambar pengganti.");
+      L.push("");
+    }
+
+    L.push("## TEMA & ARAHAN VISUAL");
+    L.push("- Tema: " + theme.name + ". Gaya: " + theme.prompt + ".");
+    L.push("- Palet warna: " + warna + ". Gunakan warna utama untuk header dan footer, warna aksen untuk ikon dan garis pemisah.");
+    L.push("- Tipografi: tajuk tebal dan besar, sub-tajuk seksyen jelas, teks isi saiz seragam dan mudah dibaca bila dicetak.");
+    L.push("- Setiap seksyen dalam kad atau blok tersendiri dengan ikon kecil yang sesuai dengan tajuknya.");
+    L.push("- Hiasan tema tidak boleh mengganggu kebolehbacaan teks. Margin seimbang, tiada teks bertindih atau terpotong.");
+    L.push("");
+    L.push("## PENEGASAN");
+    L.push("- Gunakan HANYA maklumat daripada rujukan dan maklumat header di atas. Jangan reka nama, angka, statistik atau petikan yang tiada dalam rujukan.");
+    L.push("- Jika sesuatu maklumat tiada dalam rujukan, tinggalkan seksyen itu ringkas, jangan isi dengan andaian.");
+    if (v.penegasan) L.push("- " + v.penegasan.replace(/\n+/g, " "));
+    L.push("- Semak ejaan Bahasa Melayu sebelum menjana imej. Elak huruf berselerak atau perkataan yang tidak wujud.");
+    L.push("");
+    var ai = state.ai === "gemini" ? "Gemini" : "ChatGPT";
+    L.push("## CARA MENJANA (" + ai + ")");
+    if (state.ai === "gemini") {
+      L.push("Jana terus sebagai imej. Jika tidak dapat menjana imej dengan teks yang tepat, berikan dahulu ringkasan kandungan setiap seksyen untuk saya semak, kemudian jana imej selepas saya sahkan.");
+    } else {
+      L.push("Jana terus sebagai imej menggunakan penjana imej ChatGPT. Selepas imej siap, senaraikan teks yang digunakan dalam setiap seksyen supaya saya boleh semak ketepatannya.");
+    }
+    return L.join("\n");
+  }
+
+  function labels(n) {
+    var out = [];
+    for (var i = 1; i <= n; i++) out.push('"GAMBAR ' + i + '"');
+    return out.join(", ");
+  }
+
+  function highlight(text) {
+    return esc(text)
+      .replace(/^(## .*)$/gm, '<span class="h">$1</span>')
+      .replace(/^(- [^:\n]{1,28}:)/gm, '<span class="k">$1</span>');
+  }
+
+  // ---------- Slot map (bawah mod gambar) ----------
+  function renderSlotMap() {
+    var n = parseInt($("gambar").value, 10) || 0;
+    $("modeField").style.display = n ? "" : "none";
+    var imgs = state.files.filter(isImage);
+    var box = $("slotMap"); box.innerHTML = "";
+    if (!n) return;
+    if (!imgs.length) {
+      box.innerHTML = '<div style="color:var(--ink-3)">Muat naik gambar aktiviti di bahagian 02 supaya boleh dipadankan dengan bingkai.</div>';
+      return;
+    }
+    for (var i = 0; i < n; i++) {
+      var d = document.createElement("div");
+      d.innerHTML = "<code>GAMBAR " + (i + 1) + "</code> <span></span>";
+      d.querySelector("span").textContent = imgs[i] ? imgs[i].name : "(belum ada gambar)";
+      box.appendChild(d);
+    }
+  }
+
+  // ---------- Layout mock ----------
+  function renderMock(v) {
+    var fmt = FORMATS[v.format] || FORMATS.aktiviti;
+    var t = themeById(v.gaya);
+    var m = $("mock");
+    m.classList.toggle("land", state.orient === "landskap");
+    m.style.setProperty("--hd", t.hd);
+    m.style.setProperty("--hdtx", t.hdtx || "#fff");
+    m.style.setProperty("--c2", t.acc);
+    m.style.setProperty("--c1", t.tx);
+    m.style.setProperty("--bgm", t.bg);
+    m.style.setProperty("--sec", t.sec);
+    m.style.setProperty("--tx", t.tx);
+    m.style.setProperty("--rad", t.rad);
+    var nPhotos = parseInt(v.gambar, 10) || 0;
+    var imgs = state.files.filter(isImage);
+    var info = [["Tarikh", v.tarikh], ["Masa", v.masa], ["Tempat", v.tempat], ["Sasaran", v.sasaran]];
+    var html = '<div class="m-head"><div class="m-inst">' + esc(v.institusi || "Nama Institusi") + '</div>' +
+      '<div class="m-title">' + esc(v.tajuk || "Tajuk Program") + '</div><div class="m-badge">OPR</div></div>' +
+      '<div class="m-info">' + info.map(function (i) { return '<div><b>' + i[0] + '</b><span>' + esc(i[1] || "–") + '</span></div>'; }).join("") + '</div>' +
+      '<div class="m-body">' + fmt.sections.map(function (s) {
+        return '<div class="m-sec"><h6>' + esc(s) + '</h6><div class="m-line"></div><div class="m-line"></div><div class="m-line s"></div></div>';
+      }).join("") + '</div>';
+    if (nPhotos) {
+      html += '<div class="m-photos" style="grid-template-columns:repeat(' + Math.min(nPhotos, state.orient === "landskap" ? 6 : 3) + ',1fr)">';
+      for (var i = 0; i < nPhotos; i++) {
+        var im = imgs[i];
+        html += im && state.mode === "kekal"
+          ? '<div class="m-photo" style="background:url(' + im.url + ') center/cover"></div>'
+          : '<div class="m-photo">GAMBAR ' + (i + 1) + '</div>';
+      }
+      html += '</div>';
+    }
+    html += '<div class="m-foot"><span>Disediakan oleh: <b>' + esc(v.pelapor || "Nama Pelapor") + '</b></span><span>Tandatangan ________</span></div>';
+    m.innerHTML = html;
+
+    var list = $("mockList"); list.innerHTML = "";
+    ["Header & tajuk", "Jalur maklumat program"].concat(fmt.sections, nPhotos ? [nPhotos + " ruang gambar"] : [], ["Footer pelapor"]).forEach(function (s) {
+      var li = document.createElement("li"); li.textContent = s; list.appendChild(li);
+    });
+  }
+
+  // ---------- Validation & meter ----------
+  function updateMeter() {
+    var v = values();
+    var done = REQUIRED.filter(function (k) { return v[k]; }).length;
+    $("meterText").textContent = done + " / " + REQUIRED.length;
+    $("meterFill").style.width = (done / REQUIRED.length * 100) + "%";
+    return done === REQUIRED.length;
+  }
+  function validate() {
+    var first = null;
+    REQUIRED.forEach(function (k) {
+      var f = $(k).closest(".field");
+      var bad = !$(k).value.trim();
+      f.classList.toggle("invalid", bad);
+      if (bad && !first) first = $(k);
+    });
+    if (first) { first.focus({ preventScroll: true }); first.scrollIntoView({ behavior: "smooth", block: "center" }); }
+    return !first;
+  }
+
+  // ---------- Render output ----------
+  var currentPrompt = "";
+  function renderOutput() {
+    var v = values();
+    currentPrompt = buildPrompt(v);
+    $("promptBox").innerHTML = highlight(currentPrompt);
+    $("charCount").textContent = currentPrompt.length.toLocaleString("ms-MY") + " aksara · " + currentPrompt.split(/\s+/).length + " patah perkataan";
+    var fmt = FORMATS[v.format], t = themeById(v.gaya);
+    var nPhotos = parseInt(v.gambar, 10) || 0;
+    $("metaStrip").innerHTML =
+      '<span class="tag gold">' + esc(fmt.label) + '</span>' +
+      '<span class="tag blue">Tema: ' + esc(t.name) + '</span>' +
+      '<span class="tag">' + (state.orient === "landskap" ? "A4 Landskap" : "A4 Potret") + '</span>' +
+      (nPhotos ? '<span class="tag green">' + (state.mode === "kosong" ? nPhotos + " bingkai kosong" : nPhotos + " gambar asal") + '</span>' : "");
+    var isG = state.ai === "gemini";
+    var aiName = isG ? "Gemini" : "ChatGPT";
+    $("howto2").innerHTML = "<b>2. Lampirkan</b>" + (nPhotos && state.mode === "kosong"
+      ? "Buka " + aiName + ", lampirkan dokumen rujukan sahaja."
+      : "Buka " + aiName + ", lampirkan dokumen rujukan dan gambar ikut turutan.");
+    $("howto3").innerHTML = nPhotos && state.mode === "kosong"
+      ? "<b>3. Tampal</b>Muat turun hasil AI, buka tab Tampal gambar."
+      : "<b>3. Hantar</b>Tampal prompt dan tekan Enter.";
+    $("btnOpenAI").href = isG ? "https://gemini.google.com/app" : "https://chatgpt.com/";
+    $("btnOpenAI").querySelector("span").textContent = "Buka " + aiName;
+    renderMock(v);
+  }
+
+  function showGenerated() {
+    $("btnCopy").disabled = false; $("btnDownload").disabled = false;
+    setTab(state.tab);
+  }
+
+  function setTab(t) {
+    state.tab = t;
+    document.querySelectorAll(".tab").forEach(function (b) { b.setAttribute("aria-selected", b.dataset.tab === t ? "true" : "false"); });
+    if (t === "layout") renderMock(values());
+    $("panePrompt").classList.toggle("active", t === "prompt" && state.generated);
+    $("paneLayout").classList.toggle("active", t === "layout");
+    $("paneStudio").classList.toggle("active", t === "studio");
+    $("emptyState").style.display = (t === "prompt" && !state.generated) ? "" : "none";
+    if (t === "studio") { renderSlotList(); drawStudio(true); }
+  }
+  document.querySelectorAll(".tab").forEach(function (b) {
+    b.addEventListener("click", function () { setTab(b.dataset.tab); });
+  });
+
+  // ---------- Studio tampal gambar ----------
+  // Gambar asal ditampal terus ke atas imej OPR dari AI, jadi piksel gambar tidak diubah (hanya diskala dan dicrop).
+  var studio = { base: null, slots: [], extra: [], drag: null };
+  var canvas = $("studioCanvas"), ctx = canvas.getContext("2d");
+
+  function photoPool() { return state.files.filter(isImage).concat(studio.extra); }
+
+  function fixSlotPhotos(removedIndex) {
+    if (removedIndex < 0) return;
+    studio.slots.forEach(function (s) {
+      if (s.photo === removedIndex) s.photo = -1;
+      else if (s.photo > removedIndex) s.photo--;
+    });
+  }
+
+  setupDrop($("oprDrop"), $("oprInput"), loadBase);
+  $("oprInput").addEventListener("change", function () { loadBase(this.files); this.value = ""; });
+  $("btnNewOpr").addEventListener("click", function () { $("oprInput").click(); });
+  $("btnAddPhotos").addEventListener("click", function () { $("studioPhotoInput").click(); });
+  $("studioPhotoInput").addEventListener("change", function () {
+    Array.prototype.forEach.call(this.files, function (f) { if (isImage(f)) studio.extra.push(makeItem(f)); });
+    this.value = "";
+    // isi slot yang belum ada gambar
+    studio.slots.forEach(function (s) { if (s.photo < 0) s.photo = nextPhoto(); });
+    renderSlotList(); setTimeout(function () { drawStudio(true); }, 50);
+  });
+
+  function loadBase(files) {
+    var f = files && files[0];
+    if (!f || !isImage(f)) { toast("Sila pilih fail imej OPR (PNG/JPG)"); return; }
+    var img = new Image();
+    img.onload = function () {
+      studio.base = img; studio.slots = [];
+      canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+      $("oprDrop").hidden = true; $("studioGrid").hidden = false;
+      renderSlotList(); drawStudio(true);
+      toast("Imej OPR dimuat. Lukis kotak atas bingkai gambar");
+    };
+    img.src = URL.createObjectURL(f);
+  }
+
+  function nextPhoto() {
+    var pool = photoPool(); if (!pool.length) return -1;
+    var used = studio.slots.map(function (s) { return s.photo; });
+    for (var i = 0; i < pool.length; i++) if (used.indexOf(i) < 0) return i;
+    return studio.slots.length % pool.length;
+  }
+
+  function drawCover(img, x, y, w, h) {
+    var iw = img.naturalWidth, ih = img.naturalHeight;
+    if (!iw || !ih) return;
+    var scale = Math.max(w / iw, h / ih);
+    var sw = w / scale, sh = h / scale;
+    ctx.drawImage(img, (iw - sw) / 2, (ih - sh) / 2, sw, sh, x, y, w, h);
+  }
+
+  function drawStudio(guides) {
+    if (!studio.base) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(studio.base, 0, 0);
+    var pool = photoPool();
+    var lw = Math.max(2, canvas.width / 400);
+    studio.slots.forEach(function (s, i) {
+      var p = pool[s.photo];
+      if (p && p.img && p.img.complete) drawCover(p.img, s.x, s.y, s.w, s.h);
+      if (guides) {
+        ctx.lineWidth = lw; ctx.strokeStyle = "#2f5bea"; ctx.setLineDash([]);
+        ctx.strokeRect(s.x, s.y, s.w, s.h);
+        var r = Math.max(12, canvas.width / 70);
+        ctx.fillStyle = "#2f5bea";
+        ctx.beginPath(); ctx.arc(s.x + r + lw, s.y + r + lw, r, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#fff"; ctx.font = "bold " + Math.round(r * 1.1) + "px sans-serif";
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(String(i + 1), s.x + r + lw, s.y + r + lw + 1);
+      }
+    });
+    if (guides && studio.drag && studio.drag.w) {
+      var d = norm(studio.drag);
+      ctx.lineWidth = lw; ctx.strokeStyle = "#e0a93b"; ctx.setLineDash([lw * 4, lw * 3]);
+      ctx.fillStyle = "rgba(224,169,59,.18)";
+      ctx.fillRect(d.x, d.y, d.w, d.h); ctx.strokeRect(d.x, d.y, d.w, d.h);
+      ctx.setLineDash([]);
+    }
+    $("btnExport").disabled = !studio.slots.some(function (s) { return s.photo >= 0; });
+  }
+
+  function norm(r) {
+    return { x: Math.min(r.x, r.x + r.w), y: Math.min(r.y, r.y + r.h), w: Math.abs(r.w), h: Math.abs(r.h) };
+  }
+  function toCanvas(e) {
+    var rect = canvas.getBoundingClientRect();
+    return { x: (e.clientX - rect.left) * canvas.width / rect.width, y: (e.clientY - rect.top) * canvas.height / rect.height };
+  }
+  canvas.addEventListener("pointerdown", function (e) {
+    if (!studio.base) return;
+    var p = toCanvas(e);
+    studio.drag = { x: p.x, y: p.y, w: 0, h: 0 };
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener("pointermove", function (e) {
+    if (!studio.drag) return;
+    var p = toCanvas(e);
+    studio.drag.w = p.x - studio.drag.x; studio.drag.h = p.y - studio.drag.y;
+    drawStudio(true);
+  });
+  canvas.addEventListener("pointerup", function () {
+    if (!studio.drag) return;
+    var d = norm(studio.drag); studio.drag = null;
+    if (d.w > canvas.width / 60 && d.h > canvas.height / 80) {
+      d.photo = nextPhoto();
+      studio.slots.push(d);
+      renderSlotList();
+      if (d.photo < 0) toast("Tambah gambar dahulu untuk isi bingkai ini");
+    }
+    drawStudio(true);
+  });
+
+  function renderSlotList() {
+    var ul = $("slotList"); if (!ul) return;
+    ul.innerHTML = "";
+    var pool = photoPool();
+    if (!studio.slots.length) {
+      ul.innerHTML = '<li class="slot-empty">Belum ada bingkai. Seret atas imej untuk mula.</li>';
+      return;
+    }
+    studio.slots.forEach(function (s, i) {
+      var li = document.createElement("li"); li.className = "slot-item";
+      var sel = document.createElement("select");
+      sel.setAttribute("aria-label", "Gambar untuk bingkai " + (i + 1));
+      sel.innerHTML = '<option value="-1">Tiada gambar</option>' + pool.map(function (p, j) {
+        return '<option value="' + j + '"' + (j === s.photo ? " selected" : "") + '>' + esc(p.name) + '</option>';
+      }).join("");
+      sel.addEventListener("change", function () { s.photo = parseInt(sel.value, 10); drawStudio(true); });
+      var del = document.createElement("button");
+      del.type = "button"; del.setAttribute("aria-label", "Buang bingkai"); del.innerHTML = "&times;";
+      del.addEventListener("click", function () { studio.slots.splice(i, 1); renderSlotList(); drawStudio(true); });
+      li.innerHTML = "<code>" + (i + 1) + "</code>";
+      li.appendChild(sel); li.appendChild(del);
+      ul.appendChild(li);
+    });
+  }
+
+  $("btnExport").addEventListener("click", function () {
+    drawStudio(false);
+    canvas.toBlob(function (blob) {
+      var name = "OPR-" + ($("tajuk").value.trim() || "akhir").replace(/[^\w\- ]+/g, "").replace(/\s+/g, "-").slice(0, 50) + ".png";
+      var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+      drawStudio(true);
+      toast("OPR akhir dimuat turun: " + name);
+    }, "image/png");
+  });
+
+  // ---------- Events ----------
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!validate()) { toast("Ada maklumat wajib yang belum diisi"); return; }
+    state.generated = true;
+    state.tab = "prompt";
+    renderOutput(); showGenerated();
+    if (window.innerWidth <= 980) document.querySelector(".preview").scrollIntoView({ behavior: "smooth" });
+    toast("Prompt OPR siap dijana");
+  });
+
+  form.addEventListener("input", function (e) {
+    var f = e.target.closest(".field");
+    if (f && f.classList.contains("invalid") && e.target.value.trim()) f.classList.remove("invalid");
+    onChange();
+  });
+  form.addEventListener("change", onChange);
+
+  var saveTimer;
+  function onChange() {
+    updateMeter();
+    renderSlotMap();
+    if (state.generated) renderOutput();
+    else if (state.tab === "layout") renderMock(values());
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(save, 400);
+  }
+
+  $("btnCopy").addEventListener("click", function () {
+    var btn = this;
+    copyText(currentPrompt).then(function () {
+      btn.classList.add("copied"); btn.querySelector("span").textContent = "Disalin";
+      toast("Prompt disalin. Tampal dalam " + (state.ai === "gemini" ? "Gemini" : "ChatGPT"));
+      setTimeout(function () { btn.classList.remove("copied"); btn.querySelector("span").textContent = "Salin prompt"; }, 1800);
+    }, function () { toast("Tak dapat salin. Sila pilih teks dan salin secara manual."); });
+  });
+
+  function copyText(t) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(t);
+    return new Promise(function (res, rej) {
+      var ta = document.createElement("textarea"); ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy") ? res() : rej(); } catch (err) { rej(err); }
+      document.body.removeChild(ta);
+    });
+  }
+
+  $("btnDownload").addEventListener("click", function () {
+    var name = "Prompt-OPR-" + ($("tajuk").value.trim() || "program").replace(/[^\w\- ]+/g, "").replace(/\s+/g, "-").slice(0, 50) + ".txt";
+    var blob = new Blob([currentPrompt], { type: "text/plain;charset=utf-8" });
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+    toast("Fail " + name + " dimuat turun");
+  });
+
+  $("btnSample").addEventListener("click", function () {
+    Object.keys(SAMPLE).forEach(function (k) { $(k).value = SAMPLE[k]; });
+    selectTheme("institusi", true);
+    setSeg($("segOrient"), "orient", "potret");
+    document.querySelectorAll(".field.invalid").forEach(function (f) { f.classList.remove("invalid"); });
+    onChange();
+    toast("Contoh diisi. Tekan Jana Prompt OPR");
+  });
+
+  $("btnReset").addEventListener("click", function () {
+    if (!confirm("Kosongkan semua maklumat dalam borang?")) return;
+    form.reset();
+    state.files.forEach(function (f) { if (f.url) URL.revokeObjectURL(f.url); });
+    state.files = []; renderFiles();
+    state.generated = false;
+    $("btnCopy").disabled = true; $("btnDownload").disabled = true;
+    state.cat = "Semua"; renderThemes();
+    selectTheme("institusi", true);
+    setSeg($("segOrient"), "orient", "potret");
+    setSeg($("segAI"), "ai", "chatgpt");
+    setSeg($("segMode"), "mode", "kosong");
+    document.querySelectorAll(".field.invalid").forEach(function (f) { f.classList.remove("invalid"); });
+    setTab("prompt");
+    onChange();
+    toast("Borang dikosongkan");
+  });
+
+  // ---------- Persistence (per pelayar) ----------
+  function save() {
+    try {
+      var data = values(); data._orient = state.orient; data._ai = state.ai; data._mode = state.mode;
+      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+    } catch (e) { /* storage tak tersedia */ }
+  }
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORE_KEY); if (!raw) return false;
+      var d = JSON.parse(raw);
+      FIELDS.forEach(function (k) { if (typeof d[k] === "string" && d[k] !== "" && $(k)) $(k).value = d[k]; });
+      if (d._orient) setSeg($("segOrient"), "orient", d._orient);
+      if (d._ai) setSeg($("segAI"), "ai", d._ai);
+      if (d._mode) setSeg($("segMode"), "mode", d._mode);
+      if (!$("gambar").value) $("gambar").value = "3";
+      selectTheme(d.gaya || "institusi", !d.warna);
+      return true;
+    } catch (e) { return false; }
+  }
+
+  // ---------- Toast ----------
+  var toastTimer;
+  function toast(msg) {
+    $("toastText").textContent = msg;
+    $("toast").classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { $("toast").classList.remove("show"); }, 2400);
+  }
+
+  // ---------- Init ----------
+  renderThemes();
+  if (!load()) selectTheme("institusi", true);
+  updateMeter();
+  renderSlotMap();
+  setTab("prompt");
+})();
+</script>
+</body>
+</html>
