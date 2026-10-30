@@ -378,34 +378,6 @@
   .mock-side ol { margin: 8px 0 0; padding-left: 18px; }
   .mock-side li { margin-bottom: 4px; }
 
-  /* ---------- Themes ---------- */
-  .theme-tools { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
-  .theme-tools .chips { flex: 1; }
-  .chip.sm { padding: 5px 10px; font-size: 12px; }
-  .themes {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
-    max-height: 420px; overflow: auto; padding: 2px 4px 4px 2px; margin-right: -4px;
-  }
-  .themes::-webkit-scrollbar { width: 8px; }
-  .themes::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 8px; }
-  .theme {
-    border: 1.5px solid var(--line-2); background: #fff; border-radius: 12px; padding: 6px; cursor: pointer;
-    text-align: left; transition: border-color .15s, transform .15s, box-shadow .15s; position: relative;
-  }
-  .theme:hover { border-color: #b9c3d6; transform: translateY(-1px); }
-  .theme[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-  .theme[aria-pressed="true"]::after {
-    content: "✓"; position: absolute; top: 10px; right: 10px; width: 18px; height: 18px; border-radius: 50%;
-    background: var(--accent); color: #fff; font-size: 11px; font-weight: 800; display: grid; place-items: center;
-  }
-  .theme-thumb { height: 64px; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
-  .theme-thumb .t-hd { height: 22px; display: flex; align-items: center; padding: 0 7px; }
-  .theme-thumb .t-hd i { display: block; height: 4px; width: 55%; border-radius: 2px; opacity: .85; }
-  .theme-thumb .t-bd { flex: 1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 6px 7px; }
-  .theme-thumb .t-bd span { border-radius: 3px; }
-  .theme b { display: block; font-size: 12.5px; margin: 7px 3px 0; line-height: 1.25; }
-  .theme small { display: block; font-size: 11px; color: var(--ink-3); margin: 1px 3px 2px; line-height: 1.3; }
-
   /* photo mode cards */
   .modes { display: grid; gap: 8px; }
   .mode {
@@ -446,6 +418,95 @@
   .slot-empty { font-size: 12px; color: var(--ink-3); border: 1px dashed var(--line-2); border-radius: 10px; padding: 10px; text-align: center; }
   .studio-actions { display: grid; gap: 8px; }
   .studio-actions .btn { justify-content: center; }
+
+  /* ---------- Theme dropdown ---------- */
+  .tpick { display: flex; gap: 8px; }
+  .tsel { position: relative; flex: 1; min-width: 0; }
+  .tsel-btn {
+    width: 100%; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;
+    border: 1.5px solid var(--line-2); background: #fbfcfe; border-radius: 11px; padding: 7px 36px 7px 8px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%233b4a66' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .tsel-btn:hover { border-color: #b9c3d6; }
+  .tsel-btn[aria-expanded="true"], .tsel-btn:focus-visible { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); outline: none; background-color: #fff; }
+  .tmini { width: 34px; height: 26px; border-radius: 6px; flex: none; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 0 0 1px rgba(15,27,51,.08); }
+  .tmini i { display: block; height: 9px; }
+  .tmini b { flex: 1; display: flex; gap: 2px; padding: 3px; }
+  .tmini b span { flex: 1; border-radius: 2px; }
+  .tsel-txt { flex: 1; min-width: 0; line-height: 1.25; }
+  .tsel-txt strong { display: block; font-size: 13.5px; }
+  .tsel-txt small { display: block; font-size: 11.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tcat { font-size: 10px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: var(--ink-3); background: var(--bg); padding: 2px 6px; border-radius: 5px; flex: none; }
+  .tsel-pop {
+    position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 6px);
+    background: #fff; border: 1px solid var(--line); border-radius: 13px; box-shadow: var(--shadow-lg); overflow: hidden;
+    animation: pop .15s ease;
+  }
+  .tsel-cats { display: flex; gap: 2px; padding: 6px; background: var(--bg); overflow-x: auto; }
+  .tsel-cats button {
+    flex: 1; border: 0; background: transparent; padding: 6px 8px; border-radius: 8px; font-size: 12px; font-weight: 600;
+    color: var(--ink-3); cursor: pointer; white-space: nowrap;
+  }
+  .tsel-cats button[aria-selected="true"] { background: #fff; color: var(--ink); box-shadow: var(--shadow); }
+  .tsel-list { list-style: none; margin: 0; padding: 4px; max-height: 264px; overflow-y: auto; }
+  .tsel-list li {
+    display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 9px; cursor: pointer;
+  }
+  .tsel-list li:hover, .tsel-list li.active { background: var(--accent-soft); }
+  .tsel-list li[aria-selected="true"] .tsel-txt strong { color: var(--accent); }
+  .tsel-list li[aria-selected="true"]::after { content: "✓"; color: var(--accent); font-weight: 800; font-size: 13px; }
+  .icon-btn {
+    flex: none; width: 44px; border: 1.5px solid var(--line-2); background: #fff; border-radius: 11px; cursor: pointer;
+    display: grid; place-items: center; color: var(--ink-2); transition: all .15s;
+  }
+  .icon-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+  /* switch */
+  .switch { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; font-size: 13px; font-weight: 600; margin-top: 2px; }
+  .switch input { position: absolute; opacity: 0; pointer-events: none; }
+  .switch .track { width: 34px; height: 20px; border-radius: 99px; background: var(--line-2); position: relative; flex: none; transition: background .15s; margin-top: 1px; }
+  .switch .track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.2); transition: transform .15s; }
+  .switch input:checked + .track { background: var(--ok); }
+  .switch input:checked + .track::after { transform: translateX(14px); }
+  .switch input:focus-visible + .track { box-shadow: 0 0 0 4px var(--accent-soft); }
+  .switch small { display: block; font-weight: 500; font-size: 11.5px; color: var(--ink-3); margin-top: 1px; }
+
+  /* ---------- Compact ---------- */
+  .hero { padding: 20px 16px 84px; }
+  .hero h1 { margin: 26px 0 8px; font-size: clamp(24px, 3.2vw, 36px); letter-spacing: -.8px; }
+  .hero p.lead { font-size: 14.5px; }
+  .steps { margin-top: 16px; }
+  .wrap { margin-top: -60px; gap: 20px; }
+  .form-card { padding: 20px 20px 18px; }
+  .form-head h2 { font-size: 18px; }
+  .form-head p { font-size: 12.5px; }
+  .meter { margin: 14px 0 4px; }
+  .sec { padding-top: 16px; margin-top: 16px; }
+  .sec-title { margin-bottom: 12px; font-size: 11px; }
+  .field { margin-bottom: 11px; }
+  .field label { font-size: 12.5px; margin-bottom: 5px; }
+  .row-2 { gap: 10px; }
+  .input, .select, .textarea { padding: 9px 12px; font-size: 13.5px; border-radius: 10px; }
+  .select { padding-right: 34px; }
+  .textarea { min-height: 70px; }
+  .textarea.sm { min-height: 52px; }
+  .drop { padding: 14px 12px; }
+  .drop-icon { width: 34px; height: 34px; margin-bottom: 6px; }
+  .note { font-size: 11.5px; padding: 8px 10px; }
+  .seg button { padding: 7px; font-size: 12.5px; }
+  .logos { grid-template-columns: repeat(3, 1fr); }
+  .logo-slot { aspect-ratio: auto; height: 96px; padding: 6px; }
+  .logo-slot img { max-height: 44px; }
+  .mode { padding: 9px 11px; }
+  .mode small { font-size: 11.5px; }
+  .gen-btn { padding: 13px 16px; font-size: 14.5px; }
+  .pv-head { padding: 12px 16px; }
+  .meta-strip { padding: 12px 16px 0; }
+  .prompt-box { margin: 12px 16px 0; font-size: 12.3px; line-height: 1.65; }
+  .howto { margin: 12px 16px 0; }
+  .pv-foot { padding: 10px 16px 14px; }
 
   /* toast */
   .toast {
@@ -561,37 +622,43 @@
         </div>
         <div class="field" data-req>
           <label for="masa">Masa<span><span class="req">*</span></span></label>
-          <input class="input" id="masa" name="masa" placeholder="Contoh: 8.00 pagi – 1.00 tgh">
+          <input class="input" id="masa" name="masa" placeholder="Contoh: 8.00 pg – 1.00 ptg">
           <div class="err-msg">Sila isi masa.</div>
         </div>
       </div>
-      <div class="field" data-req>
-        <label for="tempat">Tempat<span><span class="req">*</span></span></label>
-        <input class="input" id="tempat" name="tempat" placeholder="Contoh: Dewan Bestari">
-        <div class="err-msg">Sila isi tempat.</div>
+      <div class="row-2">
+        <div class="field" data-req>
+          <label for="tempat">Tempat<span><span class="req">*</span></span></label>
+          <input class="input" id="tempat" name="tempat" placeholder="Contoh: Dewan Bestari">
+          <div class="err-msg">Sila isi tempat.</div>
+        </div>
+        <div class="field" data-req>
+          <label for="sasaran">Kumpulan sasaran<span><span class="req">*</span></span></label>
+          <input class="input" id="sasaran" name="sasaran" placeholder="Contoh: 40 orang guru">
+          <div class="err-msg">Sila isi kumpulan sasaran.</div>
+        </div>
       </div>
-      <div class="field" data-req>
-        <label for="sasaran">Kumpulan sasaran<span><span class="req">*</span></span></label>
-        <input class="input" id="sasaran" name="sasaran" placeholder="Contoh: 40 orang guru">
-        <div class="err-msg">Sila isi kumpulan sasaran.</div>
+      <div class="row-2">
+        <div class="field" data-req>
+          <label for="pelapor">Pelapor<span><span class="req">*</span></span></label>
+          <input class="input" id="pelapor" name="pelapor" placeholder="Nama, jawatan">
+          <div class="err-msg">Sila isi nama pelapor.</div>
+        </div>
+        <div class="field">
+          <label for="disahkan">Disahkan oleh <span class="hint">pilihan</span></label>
+          <input class="input" id="disahkan" name="disahkan" placeholder="Contoh: Guru Besar">
+        </div>
       </div>
-      <div class="field" data-req>
-        <label for="pelapor">Guru / pegawai pelapor<span><span class="req">*</span></span></label>
-        <input class="input" id="pelapor" name="pelapor" placeholder="Nama dan jawatan, contoh: Pn. Aisyah, Guru Penyelaras ICT">
-        <div class="err-msg">Sila isi nama pelapor.</div>
-      </div>
-      <div class="field">
-        <label for="disahkan">Disahkan oleh <span class="hint">pilihan</span></label>
-        <input class="input" id="disahkan" name="disahkan" placeholder="Contoh: Pn. Rohani binti Ali, Guru Besar">
-      </div>
-      <div class="field">
-        <label for="anjuran">Anjuran / kerjasama <span class="hint">pilihan</span></label>
-        <input class="input" id="anjuran" name="anjuran" placeholder="Contoh: Unit Kurikulum dengan kerjasama PPD Seremban">
-      </div>
-      <div class="field" data-req>
-        <label for="rujukan">Rujukan / sumber dokumen<span><span class="req">*</span></span></label>
-        <input class="input" id="rujukan" name="rujukan" placeholder="Contoh: Buku Panduan Literasi AI KPM 2026">
-        <div class="err-msg">Sila nyatakan sumber rujukan.</div>
+      <div class="row-2">
+        <div class="field" data-req>
+          <label for="rujukan">Sumber rujukan<span><span class="req">*</span></span></label>
+          <input class="input" id="rujukan" name="rujukan" placeholder="Contoh: Kertas kerja program">
+          <div class="err-msg">Sila nyatakan sumber rujukan.</div>
+        </div>
+        <div class="field">
+          <label for="anjuran">Anjuran <span class="hint">pilihan</span></label>
+          <input class="input" id="anjuran" name="anjuran" placeholder="Contoh: Unit Kurikulum">
+        </div>
       </div>
     </section>
 
@@ -614,7 +681,11 @@
         <span>Fail tak dihantar ke mana-mana pelayan. Nama fail cuma dimasukkan dalam prompt. Anda perlu muat naik fail yang sama sekali lagi bersama prompt dalam ChatGPT atau Gemini.</span>
       </div>
 
-      <div class="field" style="margin-top:16px">
+      <div class="field" style="margin-top:14px">
+        <label for="objektif">Objektif utama <span class="hint">pilihan, kalau nak kunci ayat tepat</span></label>
+        <textarea class="textarea sm" id="objektif" name="objektif" placeholder="Contoh: Meningkatkan kemahiran guru menggunakan AI dalam penyediaan bahan PdP."></textarea>
+      </div>
+      <div class="field">
         <label for="ekstrak">Apa yang AI perlu ekstrak daripada rujukan?</label>
         <textarea class="textarea" id="ekstrak" name="ekstrak" placeholder="Contoh: Kenal pasti objektif, empat fokus utama, aktiviti atau kandungan, fakta penting, data/angka, impak dan cadangan tindakan."></textarea>
       </div>
@@ -628,25 +699,36 @@
     <section class="sec">
       <div class="sec-title"><span class="sec-num">03</span> Format &amp; tema visual</div>
 
-      <div class="field">
-        <label for="format">Format OPR</label>
-        <select class="select" id="format" name="format"></select>
+      <div class="row-2">
+        <div class="field">
+          <label for="format">Format OPR</label>
+          <select class="select" id="format" name="format"></select>
+        </div>
+        <div class="field">
+          <label for="pembaca">Pembaca OPR</label>
+          <select class="select" id="pembaca" name="pembaca"></select>
+        </div>
       </div>
       <div class="field">
         <label>Tema <span class="hint" id="themeCount"></span></label>
         <input type="hidden" id="gaya" name="gaya">
-        <div class="theme-tools">
-          <div class="chips" id="themeCats" role="group" aria-label="Kategori tema"></div>
-          <button type="button" class="chip sm" id="btnRandomTheme" title="Pilih tema rawak"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg>Rawak</button>
+        <div class="tpick">
+          <div class="tsel" id="themeSelect">
+            <button type="button" class="tsel-btn" id="themeBtn" aria-haspopup="listbox" aria-expanded="false"></button>
+            <div class="tsel-pop" id="themePop" hidden>
+              <div class="tsel-cats" id="themeCats" role="tablist" aria-label="Kategori tema"></div>
+              <ul class="tsel-list" id="themeList" role="listbox" aria-label="Pilihan tema"></ul>
+            </div>
+          </div>
+          <button type="button" class="icon-btn" id="btnRandomTheme" title="Tema rawak" aria-label="Pilih tema rawak"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg></button>
         </div>
-        <div class="themes" id="themeGrid" role="group" aria-label="Pilihan tema"></div>
       </div>
       <div class="field">
-        <label for="warna">Warna utama <span class="hint">ikut tema, boleh ubah</span></label>
+        <label for="warna">Warna <span class="hint">ikut tema, boleh ubah</span></label>
         <input class="input" id="warna" name="warna" placeholder="Contoh: Navy, biru muda, putih dan aksen emas">
       </div>
       <div class="field">
-        <label>Gaya susun atur <span class="hint">ikut tema, boleh ubah</span></label>
+        <label>Susun atur <span class="hint">ikut tema, boleh ubah</span></label>
         <div class="seg seg-3" id="segLayout">
           <button type="button" data-v="kemas" aria-pressed="true">Kemas</button>
           <button type="button" data-v="seimbang" aria-pressed="false">Seimbang</button>
@@ -670,13 +752,18 @@
           </div>
         </div>
       </div>
+      <label class="switch">
+        <input type="checkbox" id="semak" checked>
+        <span class="track" aria-hidden="true"></span>
+        <span>Semak teks dulu sebelum jana imej<small>AI tunjuk draf teks setiap blok untuk disahkan. Kurang ralat ejaan dan fakta.</small></span>
+      </label>
     </section>
 
     <!-- 04 -->
     <section class="sec">
       <div class="sec-title"><span class="sec-num">04</span> Gambar aktiviti</div>
       <div class="field">
-        <label for="gambar">Bilangan ruang gambar</label>
+        <label for="gambar">Ruang gambar</label>
         <select class="select" id="gambar" name="gambar">
           <option value="0">Tiada gambar</option>
           <option value="1">1 gambar</option>
@@ -929,10 +1016,19 @@
     berani: { label: "Berani", text: "Komposisi berani gaya poster atau editorial: asimetri, saiz blok berbeza-beza, tajuk besar yang dominan, ruang kosong digunakan dengan sengaja." }
   };
 
+  // Pembaca OPR menentukan nada dan apa yang ditonjolkan.
+  var READERS = {
+    pentadbir: { label: "Pentadbir sekolah (GB / PK)", nada: "ringkas, berfakta dan profesional", fokus: "keberhasilan program dan tindakan susulan yang jelas" },
+    ppd: { label: "PPD / JPN / KPM", nada: "formal dan berwibawa", fokus: "data pencapaian, impak kepada guru dan murid, serta keselarasan dengan objektif program" },
+    ibubapa: { label: "Ibu bapa & komuniti", nada: "mesra dan mudah difahami, tanpa jargon", fokus: "manfaat kepada murid dan penglibatan komuniti" },
+    medsos: { label: "Media sosial sekolah", nada: "menarik dan bertenaga, ayat sangat ringkas", fokus: "momen terbaik, pencapaian dan gambar yang kuat" },
+    arkib: { label: "Fail rekod / arkib", nada: "formal, lengkap dan teratur", fokus: "butiran pelaksanaan yang lengkap untuk rujukan masa depan" }
+  };
+
   var CATS = ["Semua", "Rasmi", "Moden", "Kreatif", "Tematik"];
   var LEGACY_THEME = { rasmi: "kerajaan" };
 
-  var FIELDS = ["tajuk", "institusi", "tarikh", "masa", "tempat", "sasaran", "pelapor", "disahkan", "anjuran", "rujukan", "ekstrak", "penegasan", "format", "gaya", "warna", "gambar"];
+  var FIELDS = ["tajuk", "institusi", "tarikh", "masa", "tempat", "sasaran", "pelapor", "disahkan", "anjuran", "rujukan", "objektif", "ekstrak", "penegasan", "format", "pembaca", "gaya", "warna", "gambar"];
   var REQUIRED = ["tajuk", "institusi", "tarikh", "masa", "tempat", "sasaran", "pelapor", "rujukan"];
   var STORE_KEY = "opr-prompt-generator:v1";
 
@@ -948,12 +1044,14 @@
     rujukan: "Nota Bengkel KPM x TCC",
     ekstrak: "Pelaksanaan dan penggunaan ChatGPT & Gemini dalam tugas harian pegawai, modul yang diajar, hasil kerja peserta dan cadangan susulan.",
     penegasan: "Masukkan info yang relevan sahaja. Jangan reka statistik yang tiada dalam rujukan.",
+    objektif: "Meningkatkan kemahiran pegawai menggunakan ChatGPT dan Gemini untuk mengautomasikan tugas harian",
     format: "kursus",
+    pembaca: "ppd",
     gambar: "3"
   };
 
   // ---------- State ----------
-  var state = { orient: "potret", ai: "chatgpt", mode: "kosong", layout: "kemas", cat: "Semua", files: [], logos: [null], generated: false, tab: "prompt" };
+  var state = { semak: true, orient: "potret", ai: "chatgpt", mode: "kosong", layout: "kemas", cat: "Semua", files: [], logos: [null], generated: false, tab: "prompt" };
 
   var $ = function (id) { return document.getElementById(id); };
   var form = $("oprForm");
@@ -967,62 +1065,91 @@
   }
   function isImage(f) { return /^image\//.test(f.type); }
 
+  // ---------- Pembaca select ----------
+  Object.keys(READERS).forEach(function (k) {
+    var o = document.createElement("option"); o.value = k; o.textContent = READERS[k].label; $("pembaca").appendChild(o);
+  });
+
   // ---------- Format select ----------
   Object.keys(FORMATS).forEach(function (k) {
     var o = document.createElement("option"); o.value = k; o.textContent = FORMATS[k].label; $("format").appendChild(o);
   });
 
-  // ---------- Themes ----------
+  // ---------- Themes (dropdown compact) ----------
+  function themeMini(t) {
+    return '<span class="tmini" style="background:' + t.bg + '"><i style="background:' + t.hd + '"></i><b>' +
+      '<span style="background:' + t.sec + ';box-shadow:inset 0 0 0 1px rgba(127,127,127,.2)"></span>' +
+      '<span style="background:' + t.acc + '"></span></b></span>';
+  }
+  function themeRow(t) {
+    return themeMini(t) + '<span class="tsel-txt"><strong>' + esc(t.name) + '</strong><small>' + esc(t.desc) + '</small></span>';
+  }
+
   CATS.forEach(function (c) {
     var b = document.createElement("button");
-    b.type = "button"; b.className = "chip sm"; b.dataset.cat = c; b.textContent = c;
-    b.addEventListener("click", function () { state.cat = c; renderThemes(); });
+    b.type = "button"; b.dataset.cat = c; b.textContent = c; b.setAttribute("role", "tab");
+    b.addEventListener("click", function (e) { e.stopPropagation(); state.cat = c; renderThemes(); });
     $("themeCats").appendChild(b);
   });
-  $("themeCats").appendChild($("btnRandomTheme"));
 
+  var themeActive = -1;
   function renderThemes() {
     Array.prototype.forEach.call($("themeCats").children, function (c) {
-      c.setAttribute("aria-pressed", c.dataset.cat === state.cat ? "true" : "false");
+      c.setAttribute("aria-selected", c.dataset.cat === state.cat ? "true" : "false");
     });
-    var grid = $("themeGrid"); grid.innerHTML = "";
-    var list = THEMES.filter(function (t) { return state.cat === "Semua" || t.cat === state.cat; });
-    list.forEach(function (t) {
-      var b = document.createElement("button");
-      b.type = "button"; b.className = "theme"; b.dataset.id = t.id;
-      b.setAttribute("aria-pressed", t.id === $("gaya").value ? "true" : "false");
-      b.innerHTML =
-        '<div class="theme-thumb" style="background:' + t.bg + '">' +
-          '<div class="t-hd" style="background:' + t.hd + '"><i style="background:' + (t.hdtx || "#fff") + '"></i></div>' +
-          '<div class="t-bd">' +
-            '<span style="background:' + t.sec + ';border-radius:' + t.rad + ';box-shadow:inset 0 2px 0 ' + t.acc + '"></span>' +
-            '<span style="background:' + t.sec + ';border-radius:' + t.rad + ';box-shadow:inset 0 2px 0 ' + t.acc + '"></span>' +
-            '<span style="background:' + t.acc + ';border-radius:' + t.rad + ';opacity:.85"></span>' +
-          '</div>' +
-        '</div>' +
-        '<b>' + esc(t.name) + '</b><small>' + esc(t.desc) + '</small>';
-      b.addEventListener("click", function () { selectTheme(t.id, true); });
-      grid.appendChild(b);
+    var ul = $("themeList"); ul.innerHTML = "";
+    THEMES.filter(function (t) { return state.cat === "Semua" || t.cat === state.cat; }).forEach(function (t) {
+      var li = document.createElement("li");
+      li.setAttribute("role", "option"); li.dataset.id = t.id;
+      li.setAttribute("aria-selected", t.id === $("gaya").value ? "true" : "false");
+      li.innerHTML = themeRow(t);
+      li.addEventListener("click", function () { selectTheme(t.id, true); closeThemes(true); });
+      ul.appendChild(li);
     });
+    themeActive = -1;
+    var t = themeById($("gaya").value);
+    $("themeBtn").innerHTML = themeRow(t) + '<span class="tcat">' + t.cat + '</span>';
     $("themeCount").textContent = THEMES.length + " tema";
   }
+
+  function openThemes() {
+    $("themePop").hidden = false; $("themeBtn").setAttribute("aria-expanded", "true");
+    var sel = $("themeList").querySelector('[aria-selected="true"]');
+    if (sel) sel.scrollIntoView({ block: "nearest" });
+  }
+  function closeThemes(focus) {
+    $("themePop").hidden = true; $("themeBtn").setAttribute("aria-expanded", "false");
+    if (focus) $("themeBtn").focus();
+  }
+  $("themeBtn").addEventListener("click", function () { $("themePop").hidden ? openThemes() : closeThemes(); });
+  document.addEventListener("click", function (e) { if (!$("themeSelect").contains(e.target)) closeThemes(); });
+  $("themeSelect").addEventListener("keydown", function (e) {
+    var items = $("themeList").children;
+    if (e.key === "Escape") { closeThemes(true); return; }
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      if ($("themePop").hidden) { openThemes(); return; }
+      themeActive = Math.max(0, Math.min(items.length - 1, themeActive + (e.key === "ArrowDown" ? 1 : -1)));
+      Array.prototype.forEach.call(items, function (li, i) { li.classList.toggle("active", i === themeActive); });
+      items[themeActive].scrollIntoView({ block: "nearest" });
+    }
+    if (e.key === "Enter" && !$("themePop").hidden && items[themeActive]) {
+      e.preventDefault(); selectTheme(items[themeActive].dataset.id, true); closeThemes(true);
+    }
+  });
 
   function selectTheme(id, setWarna) {
     var t = themeById(id);
     $("gaya").value = t.id;
     if (setWarna) { $("warna").value = t.warna; setSeg($("segLayout"), "layout", t.layout); }
-    Array.prototype.forEach.call($("themeGrid").children, function (c) {
-      c.setAttribute("aria-pressed", c.dataset.id === t.id ? "true" : "false");
-    });
+    renderThemes();
     onChange();
   }
 
   $("btnRandomTheme").addEventListener("click", function () {
     var pool = THEMES.filter(function (t) { return t.id !== $("gaya").value; });
     var t = pool[Math.floor(Math.random() * pool.length)];
-    state.cat = "Semua"; renderThemes(); selectTheme(t.id, true);
-    var card = $("themeGrid").querySelector('[data-id="' + t.id + '"]');
-    if (card) card.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    state.cat = "Semua"; selectTheme(t.id, true);
     toast("Tema: " + t.name);
   });
 
@@ -1189,7 +1316,10 @@
   // ---------- Read values ----------
   function values() {
     var v = {};
-    FIELDS.forEach(function (k) { v[k] = ($(k).value || "").trim(); });
+    // Bersihkan input supaya prompt sentiasa konsisten: ruang berganda dibuang, petikan berganda ditukar.
+    FIELDS.forEach(function (k) {
+      v[k] = ($(k).value || "").replace(/[ \t]+/g, " ").replace(/\n{2,}/g, "\n").replace(/"/g, "'").trim();
+    });
     return v;
   }
 
@@ -1205,6 +1335,7 @@
     var imgs = state.files.filter(isImage).map(function (f) { return f.name; });
     var warna = v.warna || theme.warna;
     var logos = logoItems();
+    var reader = READERS[v.pembaca] || READERS.pentadbir;
     var L = [];
 
     L.push("## TUGASAN");
@@ -1213,16 +1344,22 @@
     L.push("");
     L.push("# BAHAGIAN A: SPINE OPR (WAJIB, JANGAN UBAH)");
     L.push("");
-    L.push("## A1. MAKLUMAT HEADER (gunakan teks tepat seperti ditulis)");
-    L.push("- Tajuk: " + v.tajuk);
-    L.push("- Institusi: " + v.institusi);
-    if (v.anjuran) L.push("- Anjuran: " + v.anjuran);
-    L.push("- Tarikh: " + v.tarikh);
-    L.push("- Masa: " + v.masa);
-    L.push("- Tempat: " + v.tempat);
-    L.push("- Kumpulan sasaran: " + v.sasaran);
-    L.push("- Disediakan oleh: " + v.pelapor);
-    if (v.disahkan) L.push("- Disahkan oleh: " + v.disahkan);
+    L.push("## A0. KONTEKS");
+    L.push("- Pembaca OPR: " + reader.label + ".");
+    L.push("- Tujuan: melaporkan pelaksanaan dan hasil program secara ringkas supaya pembaca faham apa yang berlaku dan apa kesannya.");
+    L.push("- Nada bahasa: " + reader.nada + ".");
+    L.push("- Fokus utama untuk pembaca ini: " + reader.fokus + ".");
+    L.push("");
+    L.push("## A1. MAKLUMAT HEADER (salin teks dalam tanda petikan huruf demi huruf)");
+    L.push("- Tajuk: \"" + v.tajuk + "\"");
+    L.push("- Institusi: \"" + v.institusi + "\"");
+    if (v.anjuran) L.push("- Anjuran: \"" + v.anjuran + "\"");
+    L.push("- Tarikh: \"" + v.tarikh + "\"");
+    L.push("- Masa: \"" + v.masa + "\"");
+    L.push("- Tempat: \"" + v.tempat + "\"");
+    L.push("- Kumpulan sasaran: \"" + v.sasaran + "\"");
+    L.push("- Disediakan oleh: \"" + v.pelapor + "\"");
+    if (v.disahkan) L.push("- Disahkan oleh: \"" + v.disahkan + "\"");
     L.push("- Logo: " + logos.length + " logo, " + logos.map(function (l, i) { return "LOGO " + (i + 1) + " = " + l.label; }).join(", ") + ".");
     L.push("");
     L.push("## A2. RUJUKAN");
@@ -1236,7 +1373,7 @@
     L.push("");
     L.push("## A3. ALIRAN NARATIF (urutan pembaca faham cerita, BUKAN kedudukan dalam layout)");
     L.push("1. KENAL PROGRAM: logo, tajuk dan maklumat header mesti dapat dikenal pasti dalam 3 saat.");
-    L.push("2. KENAPA: " + fmt.why.join("; ") + ".");
+    L.push("2. KENAPA: " + fmt.why.join("; ") + "." + (v.objektif ? " Gunakan objektif ini tepat seperti ditulis: \"" + v.objektif.replace(/[.\s]+$/, "") + ".\"" : " Ambil objektif daripada rujukan, maksimum 3 poin."));
     L.push("3. APA DIBUAT: " + fmt.what.join("; ") + ".");
     L.push("4. HASIL & IMPAK (fokus utama OPR): " + fmt.result.join("; ") + ". Pilih 1 hingga 3 hasil paling kuat daripada rujukan (angka, pencapaian atau petikan peserta) dan jadikan ia elemen paling menonjol dalam keseluruhan OPR.");
     L.push("5. SETERUSNYA: " + fmt.next.join("; ") + ".");
@@ -1310,11 +1447,14 @@
     L.push("- Elakkan: grid kotak sama saiz yang membosankan, clipart generik, gradien berlebihan, teks di atas latar yang sibuk, dan hiasan yang mengganggu bacaan.");
     L.push("");
     L.push("## B3. SEMAK SEBELUM JANA");
-    L.push("Pastikan: semua item A3 ada; teks header tepat; hasil/impak paling menonjol; tiada teks terpotong atau bertindih; ejaan betul; reka bentuk nampak dibuat oleh pereka profesional.");
+    L.push("Pastikan: semua item A3 ada; teks header sama huruf demi huruf; nada sesuai untuk " + reader.label + "; hasil/impak paling menonjol; tiada teks terpotong atau bertindih; ejaan betul; reka bentuk nampak dibuat oleh pereka profesional.");
     L.push("");
     var ai = state.ai === "gemini" ? "Gemini" : "ChatGPT";
     L.push("## CARA MENJANA (" + ai + ")");
-    if (state.ai === "gemini") {
+    if (state.semak) {
+      L.push("LANGKAH 1: Jangan jana imej dahulu. Tunjukkan draf teks untuk setiap blok dalam A3 (termasuk 1 hingga 3 hasil utama yang anda pilih) dalam bentuk senarai. Tandakan dengan jelas jika ada maklumat yang tiada dalam rujukan.");
+      L.push("LANGKAH 2: Selepas saya balas \"OK\" atau beri pembetulan, jana imej OPR menggunakan teks yang disahkan sahaja, huruf demi huruf.");
+    } else if (state.ai === "gemini") {
       L.push("Jana terus sebagai imej. Jika tidak dapat menjana imej dengan teks yang tepat, berikan dahulu ringkasan kandungan setiap blok untuk saya semak, kemudian jana imej selepas saya sahkan.");
     } else {
       L.push("Jana terus sebagai imej menggunakan penjana imej ChatGPT. Selepas imej siap, senaraikan teks yang digunakan dalam setiap blok supaya saya boleh semak ketepatannya.");
@@ -1647,6 +1787,7 @@
     onChange();
   });
   form.addEventListener("change", onChange);
+  $("semak").addEventListener("change", function () { state.semak = this.checked; onChange(); });
 
   var saveTimer;
   function onChange() {
@@ -1711,6 +1852,7 @@
     setSeg($("segOrient"), "orient", "potret");
     setSeg($("segAI"), "ai", "chatgpt");
     setSeg($("segMode"), "mode", "kosong");
+    state.semak = true; $("semak").checked = true;
     document.querySelectorAll(".field.invalid").forEach(function (f) { f.classList.remove("invalid"); });
     setTab("prompt");
     onChange();
@@ -1720,7 +1862,7 @@
   // ---------- Persistence (per pelayar) ----------
   function save() {
     try {
-      var data = values(); data._orient = state.orient; data._ai = state.ai; data._mode = state.mode; data._layout = state.layout;
+      var data = values(); data._orient = state.orient; data._ai = state.ai; data._mode = state.mode; data._layout = state.layout; data._semak = state.semak;
       localStorage.setItem(STORE_KEY, JSON.stringify(data));
     } catch (e) { /* storage tak tersedia */ }
   }
@@ -1735,6 +1877,7 @@
       if (!$("gambar").value) $("gambar").value = "3";
       selectTheme(d.gaya || "institusi", !d.warna);
       if (d._layout) setSeg($("segLayout"), "layout", d._layout);
+      if (typeof d._semak === "boolean") { state.semak = d._semak; $("semak").checked = d._semak; }
       return true;
     } catch (e) { return false; }
   }
