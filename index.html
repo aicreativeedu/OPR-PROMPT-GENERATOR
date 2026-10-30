@@ -231,6 +231,28 @@
   }
   .seg button[aria-pressed="true"] { background: #fff; color: var(--ink); box-shadow: var(--shadow); }
   .seg-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .logos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .logo-slot {
+    position: relative; border: 1.5px dashed #b5c0d4; border-radius: 12px; background: #fafbff;
+    aspect-ratio: 1 / 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    cursor: pointer; padding: 8px; text-align: center; transition: border-color .15s, background .15s;
+  }
+  .logo-slot:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .logo-slot.filled { border-style: solid; border-color: var(--line-2); background: #fff; cursor: default; }
+  .logo-slot img { max-width: 100%; max-height: 56%; object-fit: contain; }
+  .logo-slot .ph { font-size: 11.5px; font-weight: 600; color: var(--ink-2); }
+  .logo-slot .ph small { display: block; font-weight: 500; color: var(--ink-3); font-size: 10.5px; }
+  .logo-slot .ph svg { width: 20px; height: 20px; color: var(--accent); }
+  .logo-slot input { width: 100%; border: 1px solid var(--line-2); border-radius: 7px; padding: 4px 6px; font-size: 11px; text-align: center; }
+  .logo-slot .x {
+    position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; border: 0;
+    background: rgba(15,27,51,.06); color: var(--ink-2); cursor: pointer; font-size: 14px; line-height: 1;
+  }
+  .logo-slot .x:hover { background: var(--err-soft); color: var(--err); }
+  .logo-slot.add { border-style: dashed; color: var(--ink-3); }
+  .field.invalid .logo-slot:first-child { border-color: var(--err); background: var(--err-soft); }
+  .m-logos { display: flex; gap: 3px; margin-bottom: 3px; }
+  .m-logos i { width: 14px; height: 14px; border-radius: 3px; background: rgba(255,255,255,.9) center/contain no-repeat; display: grid; place-items: center; font-style: normal; font-size: 3.5px; font-weight: 800; color: #555; }
   .layout-note { font-size: 12px; color: var(--ink-3); margin-top: 6px; line-height: 1.45; }
   .seg .dot { width: 8px; height: 8px; border-radius: 50%; }
 
@@ -507,7 +529,7 @@
       </div>
     </div>
     <div class="meter" aria-live="polite">
-      <div class="meter-row"><span>Kelengkapan maklumat wajib</span><span id="meterText">0 / 8</span></div>
+      <div class="meter-row"><span>Kelengkapan maklumat wajib</span><span id="meterText">0 / 9</span></div>
       <div class="meter-track"><div class="meter-fill" id="meterFill"></div></div>
     </div>
 
@@ -524,6 +546,12 @@
         <label for="institusi">Nama institusi<span><span class="req">*</span></span></label>
         <input class="input" id="institusi" name="institusi" placeholder="Contoh: SK Taman Bestari, Seremban">
         <div class="err-msg">Sila isi nama institusi.</div>
+      </div>
+      <div class="field" id="logoField">
+        <label>Logo<span><span class="req">*</span></span> <span class="hint">minimum 1, maksimum 3</span></label>
+        <div class="logos" id="logoSlots"></div>
+        <input type="file" id="logoInput" accept="image/*" hidden>
+        <div class="err-msg">Sila muat naik sekurang-kurangnya 1 logo.</div>
       </div>
       <div class="row-2">
         <div class="field" data-req>
@@ -551,6 +579,10 @@
         <label for="pelapor">Guru / pegawai pelapor<span><span class="req">*</span></span></label>
         <input class="input" id="pelapor" name="pelapor" placeholder="Nama dan jawatan, contoh: Pn. Aisyah, Guru Penyelaras ICT">
         <div class="err-msg">Sila isi nama pelapor.</div>
+      </div>
+      <div class="field">
+        <label for="disahkan">Disahkan oleh <span class="hint">pilihan</span></label>
+        <input class="input" id="disahkan" name="disahkan" placeholder="Contoh: Pn. Rohani binti Ali, Guru Besar">
       </div>
       <div class="field">
         <label for="anjuran">Anjuran / kerjasama <span class="hint">pilihan</span></label>
@@ -656,17 +688,17 @@
         </select>
       </div>
       <div class="field" id="modeField">
-        <label>Cara letak gambar</label>
+        <label>Cara letak gambar &amp; logo</label>
         <div class="modes" id="segMode">
           <button type="button" class="mode" data-v="kosong" aria-pressed="true">
             <span class="radio"></span>
             <span><b>Ruang kosong, tampal gambar sebenar <span class="badge">100% SAMA</span></b>
-            <small>AI reka OPR dengan bingkai kosong berlabel. Lepas itu tampal gambar asal guna tab <strong>Tampal gambar</strong>. Gambar tak disentuh langsung oleh AI.</small></span>
+            <small>AI reka OPR dengan bingkai gambar dan ruang logo kosong berlabel. Lepas itu tampal gambar dan logo asal guna tab <strong>Tampal gambar</strong>. AI tak sentuh langsung.</small></span>
           </button>
           <button type="button" class="mode" data-v="kekal" aria-pressed="false">
             <span class="radio"></span>
             <span><b>AI masukkan gambar dilampir <span class="badge warn">HAMPIR SAMA</span></b>
-            <small>Prompt beri arahan ketat supaya AI kekalkan gambar asal. Tapi penjana imej melukis semula, jadi wajah, teks atau butiran kecil boleh berubah.</small></span>
+            <small>Prompt beri arahan ketat supaya AI kekalkan gambar dan logo asal. Tapi penjana imej melukis semula, jadi wajah, teks atau butiran kecil boleh berubah.</small></span>
           </button>
         </div>
         <div class="slotmap" id="slotMap"></div>
@@ -743,7 +775,7 @@
 
       <div class="pane" id="paneStudio">
         <div class="studio">
-          <div class="studio-intro"><b>Cara dapat gambar 100% sama:</b> jana OPR dalam mod "Ruang kosong", muat turun imej OPR dari ChatGPT/Gemini, muat naik di sini, kemudian lukis kotak atas setiap bingkai kosong. Gambar asal anda akan ditampal terus tanpa diubah.</div>
+          <div class="studio-intro"><b>Cara dapat gambar 100% sama:</b> jana OPR dalam mod "Ruang kosong", muat turun imej OPR dari ChatGPT/Gemini, muat naik di sini, kemudian lukis kotak atas setiap bingkai gambar dan ruang logo. Gambar dan logo asal akan ditampal terus tanpa diubah (logo dimuatkan penuh, tidak dicrop).</div>
           <div class="drop studio-drop" id="oprDrop" tabindex="0" role="button" aria-label="Muat naik imej OPR">
             <div class="drop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></div>
             <strong>Muat naik imej OPR yang dijana AI</strong>
@@ -900,7 +932,7 @@
   var CATS = ["Semua", "Rasmi", "Moden", "Kreatif", "Tematik"];
   var LEGACY_THEME = { rasmi: "kerajaan" };
 
-  var FIELDS = ["tajuk", "institusi", "tarikh", "masa", "tempat", "sasaran", "pelapor", "anjuran", "rujukan", "ekstrak", "penegasan", "format", "gaya", "warna", "gambar"];
+  var FIELDS = ["tajuk", "institusi", "tarikh", "masa", "tempat", "sasaran", "pelapor", "disahkan", "anjuran", "rujukan", "ekstrak", "penegasan", "format", "gaya", "warna", "gambar"];
   var REQUIRED = ["tajuk", "institusi", "tarikh", "masa", "tempat", "sasaran", "pelapor", "rujukan"];
   var STORE_KEY = "opr-prompt-generator:v1";
 
@@ -921,7 +953,7 @@
   };
 
   // ---------- State ----------
-  var state = { orient: "potret", ai: "chatgpt", mode: "kosong", layout: "kemas", cat: "Semua", files: [], generated: false, tab: "prompt" };
+  var state = { orient: "potret", ai: "chatgpt", mode: "kosong", layout: "kemas", cat: "Semua", files: [], logos: [null], generated: false, tab: "prompt" };
 
   var $ = function (id) { return document.getElementById(id); };
   var form = $("oprForm");
@@ -1074,6 +1106,86 @@
     return (b / 1048576).toFixed(1) + " MB";
   }
 
+  // ---------- Logo (wajib 1, maksimum 3) ----------
+  var MAX_LOGOS = 3;
+  var logoTarget = 0;
+
+  function logoItems() { return state.logos.filter(Boolean); }
+
+  function renderLogos() {
+    var box = $("logoSlots"); box.innerHTML = "";
+    state.logos.forEach(function (l, i) {
+      var d = document.createElement("div");
+      d.className = "logo-slot" + (l ? " filled" : "");
+      if (l) {
+        d.innerHTML = '<img alt=""><input aria-label="Nama logo ' + (i + 1) + '"><button type="button" class="x" aria-label="Buang logo">&times;</button>';
+        d.querySelector("img").src = l.item.url;
+        var inp = d.querySelector("input");
+        inp.value = l.label;
+        inp.addEventListener("input", function () { l.label = inp.value.trim() || "Logo " + (i + 1); l.item.name = l.label; onChange(); });
+        d.querySelector(".x").addEventListener("click", function () { removeLogo(i); });
+      } else {
+        d.tabIndex = 0; d.setAttribute("role", "button");
+        d.innerHTML = '<div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><br>Logo ' + (i + 1) +
+          '<small>' + (i === 0 ? "wajib" : "pilihan") + '</small></div>' +
+          (i > 0 ? '<button type="button" class="x" aria-label="Buang ruang logo">&times;</button>' : "");
+        d.addEventListener("click", function (e) {
+          if (e.target.closest(".x")) { state.logos.splice(i, 1); renderLogos(); onChange(); return; }
+          logoTarget = i; $("logoInput").click();
+        });
+        d.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); logoTarget = i; $("logoInput").click(); } });
+      }
+      box.appendChild(d);
+    });
+    if (state.logos.length < MAX_LOGOS) {
+      var add = document.createElement("button");
+      add.type = "button"; add.className = "logo-slot add";
+      add.innerHTML = '<div class="ph">+ Tambah logo<small>' + state.logos.length + ' / ' + MAX_LOGOS + '</small></div>';
+      add.addEventListener("click", function () { state.logos.push(null); renderLogos(); });
+      box.appendChild(add);
+    }
+  }
+
+  function setLogo(i, file) {
+    var old = state.logos[i];
+    var item = makeItem(file);
+    item.kind = "logo";
+    var label = old ? old.label : file.name.replace(/\.[^.]+$/, "");
+    item.name = label;
+    if (old && old.item.url) URL.revokeObjectURL(old.item.url);
+    state.logos[i] = { item: item, label: label, fileName: file.name };
+    $("logoField").classList.remove("invalid");
+    renderLogos(); renderSlotList(); onChange();
+  }
+
+  function removeLogo(i) {
+    var l = state.logos[i];
+    fixSlotPhotos(photoPool().indexOf(l.item));
+    if (l.item.url) URL.revokeObjectURL(l.item.url);
+    if (i === 0 || state.logos.length === 1) state.logos[i] = null; else state.logos.splice(i, 1);
+    renderLogos(); renderSlotList(); drawStudio(true); onChange();
+  }
+
+  $("logoInput").addEventListener("change", function () {
+    var f = this.files[0]; this.value = "";
+    if (!f || !isImage(f)) { if (f) toast("Logo mesti fail imej (PNG/JPG/SVG)"); return; }
+    setLogo(logoTarget, f);
+  });
+
+  // Logo contoh untuk butang "Isi contoh"
+  function sampleLogo() {
+    var c = document.createElement("canvas"); c.width = c.height = 240;
+    var g = c.getContext("2d");
+    g.fillStyle = "#13224a"; g.beginPath(); g.arc(120, 120, 112, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = "#e0a93b"; g.lineWidth = 10; g.beginPath(); g.arc(120, 120, 96, 0, Math.PI * 2); g.stroke();
+    g.fillStyle = "#fff"; g.font = "bold 72px sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillText("BPG", 120, 124);
+    c.toBlob(function (b) {
+      var f = new File([b], "Logo BPG.png", { type: "image/png" });
+      setLogo(0, f);
+    }, "image/png");
+  }
+
   // ---------- Read values ----------
   function values() {
     var v = {};
@@ -1092,6 +1204,7 @@
     var docs = state.files.filter(function (f) { return !isImage(f); }).map(function (f) { return f.name; });
     var imgs = state.files.filter(isImage).map(function (f) { return f.name; });
     var warna = v.warna || theme.warna;
+    var logos = logoItems();
     var L = [];
 
     L.push("## TUGASAN");
@@ -1109,6 +1222,8 @@
     L.push("- Tempat: " + v.tempat);
     L.push("- Kumpulan sasaran: " + v.sasaran);
     L.push("- Disediakan oleh: " + v.pelapor);
+    if (v.disahkan) L.push("- Disahkan oleh: " + v.disahkan);
+    L.push("- Logo: " + logos.length + " logo, " + logos.map(function (l, i) { return "LOGO " + (i + 1) + " = " + l.label; }).join(", ") + ".");
     L.push("");
     L.push("## A2. RUJUKAN");
     if (docs.length) {
@@ -1120,14 +1235,14 @@
     L.push("Ekstrak: " + (v.ekstrak.replace(/[.\s]+$/, "") || "objektif, aktiviti utama, fakta penting, data atau angka, impak dan cadangan tindakan") + ".");
     L.push("");
     L.push("## A3. ALIRAN NARATIF (urutan pembaca faham cerita, BUKAN kedudukan dalam layout)");
-    L.push("1. KENAL PROGRAM: tajuk dan maklumat header mesti dapat dikenal pasti dalam 3 saat.");
+    L.push("1. KENAL PROGRAM: logo, tajuk dan maklumat header mesti dapat dikenal pasti dalam 3 saat.");
     L.push("2. KENAPA: " + fmt.why.join("; ") + ".");
     L.push("3. APA DIBUAT: " + fmt.what.join("; ") + ".");
     L.push("4. HASIL & IMPAK (fokus utama OPR): " + fmt.result.join("; ") + ". Pilih 1 hingga 3 hasil paling kuat daripada rujukan (angka, pencapaian atau petikan peserta) dan jadikan ia elemen paling menonjol dalam keseluruhan OPR.");
     L.push("5. SETERUSNYA: " + fmt.next.join("; ") + ".");
     var step = 6;
     if (nPhotos > 0) { L.push(step + ". BUKTI: " + nPhotos + " gambar aktiviti bernisbah 4:3, setiap satu dengan kapsyen pendek."); step++; }
-    L.push(step + ". PENGESAHAN: \"Disediakan oleh: " + v.pelapor + "\" dengan ruang tandatangan dan tarikh.");
+    L.push(step + ". PENGESAHAN: \"Disediakan oleh: " + v.pelapor + "\"" + (v.disahkan ? " dan \"Disahkan oleh: " + v.disahkan + "\", masing-masing" : "") + " dengan ruang tandatangan dan tarikh.");
     L.push("");
     L.push("## A4. PRINSIP OPR PADU");
     L.push("- Satu muka sahaja dan boleh difahami dalam 30 saat. Mata pembaca mesti pergi ke tajuk dahulu, kemudian terus ke hasil/impak.");
@@ -1143,15 +1258,30 @@
     L.push("- Ejaan Bahasa Melayu mesti betul. Tiada huruf berselerak atau perkataan yang tidak wujud.");
     L.push("");
 
+    if (state.mode === "kosong") {
+      L.push("## A6. RUANG LOGO");
+      L.push("- JANGAN lukis, reka atau teka mana-mana logo.");
+      L.push("- Sediakan " + logos.length + " ruang logo di kawasan header: kotak putih rata, saiz seragam, sejajar, dengan label kecil " + labels(logos.length, "LOGO") + ".");
+      L.push("- Ruang logo mesti bersih tanpa hiasan bertindih, kerana logo sebenar akan ditampal kemudian.");
+    } else {
+      L.push("## A6. LOGO ASAL");
+      L.push("Saya lampirkan " + logos.length + " fail logo. Padankan ikut turutan:");
+      logos.forEach(function (l, i) { L.push("- LOGO " + (i + 1) + " (" + l.label + ") = " + l.fileName); });
+      L.push("- Letak di kawasan header, saiz seragam dan sejajar.");
+      L.push("- Gunakan logo SEPERTI ASAL. Jangan lukis semula, ubah warna, bentuk, teks atau tambah kesan.");
+      L.push("- Jika tidak dapat mengekalkan logo dengan tepat, biarkan kotak putih kosong berlabel \"LOGO n\".");
+    }
+    L.push("");
+
     if (nPhotos > 0 && state.mode === "kosong") {
-      L.push("## A6. BINGKAI GAMBAR");
+      L.push("## A7. BINGKAI GAMBAR");
       L.push("- JANGAN lukis, jana atau reka sebarang gambar orang atau aktiviti dalam bingkai gambar.");
       L.push("- Isi setiap bingkai dengan warna kelabu rata #D9D9D9 dan label kecil di tengah: " + labels(nPhotos) + ".");
       L.push("- Bingkai mesti bersih: tiada teks, ikon atau hiasan bertindih di atasnya, kerana gambar sebenar akan ditampal kemudian.");
       L.push("- Bucu bingkai tajam, tanpa bayang dan tidak senget, supaya mudah ditampal dengan tepat.");
       L.push("");
     } else if (nPhotos > 0) {
-      L.push("## A6. GAMBAR SEBENAR");
+      L.push("## A7. GAMBAR SEBENAR");
       if (imgs.length) {
         L.push("Saya lampirkan " + imgs.length + " gambar aktiviti sebenar. Padankan ikut turutan:");
         imgs.slice(0, nPhotos).forEach(function (name, i) { L.push("- Gambar " + (i + 1) + " = " + name); });
@@ -1192,9 +1322,9 @@
     return L.join("\n");
   }
 
-  function labels(n) {
+  function labels(n, word) {
     var out = [];
-    for (var i = 1; i <= n; i++) out.push('"GAMBAR ' + i + '"');
+    for (var i = 1; i <= n; i++) out.push('"' + (word || "GAMBAR") + ' ' + i + '"');
     return out.join(", ");
   }
 
@@ -1207,7 +1337,6 @@
   // ---------- Slot map (bawah mod gambar) ----------
   function renderSlotMap() {
     var n = parseInt($("gambar").value, 10) || 0;
-    $("modeField").style.display = n ? "" : "none";
     var imgs = state.files.filter(isImage);
     var box = $("slotMap"); box.innerHTML = "";
     if (!n) return;
@@ -1240,7 +1369,9 @@
     var nPhotos = parseInt(v.gambar, 10) || 0;
     var imgs = state.files.filter(isImage);
     var info = [["Tarikh", v.tarikh], ["Masa", v.masa], ["Tempat", v.tempat], ["Sasaran", v.sasaran]];
-    var html = '<div class="m-head"><div class="m-inst">' + esc(v.institusi || "Nama Institusi") + '</div>' +
+    var html = '<div class="m-head"><div class="m-logos">' + logoItems().map(function (l, i) {
+        return state.mode === "kekal" ? '<i style="background-image:url(' + l.item.url + ')"></i>' : '<i>LOGO ' + (i + 1) + '</i>';
+      }).join("") + '</div><div class="m-inst">' + esc(v.institusi || "Nama Institusi") + '</div>' +
       '<div class="m-title">' + esc(v.tajuk || "Tajuk Program") + '</div><div class="m-badge">OPR</div></div>' +
       '<div class="m-info">' + info.map(function (i) { return '<div><b>' + i[0] + '</b><span>' + esc(i[1] || "–") + '</span></div>'; }).join("") + '</div>' +
       '<div class="m-body">' + fmt.sections.map(function (s) {
@@ -1256,11 +1387,11 @@
       }
       html += '</div>';
     }
-    html += '<div class="m-foot"><span>Disediakan oleh: <b>' + esc(v.pelapor || "Nama Pelapor") + '</b></span><span>Tandatangan ________</span></div>';
+    html += '<div class="m-foot"><span>Disediakan oleh: <b>' + esc(v.pelapor || "Nama Pelapor") + '</b></span><span>' + (v.disahkan ? 'Disahkan oleh: <b>' + esc(v.disahkan) + '</b>' : 'Tandatangan ________') + '</span></div>';
     m.innerHTML = html;
 
     var list = $("mockList"); list.innerHTML = "";
-    ["Kenal program (header)", "Kenapa: " + fmt.why.join(", "), "Apa dibuat: " + fmt.what.join(", "), "Hasil & impak (paling menonjol)", "Seterusnya: " + fmt.next.join(", ")].concat(nPhotos ? ["Bukti: " + nPhotos + " gambar"] : [], ["Pengesahan pelapor"]).forEach(function (s) {
+    ["Kenal program (header)", "Kenapa: " + fmt.why.join(", "), "Apa dibuat: " + fmt.what.join(", "), "Hasil & impak (paling menonjol)", "Seterusnya: " + fmt.next.join(", ")].concat(nPhotos ? ["Bukti: " + nPhotos + " gambar"] : [], [v.disahkan ? "Pengesahan: disediakan & disahkan" : "Pengesahan pelapor"]).forEach(function (s) {
       var li = document.createElement("li"); li.textContent = s; list.appendChild(li);
     });
   }
@@ -1268,10 +1399,11 @@
   // ---------- Validation & meter ----------
   function updateMeter() {
     var v = values();
-    var done = REQUIRED.filter(function (k) { return v[k]; }).length;
-    $("meterText").textContent = done + " / " + REQUIRED.length;
-    $("meterFill").style.width = (done / REQUIRED.length * 100) + "%";
-    return done === REQUIRED.length;
+    var total = REQUIRED.length + 1;
+    var done = REQUIRED.filter(function (k) { return v[k]; }).length + (logoItems().length ? 1 : 0);
+    $("meterText").textContent = done + " / " + total;
+    $("meterFill").style.width = (done / total * 100) + "%";
+    return done === total;
   }
   function validate() {
     var first = null;
@@ -1281,6 +1413,9 @@
       f.classList.toggle("invalid", bad);
       if (bad && !first) first = $(k);
     });
+    var noLogo = !logoItems().length;
+    $("logoField").classList.toggle("invalid", noLogo);
+    if (noLogo && !first) first = $("logoSlots");
     if (first) { first.focus({ preventScroll: true }); first.scrollIntoView({ behavior: "smooth", block: "center" }); }
     return !first;
   }
@@ -1299,13 +1434,14 @@
       '<span class="tag blue">Tema: ' + esc(t.name) + '</span>' +
       '<span class="tag">Susun atur: ' + LAYOUTS[state.layout].label + '</span>' +
       '<span class="tag">' + (state.orient === "landskap" ? "A4 Landskap" : "A4 Potret") + '</span>' +
+      '<span class="tag">' + logoItems().length + ' logo</span>' +
       (nPhotos ? '<span class="tag green">' + (state.mode === "kosong" ? nPhotos + " bingkai kosong" : nPhotos + " gambar asal") + '</span>' : "");
     var isG = state.ai === "gemini";
     var aiName = isG ? "Gemini" : "ChatGPT";
-    $("howto2").innerHTML = "<b>2. Lampirkan</b>" + (nPhotos && state.mode === "kosong"
+    $("howto2").innerHTML = "<b>2. Lampirkan</b>" + (state.mode === "kosong"
       ? "Buka " + aiName + ", lampirkan dokumen rujukan sahaja."
-      : "Buka " + aiName + ", lampirkan dokumen rujukan dan gambar ikut turutan.");
-    $("howto3").innerHTML = nPhotos && state.mode === "kosong"
+      : "Buka " + aiName + ", lampirkan dokumen, logo dan gambar ikut turutan.");
+    $("howto3").innerHTML = state.mode === "kosong"
       ? "<b>3. Tampal</b>Muat turun hasil AI, buka tab Tampal gambar."
       : "<b>3. Hantar</b>Tampal prompt dan tekan Enter.";
     $("btnOpenAI").href = isG ? "https://gemini.google.com/app" : "https://chatgpt.com/";
@@ -1337,7 +1473,7 @@
   var studio = { base: null, slots: [], extra: [], drag: null };
   var canvas = $("studioCanvas"), ctx = canvas.getContext("2d");
 
-  function photoPool() { return state.files.filter(isImage).concat(studio.extra); }
+  function photoPool() { return state.files.filter(isImage).concat(logoItems().map(function (l) { return l.item; }), studio.extra); }
 
   function fixSlotPhotos(removedIndex) {
     if (removedIndex < 0) return;
@@ -1388,6 +1524,14 @@
     ctx.drawImage(img, (iw - sw) / 2, (ih - sh) / 2, sw, sh, x, y, w, h);
   }
 
+  function drawContain(img, x, y, w, h) {
+    var iw = img.naturalWidth, ih = img.naturalHeight;
+    if (!iw || !ih) return;
+    var scale = Math.min(w / iw, h / ih);
+    var dw = iw * scale, dh = ih * scale;
+    ctx.drawImage(img, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
+  }
+
   function drawStudio(guides) {
     if (!studio.base) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1396,7 +1540,7 @@
     var lw = Math.max(2, canvas.width / 400);
     studio.slots.forEach(function (s, i) {
       var p = pool[s.photo];
-      if (p && p.img && p.img.complete) drawCover(p.img, s.x, s.y, s.w, s.h);
+      if (p && p.img && p.img.complete) (p.kind === "logo" ? drawContain : drawCover)(p.img, s.x, s.y, s.w, s.h);
       if (guides) {
         ctx.lineWidth = lw; ctx.strokeStyle = "#2f5bea"; ctx.setLineDash([]);
         ctx.strokeRect(s.x, s.y, s.w, s.h);
@@ -1462,7 +1606,7 @@
       var sel = document.createElement("select");
       sel.setAttribute("aria-label", "Gambar untuk bingkai " + (i + 1));
       sel.innerHTML = '<option value="-1">Tiada gambar</option>' + pool.map(function (p, j) {
-        return '<option value="' + j + '"' + (j === s.photo ? " selected" : "") + '>' + esc(p.name) + '</option>';
+        return '<option value="' + j + '"' + (j === s.photo ? " selected" : "") + '>' + (p.kind === "logo" ? "[Logo] " : "") + esc(p.name) + '</option>';
       }).join("");
       sel.addEventListener("change", function () { s.photo = parseInt(sel.value, 10); drawStudio(true); });
       var del = document.createElement("button");
@@ -1545,6 +1689,7 @@
 
   $("btnSample").addEventListener("click", function () {
     Object.keys(SAMPLE).forEach(function (k) { $(k).value = SAMPLE[k]; });
+    if (!logoItems().length) sampleLogo();
     selectTheme("institusi", true);
     setSeg($("segOrient"), "orient", "potret");
     document.querySelectorAll(".field.invalid").forEach(function (f) { f.classList.remove("invalid"); });
@@ -1557,6 +1702,8 @@
     form.reset();
     state.files.forEach(function (f) { if (f.url) URL.revokeObjectURL(f.url); });
     state.files = []; renderFiles();
+    state.logos.forEach(function (l) { if (l && l.item.url) URL.revokeObjectURL(l.item.url); });
+    state.logos = [null]; renderLogos();
     state.generated = false;
     $("btnCopy").disabled = true; $("btnDownload").disabled = true;
     state.cat = "Semua"; renderThemes();
@@ -1603,6 +1750,7 @@
 
   // ---------- Init ----------
   renderThemes();
+  renderLogos();
   if (!load()) selectTheme("institusi", true);
   updateMeter();
   renderSlotMap();
