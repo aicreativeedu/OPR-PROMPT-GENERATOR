@@ -463,6 +463,40 @@
   }
   .icon-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
 
+  /* konsep picker */
+  .kpick { border: 1.5px solid var(--line-2); border-radius: 12px; background: #fbfcfe; overflow: hidden; }
+  .kpick-head {
+    width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; border: 0; background: transparent;
+    padding: 10px 38px 10px 12px; font-size: 13.5px; font-weight: 600; cursor: pointer; text-align: left; position: relative;
+  }
+  .kpick-head::after {
+    content: ""; position: absolute; right: 14px; top: 50%; width: 8px; height: 8px; margin-top: -6px;
+    border-right: 2px solid var(--ink-2); border-bottom: 2px solid var(--ink-2); transform: rotate(45deg); transition: transform .2s;
+  }
+  .kpick-head[aria-expanded="true"]::after { transform: rotate(-135deg); margin-top: -2px; }
+  .kpick-count { font-size: 11px; font-weight: 700; background: var(--navy); color: var(--gold); padding: 2px 7px; border-radius: 6px; font-family: var(--mono); }
+  .kpick-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 10px 10px; }
+  .kpick-chips:empty { display: none; }
+  .kchip { display: inline-flex; align-items: center; gap: 6px; background: #fff; border: 1px solid var(--line-2); border-radius: 999px; padding: 3px 4px 3px 4px; font-size: 12px; font-weight: 600; }
+  .kchip i { font-style: normal; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); }
+  .kchip.main i { background: var(--navy); color: var(--gold); }
+  .kchip button { border: 0; background: transparent; cursor: pointer; color: var(--ink-3); width: 18px; height: 18px; border-radius: 50%; line-height: 1; }
+  .kchip button:hover { background: var(--err-soft); color: var(--err); }
+  .kpick-body { border-top: 1px solid var(--line); background: #fff; }
+  .kpick-note { font-size: 11.5px; color: var(--ink-2); padding: 8px 12px; background: var(--gold-soft); }
+  .kpick-list { max-height: 300px; overflow-y: auto; padding: 4px 6px 6px; }
+  .kgroup { font-size: 10.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-3); padding: 8px 6px 4px; }
+  .kitem { display: flex; gap: 9px; align-items: flex-start; padding: 6px; border-radius: 8px; cursor: pointer; }
+  .kitem:hover { background: var(--bg); }
+  .kitem input { margin: 2px 0 0; width: 15px; height: 15px; accent-color: var(--accent); flex: none; }
+  .kitem.off { opacity: .45; cursor: not-allowed; }
+  .kitem b { font-size: 12.5px; display: flex; align-items: center; gap: 6px; }
+  .kitem b i { font-style: normal; font-size: 9.5px; font-weight: 700; padding: 1px 5px; border-radius: 4px; background: var(--accent); color: #fff; }
+  .kitem small { display: block; font-size: 11.5px; color: var(--ink-3); line-height: 1.4; margin-top: 1px; }
+  .kpick-foot { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border-top: 1px solid var(--line); }
+  .btn.sm { padding: 6px 12px; font-size: 12.5px; }
+  .field.invalid .kpick { border-color: var(--err); }
+
   /* switch */
   .switch { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; font-size: 13px; font-weight: 600; margin-top: 2px; }
   .switch input { position: absolute; opacity: 0; pointer-events: none; }
@@ -713,32 +747,28 @@
           <select class="select" id="pembaca" name="pembaca"></select>
         </div>
       </div>
-      <div class="field">
-        <label>Tema <span class="hint" id="themeCount"></span></label>
+      <div class="field" id="konsepField">
+        <label>Konsep visual<span><span class="req">*</span></span> <span class="hint">pilih 1 hingga 3</span></label>
         <input type="hidden" id="gaya" name="gaya">
-        <div class="tpick">
-          <div class="tsel" id="themeSelect">
-            <button type="button" class="tsel-btn" id="themeBtn" aria-haspopup="listbox" aria-expanded="false"></button>
-            <div class="tsel-pop" id="themePop" hidden>
-              <div class="tsel-cats" id="themeCats" role="tablist" aria-label="Kategori tema"></div>
-              <ul class="tsel-list" id="themeList" role="listbox" aria-label="Pilihan tema"></ul>
+        <div class="kpick">
+          <button type="button" class="kpick-head" id="kpickHead" aria-expanded="false" aria-controls="kpickBody">
+            <span id="kpickTitle">Pilih konsep</span><span class="kpick-count" id="kpickCount">0 / 3</span>
+          </button>
+          <div class="kpick-chips" id="kpickChips"></div>
+          <div class="kpick-body" id="kpickBody" hidden>
+            <div class="kpick-note">Pilihan pertama jadi <b>konsep utama</b> (struktur OPR). Pilihan kedua dan ketiga jadi <b>aksen</b> (sentuhan sahaja).</div>
+            <div class="kpick-list" id="kpickList"></div>
+            <div class="kpick-foot">
+              <button type="button" class="link-btn" id="kpickClear">Kosongkan pilihan</button>
+              <button type="button" class="btn primary sm" id="kpickDone">Selesai</button>
             </div>
           </div>
-          <button type="button" class="icon-btn" id="btnRandomTheme" title="Tema rawak" aria-label="Pilih tema rawak"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg></button>
         </div>
+        <div class="err-msg">Pilih sekurang-kurangnya 1 konsep.</div>
       </div>
       <div class="field">
-        <label for="warna">Warna <span class="hint">ikut tema, boleh ubah</span></label>
-        <input class="input" id="warna" name="warna" placeholder="Contoh: Navy, biru muda, putih dan aksen emas">
-      </div>
-      <div class="field">
-        <label>Susun atur <span class="hint">ikut tema, boleh ubah</span></label>
-        <div class="seg seg-3" id="segLayout">
-          <button type="button" data-v="kemas" aria-pressed="true">Kemas</button>
-          <button type="button" data-v="seimbang" aria-pressed="false">Seimbang</button>
-          <button type="button" data-v="berani" aria-pressed="false">Berani</button>
-        </div>
-        <div class="layout-note" id="layoutNote"></div>
+        <label for="warna">Warna <span class="hint">pilihan; kosong = ikut konsep &amp; logo</span></label>
+        <input class="input" id="warna" name="warna" placeholder="Contoh: Navy dan emas, atau biarkan kosong">
       </div>
       <div class="row-2">
         <div class="field">
@@ -756,11 +786,6 @@
           </div>
         </div>
       </div>
-      <label class="switch">
-        <input type="checkbox" id="semak" checked>
-        <span class="track" aria-hidden="true"></span>
-        <span>Semak teks dulu sebelum jana imej<small>AI tunjuk draf teks setiap blok untuk disahkan. Kurang ralat ejaan dan fakta.</small></span>
-      </label>
     </section>
 
     <!-- 04 -->
@@ -937,90 +962,41 @@
     f.sections = f.why.concat(f.what, f.result, f.next);
   });
 
-  // Tema = mood sahaja (rasa, tipografi, motif). Susun atur tidak ditetapkan oleh tema.
-  // Warna lakaran: hd header, acc aksen, bg latar, sec kad, tx teks, rad bucu. layout = gaya susun atur lalai.
-  var THEMES = [
-    { id: "institusi", cat: "Rasmi", name: "Institusi Moden", desc: "Kemas, profesional, yakin", layout: "kemas",
-      mood: "profesional, yakin dan moden, seperti laporan tahunan organisasi yang berprestij",
-      type: "sans-serif moden yang tegas, tajuk tebal", motif: "ikon garis halus, garis pemisah nipis berwarna aksen",
-      warna: "Navy, biru muda, putih dan aksen emas", hd: "#13224a", acc: "#e0a93b", bg: "#f3f6fc", sec: "#ffffff", tx: "#1c2540", rad: "4px" },
-    { id: "kerajaan", cat: "Rasmi", name: "Rasmi Kerajaan", desc: "Formal, bermaruah, seimbang", layout: "kemas",
-      mood: "formal, bermaruah dan berwibawa, sesuai dihantar ke PPD, JPN atau KPM",
-      type: "sans-serif yang jelas dan formal, tiada fon hiasan", motif: "jalur warna nipis, ikon rasmi yang ringkas, tiada hiasan berlebihan",
-      warna: "Biru tua, kuning, putih dan kelabu lembut", hd: "#0b2a6b", acc: "#f5c518", bg: "#ffffff", sec: "#f4f6fb", tx: "#1a1f33", rad: "2px" },
-    { id: "korporat", cat: "Moden", name: "Korporat Minimalis", desc: "Tenang, lapang, bersih", layout: "seimbang",
-      mood: "tenang, lapang dan premium, banyak ruang putih yang disengajakan",
-      type: "sans-serif nipis dan bersih dengan angka besar", motif: "garis halus, titik aksen kecil, tiada ilustrasi",
-      warna: "Kelabu arang, putih dan aksen biru", hd: "#1f2937", acc: "#3b82f6", bg: "#ffffff", sec: "#f8fafc", tx: "#111827", rad: "3px" },
-    { id: "bento", cat: "Moden", name: "Bento Moden", desc: "Segar, rasa aplikasi teknologi", layout: "berani",
-      mood: "segar dan bertenaga seperti antara muka aplikasi teknologi terkini",
-      type: "sans-serif geometri, tajuk sangat tebal", motif: "kad bersudut bulat dalam pelbagai saiz, ikon 3D kecil, gradien ungu ke merah jambu",
-      warna: "Ungu, merah jambu, lavender dan putih", hd: "linear-gradient(135deg,#6d28d9,#db2777)", acc: "#f472b6", bg: "#f5f3ff", sec: "#ffffff", tx: "#1e1b4b", rad: "8px" },
-    { id: "glass", cat: "Moden", name: "Glassmorphism", desc: "Lutsinar, bercahaya", layout: "seimbang",
-      mood: "moden dan bercahaya, rasa lapisan kaca lutsinar di atas cahaya lembut",
-      type: "sans-serif bersih, teks putih berkontras tinggi", motif: "panel kaca kabur (frosted glass), cahaya lembut, gradien biru ke ungu",
-      warna: "Biru, ungu, cyan lembut dan putih", hd: "rgba(255,255,255,.16)", acc: "#a5f3fc", bg: "linear-gradient(160deg,#1e3a8a,#7c3aed)", sec: "rgba(255,255,255,.16)", tx: "#ffffff", rad: "8px" },
-    { id: "neon", cat: "Moden", name: "Teknologi Futuristik", desc: "Gelap, neon, digital", layout: "berani",
-      mood: "futuristik dan berteknologi tinggi, seperti papan pemuka pusat kawalan",
-      type: "sans-serif tegas bergaya teknikal, angka monospace", motif: "corak litar dan grid digital halus, cahaya neon cyan dan ungu",
-      warna: "Biru gelap, hitam, cyan neon dan ungu", hd: "#0a0f1f", acc: "#22d3ee", bg: "#0b1224", sec: "#121c38", tx: "#e2e8f0", rad: "4px" },
-    { id: "ceria", cat: "Kreatif", name: "Ceria Mesra Murid", desc: "Riang, mesra, terang", layout: "seimbang",
-      mood: "riang dan mesra murid, tetapi masih kemas dan mudah dibaca",
-      type: "sans-serif bulat yang mesra, tajuk tebal", motif: "bentuk bulat lembut, ilustrasi kecil yang comel, warna terang",
-      warna: "Oren, kuning, biru langit dan putih", hd: "#f97316", acc: "#facc15", bg: "#fff7ed", sec: "#ffffff", tx: "#431407", rad: "10px" },
-    { id: "scrapbook", cat: "Kreatif", name: "Scrapbook Pastel", desc: "Hangat, peribadi, buatan tangan", layout: "berani",
-      mood: "hangat dan peribadi seperti buku skrap kenangan program",
-      type: "gabungan sans-serif bersih untuk isi dan tulisan tangan untuk sub-tajuk", motif: "tekstur kertas, pita washi, nota lekat, bingkai gaya polaroid",
-      warna: "Merah jambu pastel, hijau pudina, krim dan coklat lembut", hd: "#f9a8d4", hdtx: "#4a3b33", acc: "#6ee7b7", bg: "#fdf6ec", sec: "#fffdf8", tx: "#4a3b33", rad: "3px" },
-    { id: "kapur", cat: "Kreatif", name: "Papan Kapur", desc: "Nostalgia bilik darjah", layout: "seimbang",
-      mood: "nostalgia bilik darjah, akrab dan bersifat pendidikan",
-      type: "tulisan gaya kapur untuk tajuk, sans-serif jelas untuk isi", motif: "tekstur papan hitam hijau, garisan dan ikon dilukis kapur, bingkai kayu nipis",
-      warna: "Hijau papan hitam, putih kapur, kuning lembut dan coklat kayu", hd: "#1f3b2d", acc: "#fde68a", bg: "#26453a", sec: "#2e5245", tx: "#f1f5ee", rad: "2px" },
-    { id: "editorial", cat: "Kreatif", name: "Editorial Majalah", desc: "Berani, bercerita, elegan", layout: "berani",
-      mood: "berani dan bercerita seperti muka depan majalah berkualiti",
-      type: "serif besar dan dramatik untuk tajuk, sans-serif kecil untuk isi", motif: "garis nipis hitam, petikan besar, gambar sebagai elemen dominan, aksen merah",
-      warna: "Hitam, putih dan aksen merah", hd: "#111111", acc: "#e11d48", bg: "#ffffff", sec: "#fafafa", tx: "#111111", rad: "0px" },
-    { id: "retro", cat: "Kreatif", name: "Retro Pop 80-an", desc: "Ceria, nostalgia, pop", layout: "berani",
-      mood: "ceria dan nostalgia era pop 80-an",
-      type: "display tebal bergaya retro", motif: "bayang tebal (offset shadow), corak titik halftone, warna terang",
-      warna: "Biru gelap, kuning, merah jambu dan krim", hd: "#2b2d42", acc: "#ffd23f", bg: "#fff3e2", sec: "#ffffff", tx: "#2b2d42", rad: "6px" },
-    { id: "flat3d", cat: "Kreatif", name: "Ilustrasi Flat 3D", desc: "Lembut, mesra, berilustrasi", layout: "seimbang",
-      mood: "lembut dan mesra dengan ilustrasi yang menerangkan",
-      type: "sans-serif bulat moden", motif: "ilustrasi flat dengan sentuhan 3D lembut, ikon isometrik berwarna, gradien halus",
-      warna: "Ungu, lavender, putih dan aksen pic", hd: "linear-gradient(135deg,#4c2a85,#7c3aed)", acc: "#f4a37c", bg: "#f1ecfa", sec: "#ffffff", tx: "#2e1065", rad: "8px" },
-    { id: "alam", cat: "Tematik", name: "Alam Hijau Lestari", desc: "Segar, semula jadi", layout: "seimbang",
-      mood: "segar dan semula jadi, sesuai untuk program alam sekitar",
-      type: "sans-serif humanis yang lembut", motif: "daun dan tumbuhan, tekstur kertas kitar semula",
-      warna: "Hijau hutan, hijau limau, krim dan putih", hd: "#14532d", acc: "#a3e635", bg: "#f0f7ee", sec: "#ffffff", tx: "#1a2e1a", rad: "8px" },
-    { id: "batik", cat: "Tematik", name: "Batik Warisan", desc: "Elegan, budaya Malaysia", layout: "kemas",
-      mood: "elegan dan bermaruah dengan jiwa warisan Malaysia",
-      type: "serif elegan untuk tajuk, sans-serif jelas untuk isi", motif: "motif batik dan songket halus di sudut dan jalur hiasan",
-      warna: "Maroon, krim, putih dan emas", hd: "#6b1d2a", acc: "#d4a64a", bg: "#f8f0e6", sec: "#fffaf3", tx: "#3b1219", rad: "4px" },
-    { id: "islamik", cat: "Tematik", name: "Islamik Elegan", desc: "Tenang, suci, elegan", layout: "kemas",
-      mood: "tenang, suci dan elegan, sesuai untuk program keagamaan",
-      type: "serif elegan atau sans-serif halus", motif: "corak geometri islamik halus, bingkai berbentuk gerbang",
-      warna: "Hijau zamrud, putih, krim dan emas", hd: "#064e3b", acc: "#d4af37", bg: "#f4f8f5", sec: "#ffffff", tx: "#052e24", rad: "4px" },
-    { id: "merdeka", cat: "Tematik", name: "Semangat Merdeka", desc: "Patriotik, bersemangat", layout: "berani",
-      mood: "patriotik dan bersemangat",
-      type: "sans-serif tebal dan tegas", motif: "warna Jalur Gemilang, jalur berkibar, bintang dan anak bulan secara sederhana",
-      warna: "Biru tua, merah, putih dan kuning", hd: "linear-gradient(90deg,#010066 0 60%,#cc0001 60%)", acc: "#ffcc00", bg: "#ffffff", sec: "#f6f7fb", tx: "#0b0b3b", rad: "4px" },
-    { id: "sukan", cat: "Tematik", name: "Sukan Bertenaga", desc: "Dinamik, laju, kuat", layout: "berani",
-      mood: "dinamik, laju dan penuh tenaga",
-      type: "sans-serif condong dan tebal", motif: "potongan diagonal, garis kelajuan",
-      warna: "Merah, hitam, putih dan kelabu", hd: "#b91c1c", acc: "#111827", bg: "#ffffff", sec: "#f3f4f6", tx: "#111111", rad: "2px" },
-    { id: "perayaan", cat: "Tematik", name: "Sambutan Perayaan", desc: "Meriah tapi kemas", layout: "seimbang",
-      mood: "meriah dan mesra tetapi kemas",
-      type: "serif atau sans-serif yang hangat", motif: "pelita, tanglung dan bunga yang neutral untuk pelbagai perayaan",
-      warna: "Teal, emas, krim dan putih", hd: "#0f766e", acc: "#fbbf24", bg: "#fffbeb", sec: "#ffffff", tx: "#134e4a", rad: "8px" }
-  ];
-
-  var LAYOUTS = {
-    kemas: { label: "Kemas", text: "Susunan tersusun dan formal dengan blok yang jelas. Simetri dibenarkan, tetapi tetap rasa direka oleh pereka profesional, bukan templat Word biasa." },
-    seimbang: { label: "Seimbang", text: "Struktur yang kemas digabung dengan satu elemen tumpuan yang berani, contohnya blok hasil/impak yang besar atau tajuk yang bertindih dengan gambar." },
-    berani: { label: "Berani", text: "Komposisi berani gaya poster atau editorial: asimetri, saiz blok berbeza-beza, tajuk besar yang dominan, ruang kosong digunakan dengan sengaja." }
-  };
-
-  // Pembaca OPR menentukan nada dan apa yang ditonjolkan.
+  // Konsep visual (senarai daripada Azhar). Pilihan pertama = konsep utama, selebihnya = aksen.
+  var CONCEPTS = [
+    ["neo-editorial", "Neo-Editorial", "Editorial", "Gaya majalah kontemporari: tajuk besar, susunan berani, gambar dominan dan blok maklumat yang kemas."],
+    ["swiss", "Swiss Contemporary", "Editorial", "Grid tepat, tipografi kuat, ruang putih luas dan warna aksen yang tegas. Nampak profesional serta berkarakter."],
+    ["magazine-cover", "Magazine Cover Report", "Editorial", "Tajuk dan foto utama seperti kulit majalah, dengan isi laporan disusun sebagai sorotan editorial."],
+    ["asymmetric", "Asymmetric Editorial", "Susun atur", "Komposisi tidak simetri dengan keseimbangan visual; gambar, tajuk dan statistik berbeza saiz."],
+    ["bento", "Digital Bento", "Susun atur", "Maklumat disusun dalam kad modular pelbagai saiz; satu atau dua kad utama menjadi pusat perhatian."],
+    ["panoramic", "Panoramic Photo Story", "Fotografi", "Satu foto lebar menjadi tarikan utama, disokong foto kecil dan kapsyen yang membawa cerita program."],
+    ["soft-futurism", "Soft Futurism", "Futuristik", "Bentuk melengkung, gradient lembut, cahaya terkawal dan komposisi teknologi yang mesra pembaca."],
+    ["holographic", "Holographic Editorial", "Futuristik", "Aksen iridescent, pantulan warna holografik dan lapisan visual premium pada struktur laporan yang jelas."],
+    ["hud", "Precision Tech / HUD", "Futuristik", "Garisan halus, penanda data, bingkai teknikal dan elemen interface untuk menyerlahkan pencapaian."],
+    ["aurora", "Aurora Flow", "Warna & suasana", "Aliran gradient seperti aurora, bentuk organik dan perubahan warna lembut yang memberi rasa bergerak."],
+    ["dark-luxe", "Dark Luxe", "Warna & suasana", "Latar gelap, tipografi cerah dan aksen metalik terkawal; sesuai untuk pencapaian atau pengiktirafan."],
+    ["mono-electric", "Monochrome + Electric Accent", "Warna & suasana", "Hitam putih dengan satu warna elektrik seperti lime, cyan atau oren untuk memandu perhatian."],
+    ["earthy", "Earthy Contemporary", "Warna & suasana", "Warna tanah, olive, terracotta dan krim; dipadankan dengan komposisi moden serta tekstur lembut."],
+    ["glass", "Frosted Glassmorphism", "Material & permukaan", "Panel kaca kabur berlapis, sempadan halus dan latar berwarna; teks diletakkan pada panel berkontras tinggi."],
+    ["paper-cut", "Layered Paper / Paper-Cut", "Material & permukaan", "Lapisan kertas bertindih, potongan bentuk dan bayang lembut yang menghasilkan kedalaman."],
+    ["clay", "Soft 3D / Claymorphism", "Material & permukaan", "Bentuk 3D lembut, kad berisipadu dan ikon ringkas yang memberi suasana mesra serta kreatif."],
+    ["tactile", "Tactile Print Editorial", "Material & permukaan", "Tekstur kertas, grain halus dan rasa cetakan premium yang dipadankan dengan tipografi moden."],
+    ["brutalist", "Neo-Brutalist Editorial", "Grafik ekspresif", "Tajuk tebal, blok warna tegas, bingkai jelas dan komposisi terus terang yang sangat menonjol."],
+    ["memphis", "Neo-Memphis", "Grafik ekspresif", "Geometri berani, corak terkawal dan warna ceria untuk program inovasi, kreativiti atau murid."],
+    ["pop", "Pop Editorial", "Grafik ekspresif", "Warna bertenaga, angka besar dan bentuk grafik ekspresif untuk mengetengahkan hasil program."],
+    ["kinetic", "Kinetic Typography", "Tipografi", "Susunan huruf, skala dan arah tajuk memberi rasa pergerakan pada halaman bercetak."],
+    ["botanical", "Botanical Modern", "Alam & organik", "Bentuk organik dan unsur tumbuhan abstrak dengan ruang putih luas; sesuai untuk kelestarian dan kesejahteraan."],
+    ["data-editorial", "Data-Driven Editorial", "Data & impak", "Statistik menjadi elemen utama: angka besar, carta ringkas dan penegasan hasil yang mudah diimbas."],
+    ["dashboard", "Impact Dashboard", "Data & impak", "Kad KPI, ringkasan pencapaian dan visual perbandingan yang membolehkan pembaca memahami hasil dengan cepat."],
+    ["doc-scrapbook", "Documentary Scrapbook", "Penceritaan", "Foto dokumentasi, kapsyen, nota ringkas dan lapisan kertas yang memberi rasa pengalaman sebenar program."],
+    ["timeline", "Journey / Timeline Editorial", "Penceritaan", "Aliran aktiviti atau perubahan disusun mengikut fasa, dengan foto dan dapatan pada titik penting."],
+    ["blueprint", "Blueprint Innovation", "Teknikal", "Grid pelan, rajah ringkas, anotasi dan garisan teknikal untuk program STEM, reka cipta atau pembangunan sistem."],
+    ["topographic", "Topographic Flow", "Grafik konseptual", "Garisan kontur dan lapisan bentuk yang membawa mata merentasi halaman; memberi rasa perkembangan dan perjalanan."]
+  ].map(function (c) { return { id: c[0], name: c[1], cat: c[2], desc: c[3] }; });
+  var MAX_KONSEP = 3;
+  var DEFAULT_KONSEP = ["neo-editorial"];
+  // Warna lakaran sahaja (konsep tidak tetapkan palet).
+  var MOCK = { hd: "#13224a", acc: "#e0a93b", bg: "#f3f6fc", sec: "#ffffff", tx: "#1c2540", rad: "4px" };
   var READERS = {
     pentadbir: { label: "Pentadbir sekolah (GB / PK)", nada: "ringkas, berfakta dan profesional", fokus: "keberhasilan program dan tindakan susulan yang jelas" },
     ppd: { label: "PPD / JPN / KPM", nada: "formal dan berwibawa", fokus: "data pencapaian, impak kepada guru dan murid, serta keselarasan dengan objektif program" },
@@ -1029,8 +1005,6 @@
     arkib: { label: "Fail rekod / arkib", nada: "formal, lengkap dan teratur", fokus: "butiran pelaksanaan yang lengkap untuk rujukan masa depan" }
   };
 
-  var CATS = ["Semua", "Rasmi", "Moden", "Kreatif", "Tematik"];
-  var LEGACY_THEME = { rasmi: "kerajaan" };
 
   var FIELDS = ["tajuk", "institusi", "tarikh", "masa", "tempat", "sasaran", "pelapor", "disahkan", "anjuran", "rujukan", "objektif", "ekstrak", "penegasan", "format", "pembaca", "gaya", "warna", "gambar"];
   var REQUIRED = ["tajuk", "institusi", "tarikh", "masa", "tempat", "sasaran", "pelapor"];
@@ -1055,7 +1029,7 @@
   };
 
   // ---------- State ----------
-  var state = { semak: true, orient: "potret", ai: "chatgpt", mode: "kosong", layout: "kemas", cat: "Semua", files: [], logos: [null], generated: false, tab: "prompt" };
+  var state = { orient: "potret", ai: "chatgpt", mode: "kosong", konsep: DEFAULT_KONSEP.slice(), files: [], logos: [null], generated: false, tab: "prompt" };
 
   var $ = function (id) { return document.getElementById(id); };
   var form = $("oprForm");
@@ -1063,10 +1037,8 @@
   function esc(s) {
     return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; });
   }
-  function themeById(id) {
-    id = LEGACY_THEME[id] || id;
-    return THEMES.filter(function (t) { return t.id === id; })[0] || THEMES[0];
-  }
+  function conceptById(id) { return CONCEPTS.filter(function (c) { return c.id === id; })[0]; }
+  function selectedConcepts() { return state.konsep.map(conceptById).filter(Boolean); }
   function isImage(f) { return /^image\//.test(f.type); }
 
   // ---------- Pembaca select ----------
@@ -1079,83 +1051,61 @@
     var o = document.createElement("option"); o.value = k; o.textContent = FORMATS[k].label; $("format").appendChild(o);
   });
 
-  // ---------- Themes (dropdown compact) ----------
-  function themeMini(t) {
-    return '<span class="tmini" style="background:' + t.bg + '"><i style="background:' + t.hd + '"></i><b>' +
-      '<span style="background:' + t.sec + ';box-shadow:inset 0 0 0 1px rgba(127,127,127,.2)"></span>' +
-      '<span style="background:' + t.acc + '"></span></b></span>';
-  }
-  function themeRow(t) {
-    return themeMini(t) + '<span class="tsel-txt"><strong>' + esc(t.name) + '</strong><small>' + esc(t.desc) + '</small></span>';
-  }
-
-  CATS.forEach(function (c) {
-    var b = document.createElement("button");
-    b.type = "button"; b.dataset.cat = c; b.textContent = c; b.setAttribute("role", "tab");
-    b.addEventListener("click", function (e) { e.stopPropagation(); state.cat = c; renderThemes(); });
-    $("themeCats").appendChild(b);
-  });
-
-  var themeActive = -1;
-  function renderThemes() {
-    Array.prototype.forEach.call($("themeCats").children, function (c) {
-      c.setAttribute("aria-selected", c.dataset.cat === state.cat ? "true" : "false");
+  // ---------- Konsep visual (checkbox, maksimum 3) ----------
+  function renderKonsep() {
+    var sel = state.konsep;
+    $("gaya").value = sel.join(",");
+    $("kpickCount").textContent = sel.length + " / " + MAX_KONSEP;
+    $("kpickTitle").textContent = sel.length ? "Ubah pilihan konsep" : "Pilih konsep";
+    var chips = $("kpickChips"); chips.innerHTML = "";
+    selectedConcepts().forEach(function (c, i) {
+      var d = document.createElement("span");
+      d.className = "kchip" + (i === 0 ? " main" : "");
+      d.innerHTML = "<i>" + (i === 0 ? "Utama" : "Aksen") + "</i><span></span><button type=\"button\" aria-label=\"Buang konsep\">&times;</button>";
+      d.querySelector("span").textContent = c.name;
+      d.querySelector("button").addEventListener("click", function () { toggleKonsep(c.id, false); });
+      chips.appendChild(d);
     });
-    var ul = $("themeList"); ul.innerHTML = "";
-    THEMES.filter(function (t) { return state.cat === "Semua" || t.cat === state.cat; }).forEach(function (t) {
-      var li = document.createElement("li");
-      li.setAttribute("role", "option"); li.dataset.id = t.id;
-      li.setAttribute("aria-selected", t.id === $("gaya").value ? "true" : "false");
-      li.innerHTML = themeRow(t);
-      li.addEventListener("click", function () { selectTheme(t.id, true); closeThemes(true); });
-      ul.appendChild(li);
+    var list = $("kpickList"); list.innerHTML = "";
+    var full = sel.length >= MAX_KONSEP, lastCat = "";
+    CONCEPTS.forEach(function (c) {
+      if (c.cat !== lastCat) {
+        var g = document.createElement("div"); g.className = "kgroup"; g.textContent = c.cat; list.appendChild(g); lastCat = c.cat;
+      }
+      var idx = sel.indexOf(c.id), on = idx >= 0;
+      var row = document.createElement("label");
+      row.className = "kitem" + (!on && full ? " off" : "");
+      row.innerHTML = '<input type="checkbox"' + (on ? " checked" : "") + (!on && full ? " disabled" : "") + '><span><b></b><small></small></span>';
+      row.querySelector("b").textContent = c.name;
+      if (on) row.querySelector("b").insertAdjacentHTML("beforeend", "<i>" + (idx === 0 ? "Utama" : "Aksen " + idx) + "</i>");
+      row.querySelector("small").textContent = c.desc;
+      row.querySelector("input").addEventListener("change", function () { toggleKonsep(c.id, this.checked); });
+      list.appendChild(row);
     });
-    themeActive = -1;
-    var t = themeById($("gaya").value);
-    $("themeBtn").innerHTML = themeRow(t) + '<span class="tcat">' + t.cat + '</span>';
-    $("themeCount").textContent = THEMES.length + " tema";
   }
 
-  function openThemes() {
-    $("themePop").hidden = false; $("themeBtn").setAttribute("aria-expanded", "true");
-    var sel = $("themeList").querySelector('[aria-selected="true"]');
-    if (sel) sel.scrollIntoView({ block: "nearest" });
-  }
-  function closeThemes(focus) {
-    $("themePop").hidden = true; $("themeBtn").setAttribute("aria-expanded", "false");
-    if (focus) $("themeBtn").focus();
-  }
-  $("themeBtn").addEventListener("click", function () { $("themePop").hidden ? openThemes() : closeThemes(); });
-  document.addEventListener("click", function (e) { if (!$("themeSelect").contains(e.target)) closeThemes(); });
-  $("themeSelect").addEventListener("keydown", function (e) {
-    var items = $("themeList").children;
-    if (e.key === "Escape") { closeThemes(true); return; }
-    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-      e.preventDefault();
-      if ($("themePop").hidden) { openThemes(); return; }
-      themeActive = Math.max(0, Math.min(items.length - 1, themeActive + (e.key === "ArrowDown" ? 1 : -1)));
-      Array.prototype.forEach.call(items, function (li, i) { li.classList.toggle("active", i === themeActive); });
-      items[themeActive].scrollIntoView({ block: "nearest" });
+  function toggleKonsep(id, on) {
+    var i = state.konsep.indexOf(id);
+    if (on && i < 0) {
+      if (state.konsep.length >= MAX_KONSEP) { toast("Maksimum " + MAX_KONSEP + " konsep"); renderKonsep(); return; }
+      state.konsep.push(id);
+    } else if (!on && i >= 0) {
+      state.konsep.splice(i, 1);
     }
-    if (e.key === "Enter" && !$("themePop").hidden && items[themeActive]) {
-      e.preventDefault(); selectTheme(items[themeActive].dataset.id, true); closeThemes(true);
-    }
-  });
-
-  function selectTheme(id, setWarna) {
-    var t = themeById(id);
-    $("gaya").value = t.id;
-    if (setWarna) { $("warna").value = t.warna; setSeg($("segLayout"), "layout", t.layout); }
-    renderThemes();
+    if (state.konsep.length) $("konsepField").classList.remove("invalid");
+    var scroll = $("kpickList").scrollTop;
+    renderKonsep();
+    $("kpickList").scrollTop = scroll;
     onChange();
   }
 
-  $("btnRandomTheme").addEventListener("click", function () {
-    var pool = THEMES.filter(function (t) { return t.id !== $("gaya").value; });
-    var t = pool[Math.floor(Math.random() * pool.length)];
-    state.cat = "Semua"; selectTheme(t.id, true);
-    toast("Tema: " + t.name);
-  });
+  function setKonsepOpen(open) {
+    $("kpickBody").hidden = !open;
+    $("kpickHead").setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  $("kpickHead").addEventListener("click", function () { setKonsepOpen($("kpickBody").hidden); });
+  $("kpickDone").addEventListener("click", function () { setKonsepOpen(false); $("kpickHead").focus(); });
+  $("kpickClear").addEventListener("click", function () { state.konsep = []; renderKonsep(); onChange(); });
 
   // ---------- Segmented controls ----------
   function bindSeg(el, key) {
@@ -1173,7 +1123,6 @@
   }
   bindSeg($("segOrient"), "orient");
   bindSeg($("segAI"), "ai");
-  bindSeg($("segLayout"), "layout");
   bindSeg($("segMode"), "mode");
 
   // ---------- Files ----------
@@ -1418,13 +1367,11 @@
   // Bahagian A (spine) sama untuk semua tema. Bahagian B (kreatif) sahaja yang berubah ikut tema dan gaya susun atur.
   function buildPrompt(v) {
     var fmt = FORMATS[v.format] || FORMATS.aktiviti;
-    var theme = themeById(v.gaya);
-    var lay = LAYOUTS[state.layout] || LAYOUTS.seimbang;
+    var konsep = selectedConcepts();
     var orient = state.orient === "landskap" ? "A4 landskap (nisbah 297:210)" : "A4 potret (nisbah 210:297)";
     var nPhotos = parseInt(v.gambar, 10) || 0;
     var docs = state.files.filter(function (f) { return !isImage(f); }).map(function (f) { return f.name; });
     var imgs = state.files.filter(isImage).map(function (f) { return f.name; });
-    var warna = v.warna || theme.warna;
     var logos = logoItems();
     var reader = READERS[v.pembaca] || READERS.pentadbir;
     var hasRef = docs.length > 0 || !!v.rujukan;
@@ -1463,7 +1410,7 @@
     L.push("## A3. SUMBER KANDUNGAN");
     if (hasRef) {
       if (docs.length) L.push("Dokumen rujukan dilampirkan: " + docs.join(", ") + ".");
-      else L.push("Dokumen rujukan" + (v.rujukan ? " (" + v.rujukan + ")" : "") + " dilampirkan bersama prompt ini. Jika tiada lampiran diterima, minta saya lampirkan dahulu.");
+      else L.push("Dokumen rujukan" + (v.rujukan ? " (" + v.rujukan + ")" : "") + " dilampirkan bersama prompt ini. Jika lampiran tiada, teruskan dengan maklumat dalam prompt ini sahaja.");
       L.push("Ekstrak: " + (v.ekstrak.replace(/[.\s]+$/, "") || "objektif, aktiviti utama, fakta penting, data atau angka, impak dan cadangan tindakan") + ".");
     } else {
       L.push("Tiada dokumen rujukan." + (v.ekstrak ? " Maklumat program: " + v.ekstrak.replace(/[.\s]+$/, "") + "." : ""));
@@ -1524,30 +1471,27 @@
     // ---------------- BAHAGIAN B ----------------
     L.push("# BAHAGIAN B: ARAHAN KREATIF");
     L.push("");
-    L.push("## B1. TEMA: " + theme.name.toUpperCase() + " (rasa dan suasana, bukan templat untuk ditiru)");
-    L.push("- Mood: " + theme.mood + ".");
-    L.push("- Palet warna: " + warna + ".");
-    L.push("- Tipografi: " + theme.type + ". Hanya 3 saiz teks: tajuk, sub-tajuk dan isi.");
-    L.push("- Motif: " + theme.motif + ". Ikon satu gaya sahaja.");
+    L.push("## B1. KONSEP VISUAL");
+    konsep.forEach(function (c, i) {
+      if (i === 0) L.push("- KONSEP UTAMA: " + c.name + ". " + c.desc + " Konsep ini menentukan struktur, komposisi dan hierarki keseluruhan OPR.");
+      else L.push("- AKSEN " + i + ": " + c.name + ". " + c.desc + " Gunakan sebagai sentuhan sahaja (elemen grafik, tekstur, rawatan foto atau tipografi) tanpa mengubah struktur konsep utama.");
+    });
+    if (konsep.length > 1) L.push("- Gabungkan menjadi SATU gaya yang padu, bukan kolaj beberapa gaya. Jika bercanggah, ikut konsep utama.");
     L.push("");
-    L.push("## B2. SUSUN ATUR: " + lay.label.toUpperCase());
-    L.push("- " + lay.text);
-    L.push("- Kedudukan blok bebas, asalkan aliran cerita A4 mudah diikut dan logo kekal di header.");
+    L.push("## B2. WARNA & TIPOGRAFI");
+    if (v.warna) L.push("- Palet warna: " + v.warna.replace(/[.\s]+$/, "") + ".");
+    else L.push("- Palet warna: pilih yang paling sesuai dengan konsep utama dan harmoni dengan warna logo. Jika konsep menyebut warna tertentu, ikut konsep. Hadkan kepada 1 warna dominan, 1 warna aksen dan warna neutral.");
+    L.push("- Hanya 3 saiz teks: tajuk, sub-tajuk dan isi. Ikon satu gaya sahaja.");
     L.push("- Angka hasil dipaparkan besar dan tebal. Kontras tinggi supaya masih terbaca bila dicetak hitam putih.");
-    L.push("- Elakkan grid kotak sama saiz, clipart generik, gradien berlebihan dan teks di atas latar sibuk.");
+    L.push("");
+    L.push("## B3. SUSUN ATUR");
+    L.push("- Kedudukan blok bebas mengikut konsep, asalkan aliran cerita A4 mudah diikut dan logo kekal di header.");
+    L.push("- Elakkan grid kotak sama saiz yang membosankan, clipart generik dan teks di atas latar sibuk.");
     L.push("");
 
-    // ---------------- Langkah ----------------
-    var ai = state.ai === "gemini" ? "Gemini" : "ChatGPT";
-    L.push("## CARA MENJANA (" + ai + ")");
-    if (state.semak) {
-      L.push("LANGKAH 1: Jangan jana imej dahulu. Senaraikan teks akhir setiap blok A4 yang akan dipaparkan, nyatakan blok yang digugurkan dan sebabnya" + (nPhotos && !blank ? ", dan fail yang tidak sesuai dijadikan foto bukti" : "") + ".");
-      L.push("LANGKAH 2: Selepas saya balas \"OK\" atau beri pembetulan, jana imej menggunakan teks yang disahkan, huruf demi huruf.");
-    } else {
-      L.push("Jana terus sebagai imej. Selepas itu, senaraikan teks yang digunakan dalam setiap blok supaya saya boleh semak.");
-    }
-    L.push("");
-    L.push("Semakan akhir sebelum jana: teks header sama dengan A2; tiada teks pemegang tempat; hasil/impak paling menonjol; tiada teks terpotong atau bertindih; logo tanpa kotak latar.");
+    L.push("## ARAHAN AKHIR");
+    L.push("Jana imej OPR terus sekarang dalam jawapan ini. Jangan tanya soalan, jangan minta pengesahan dan jangan beri draf teks dahulu. Jika ada maklumat yang tiada, gugurkan blok berkenaan dan teruskan.");
+    L.push("Sebelum jana, pastikan: teks header sama huruf demi huruf dengan A2; tiada teks pemegang tempat; hasil/impak paling menonjol; tiada teks terpotong atau bertindih" + (blank ? "; ruang logo dan bingkai foto kosong serta bersih." : "; logo tanpa kotak latar.") + "");
     return L.join("\n");
   }
 
@@ -1584,7 +1528,7 @@
   // ---------- Layout mock ----------
   function renderMock(v) {
     var fmt = FORMATS[v.format] || FORMATS.aktiviti;
-    var t = themeById(v.gaya);
+    var t = MOCK;
     var m = $("mock");
     m.classList.toggle("land", state.orient === "landskap");
     m.style.setProperty("--hd", t.hd);
@@ -1643,6 +1587,9 @@
       f.classList.toggle("invalid", bad);
       if (bad && !first) first = $(k);
     });
+    var noKonsep = !state.konsep.length;
+    $("konsepField").classList.toggle("invalid", noKonsep);
+    if (noKonsep && !first) first = $("kpickHead");
     var noLogo = !logoItems().length;
     $("logoField").classList.toggle("invalid", noLogo);
     if (noLogo && !first) first = $("logoSlots");
@@ -1657,12 +1604,11 @@
     currentPrompt = buildPrompt(v);
     $("promptBox").innerHTML = highlight(currentPrompt);
     $("charCount").textContent = currentPrompt.length.toLocaleString("ms-MY") + " aksara · " + currentPrompt.split(/\s+/).length + " patah perkataan";
-    var fmt = FORMATS[v.format], t = themeById(v.gaya);
+    var fmt = FORMATS[v.format];
     var nPhotos = parseInt(v.gambar, 10) || 0;
     $("metaStrip").innerHTML =
       '<span class="tag gold">' + esc(fmt.label) + '</span>' +
-      '<span class="tag blue">Tema: ' + esc(t.name) + '</span>' +
-      '<span class="tag">Susun atur: ' + LAYOUTS[state.layout].label + '</span>' +
+      '<span class="tag blue">Konsep: ' + esc(selectedConcepts().map(function (c) { return c.name; }).join(" + ") || "-") + '</span>' +
       '<span class="tag">' + (state.orient === "landskap" ? "A4 Landskap" : "A4 Potret") + '</span>' +
       '<span class="tag">' + logoItems().length + ' logo</span>' +
       (v._fixes.length ? '<span class="tag gold" title="Angka 0 yang ditaip dalam perkataan ditukar kepada huruf O dalam prompt">Sifar (0) ditukar ke huruf O: ' + esc(v._fixes.join(", ")) + '</span>' : "") +
@@ -1879,12 +1825,10 @@
     onChange();
   });
   form.addEventListener("change", onChange);
-  $("semak").addEventListener("change", function () { state.semak = this.checked; onChange(); });
 
   var saveTimer;
   function onChange() {
     updateMeter();
-    $("layoutNote").textContent = LAYOUTS[state.layout].text;
     renderSlotMap();
     if (state.generated) renderOutput();
     else if (state.tab === "layout") renderMock(values());
@@ -1923,7 +1867,7 @@
   $("btnSample").addEventListener("click", function () {
     Object.keys(SAMPLE).forEach(function (k) { $(k).value = SAMPLE[k]; });
     if (!logoItems().length) sampleLogo();
-    selectTheme("institusi", true);
+    state.konsep = ["neo-editorial", "data-editorial"]; renderKonsep();
     setSeg($("segOrient"), "orient", "potret");
     document.querySelectorAll(".field.invalid").forEach(function (f) { f.classList.remove("invalid"); });
     onChange();
@@ -1939,12 +1883,10 @@
     state.logos = [null]; renderLogos();
     state.generated = false;
     $("btnCopy").disabled = true; $("btnDownload").disabled = true;
-    state.cat = "Semua"; renderThemes();
-    selectTheme("institusi", true);
+    state.konsep = DEFAULT_KONSEP.slice(); renderKonsep(); setKonsepOpen(false);
     setSeg($("segOrient"), "orient", "potret");
     setSeg($("segAI"), "ai", "chatgpt");
     setSeg($("segMode"), "mode", "kosong");
-    state.semak = true; $("semak").checked = true;
     document.querySelectorAll(".field.invalid").forEach(function (f) { f.classList.remove("invalid"); });
     setTab("prompt");
     onChange();
@@ -1954,7 +1896,7 @@
   // ---------- Persistence (per pelayar) ----------
   function save() {
     try {
-      var data = values(); data._orient = state.orient; data._ai = state.ai; data._mode = state.mode; data._layout = state.layout; data._semak = state.semak;
+      var data = values(); data._orient = state.orient; data._ai = state.ai; data._mode = state.mode;
       localStorage.setItem(STORE_KEY, JSON.stringify(data));
     } catch (e) { /* storage tak tersedia */ }
   }
@@ -1967,9 +1909,9 @@
       if (d._ai) setSeg($("segAI"), "ai", d._ai);
       if (d._mode) setSeg($("segMode"), "mode", d._mode);
       if (!$("gambar").value) $("gambar").value = "3";
-      selectTheme(d.gaya || "institusi", !d.warna);
-      if (d._layout) setSeg($("segLayout"), "layout", d._layout);
-      if (typeof d._semak === "boolean") { state.semak = d._semak; $("semak").checked = d._semak; }
+      var ids = String(d.gaya || "").split(",").filter(function (id, i, a) { return conceptById(id) && a.indexOf(id) === i; }).slice(0, MAX_KONSEP);
+      state.konsep = ids.length ? ids : DEFAULT_KONSEP.slice();
+      renderKonsep();
       return true;
     } catch (e) { return false; }
   }
@@ -1984,9 +1926,8 @@
   }
 
   // ---------- Init ----------
-  renderThemes();
   renderLogos();
-  if (!load()) selectTheme("institusi", true);
+  if (!load()) renderKonsep();
   updateMeter();
   renderSlotMap();
   setTab("prompt");
