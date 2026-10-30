@@ -230,6 +230,8 @@
     cursor: pointer; color: var(--ink-2); display: inline-flex; align-items: center; justify-content: center; gap: 7px;
   }
   .seg button[aria-pressed="true"] { background: #fff; color: var(--ink); box-shadow: var(--shadow); }
+  .seg-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .layout-note { font-size: 12px; color: var(--ink-3); margin-top: 6px; line-height: 1.45; }
   .seg .dot { width: 8px; height: 8px; border-radius: 50%; }
 
   .gen-btn {
@@ -611,6 +613,15 @@
         <label for="warna">Warna utama <span class="hint">ikut tema, boleh ubah</span></label>
         <input class="input" id="warna" name="warna" placeholder="Contoh: Navy, biru muda, putih dan aksen emas">
       </div>
+      <div class="field">
+        <label>Gaya susun atur <span class="hint">ikut tema, boleh ubah</span></label>
+        <div class="seg seg-3" id="segLayout">
+          <button type="button" data-v="kemas" aria-pressed="true">Kemas</button>
+          <button type="button" data-v="seimbang" aria-pressed="false">Seimbang</button>
+          <button type="button" data-v="berani" aria-pressed="false">Berani</button>
+        </div>
+        <div class="layout-note" id="layoutNote"></div>
+      </div>
       <div class="row-2">
         <div class="field">
           <label>Orientasi A4</label>
@@ -766,8 +777,8 @@
         <div class="mock-wrap">
           <div class="mock" id="mock"></div>
           <div class="mock-side">
-            <h4>Lakaran kasar</h4>
-            Ini cuma gambaran struktur yang diminta dalam prompt, bukan hasil akhir. AI akan hasilkan reka bentuk sendiri berdasarkan susunan ini.
+            <h4>Satu kemungkinan susunan</h4>
+            Lakaran ni cuma contoh. Prompt tak kunci layout, jadi AI bebas susun ikut tema. Yang dikunci ialah aliran cerita di bawah, sama untuk semua tema.
             <ol id="mockList"></ol>
           </div>
         </div>
@@ -788,73 +799,104 @@
   "use strict";
 
   // ---------- Data ----------
+  // Setiap format dipetakan kepada aliran naratif yang sama: kenapa -> apa dibuat -> hasil -> seterusnya.
   var FORMATS = {
-    aktiviti:     { label: "OPR Aktiviti / Program", sections: ["Objektif", "Butiran pelaksanaan", "Aktiviti utama", "Impak / pencapaian", "Cadangan penambahbaikan"] },
-    mesyuarat:    { label: "OPR Mesyuarat", sections: ["Agenda utama", "Perkara dibincangkan", "Keputusan mesyuarat", "Tindakan susulan (siapa & bila)"] },
-    kursus:       { label: "OPR Kursus / Bengkel / Latihan", sections: ["Objektif kursus", "Modul / kandungan", "Penceramah / fasilitator", "Refleksi peserta", "Impak kepada PdP"] },
-    lawatan:      { label: "OPR Lawatan / Lawatan Sambil Belajar", sections: ["Objektif lawatan", "Aturcara", "Dapatan / pengalaman", "Cadangan"] },
-    pertandingan: { label: "OPR Pertandingan / Kejohanan", sections: ["Objektif", "Kategori pertandingan", "Keputusan & pemenang", "Pencapaian sekolah", "Penambahbaikan"] },
-    majlis:       { label: "OPR Majlis / Sambutan", sections: ["Objektif", "Aturcara majlis", "Pengisian & kemuncak", "Kehadiran", "Rumusan"] },
-    inovasi:      { label: "OPR PdPc / Inovasi", sections: ["Isu / masalah", "Kaedah / inovasi", "Pelaksanaan", "Dapatan & data", "Impak dan langkah seterusnya"] }
+    aktiviti:     { label: "OPR Aktiviti / Program", why: ["Objektif"], what: ["Butiran pelaksanaan", "Aktiviti utama"], result: ["Impak / pencapaian"], next: ["Cadangan penambahbaikan"] },
+    mesyuarat:    { label: "OPR Mesyuarat", why: ["Agenda utama"], what: ["Perkara dibincangkan"], result: ["Keputusan mesyuarat"], next: ["Tindakan susulan (siapa & bila)"] },
+    kursus:       { label: "OPR Kursus / Bengkel / Latihan", why: ["Objektif kursus"], what: ["Modul / kandungan", "Penceramah / fasilitator"], result: ["Refleksi peserta", "Impak kepada PdP"], next: ["Tindakan susulan di sekolah"] },
+    lawatan:      { label: "OPR Lawatan / Lawatan Sambil Belajar", why: ["Objektif lawatan"], what: ["Aturcara"], result: ["Dapatan / pengalaman"], next: ["Cadangan"] },
+    pertandingan: { label: "OPR Pertandingan / Kejohanan", why: ["Objektif"], what: ["Kategori pertandingan"], result: ["Keputusan & pemenang", "Pencapaian sekolah"], next: ["Penambahbaikan"] },
+    majlis:       { label: "OPR Majlis / Sambutan", why: ["Objektif"], what: ["Aturcara majlis", "Pengisian & kemuncak"], result: ["Kehadiran", "Rumusan"], next: ["Penghargaan & langkah seterusnya"] },
+    inovasi:      { label: "OPR PdPc / Inovasi", why: ["Isu / masalah"], what: ["Kaedah / inovasi", "Pelaksanaan"], result: ["Dapatan & data"], next: ["Impak dan langkah seterusnya"] }
   };
+  Object.keys(FORMATS).forEach(function (k) {
+    var f = FORMATS[k];
+    f.sections = f.why.concat(f.what, f.result, f.next);
+  });
 
-  // Setiap tema: prompt gaya untuk AI + warna untuk lakaran (hd header, acc aksen, bg latar, sec kad, tx teks, rad bucu)
+  // Tema = mood sahaja (rasa, tipografi, motif). Susun atur tidak ditetapkan oleh tema.
+  // Warna lakaran: hd header, acc aksen, bg latar, sec kad, tx teks, rad bucu. layout = gaya susun atur lalai.
   var THEMES = [
-    { id: "institusi", cat: "Rasmi", name: "Institusi Moden", desc: "Kemas, profesional, grid tersusun",
-      prompt: "infografik institusi moden dan profesional, susun atur grid yang kemas, ikon garis (line icons) yang konsisten, hierarki tipografi yang jelas",
+    { id: "institusi", cat: "Rasmi", name: "Institusi Moden", desc: "Kemas, profesional, yakin", layout: "kemas",
+      mood: "profesional, yakin dan moden, seperti laporan tahunan organisasi yang berprestij",
+      type: "sans-serif moden yang tegas, tajuk tebal", motif: "ikon garis halus, garis pemisah nipis berwarna aksen",
       warna: "Navy, biru muda, putih dan aksen emas", hd: "#13224a", acc: "#e0a93b", bg: "#f3f6fc", sec: "#ffffff", tx: "#1c2540", rad: "4px" },
-    { id: "kerajaan", cat: "Rasmi", name: "Rasmi Kerajaan", desc: "Formal, berjalur, seimbang",
-      prompt: "gaya dokumen rasmi kerajaan Malaysia, jalur warna biru dan kuning di header dan footer, susunan formal dan seimbang, tanpa hiasan berlebihan",
+    { id: "kerajaan", cat: "Rasmi", name: "Rasmi Kerajaan", desc: "Formal, bermaruah, seimbang", layout: "kemas",
+      mood: "formal, bermaruah dan berwibawa, sesuai dihantar ke PPD, JPN atau KPM",
+      type: "sans-serif yang jelas dan formal, tiada fon hiasan", motif: "jalur warna nipis, ikon rasmi yang ringkas, tiada hiasan berlebihan",
       warna: "Biru tua, kuning, putih dan kelabu lembut", hd: "#0b2a6b", acc: "#f5c518", bg: "#ffffff", sec: "#f4f6fb", tx: "#1a1f33", rad: "2px" },
-    { id: "korporat", cat: "Moden", name: "Korporat Minimalis", desc: "Banyak ruang putih, bersih",
-      prompt: "minimalis korporat, banyak ruang putih, tipografi sans-serif bersih, garis pemisah halus, aksen biru yang sederhana",
+    { id: "korporat", cat: "Moden", name: "Korporat Minimalis", desc: "Tenang, lapang, bersih", layout: "seimbang",
+      mood: "tenang, lapang dan premium, banyak ruang putih yang disengajakan",
+      type: "sans-serif nipis dan bersih dengan angka besar", motif: "garis halus, titik aksen kecil, tiada ilustrasi",
       warna: "Kelabu arang, putih dan aksen biru", hd: "#1f2937", acc: "#3b82f6", bg: "#ffffff", sec: "#f8fafc", tx: "#111827", rad: "3px" },
-    { id: "bento", cat: "Moden", name: "Bento Grid", desc: "Kad pelbagai saiz, gaya aplikasi",
-      prompt: "susun atur bento grid moden, kad bersudut bulat besar dalam pelbagai saiz, gradien ungu ke merah jambu, ikon 3D kecil, rasa aplikasi teknologi terkini",
+    { id: "bento", cat: "Moden", name: "Bento Moden", desc: "Segar, rasa aplikasi teknologi", layout: "berani",
+      mood: "segar dan bertenaga seperti antara muka aplikasi teknologi terkini",
+      type: "sans-serif geometri, tajuk sangat tebal", motif: "kad bersudut bulat dalam pelbagai saiz, ikon 3D kecil, gradien ungu ke merah jambu",
       warna: "Ungu, merah jambu, lavender dan putih", hd: "linear-gradient(135deg,#6d28d9,#db2777)", acc: "#f472b6", bg: "#f5f3ff", sec: "#ffffff", tx: "#1e1b4b", rad: "8px" },
-    { id: "glass", cat: "Moden", name: "Glassmorphism", desc: "Kad lutsinar atas gradien",
-      prompt: "glassmorphism: kad lutsinar kabur (frosted glass) di atas latar gradien biru ke ungu, cahaya lembut, teks putih berkontras tinggi",
+    { id: "glass", cat: "Moden", name: "Glassmorphism", desc: "Lutsinar, bercahaya", layout: "seimbang",
+      mood: "moden dan bercahaya, rasa lapisan kaca lutsinar di atas cahaya lembut",
+      type: "sans-serif bersih, teks putih berkontras tinggi", motif: "panel kaca kabur (frosted glass), cahaya lembut, gradien biru ke ungu",
       warna: "Biru, ungu, cyan lembut dan putih", hd: "rgba(255,255,255,.16)", acc: "#a5f3fc", bg: "linear-gradient(160deg,#1e3a8a,#7c3aed)", sec: "rgba(255,255,255,.16)", tx: "#ffffff", rad: "8px" },
-    { id: "neon", cat: "Moden", name: "Teknologi Futuristik", desc: "Gelap, neon, litar digital",
-      prompt: "teknologi futuristik, latar gelap, corak litar dan grid digital, aksen neon cyan dan ungu yang bercahaya, tipografi tegas seperti papan pemuka",
+    { id: "neon", cat: "Moden", name: "Teknologi Futuristik", desc: "Gelap, neon, digital", layout: "berani",
+      mood: "futuristik dan berteknologi tinggi, seperti papan pemuka pusat kawalan",
+      type: "sans-serif tegas bergaya teknikal, angka monospace", motif: "corak litar dan grid digital halus, cahaya neon cyan dan ungu",
       warna: "Biru gelap, hitam, cyan neon dan ungu", hd: "#0a0f1f", acc: "#22d3ee", bg: "#0b1224", sec: "#121c38", tx: "#e2e8f0", rad: "4px" },
-    { id: "ceria", cat: "Kreatif", name: "Ceria Mesra Murid", desc: "Bulat, terang, comel",
-      prompt: "ceria dan mesra murid, bentuk bulat lembut, ilustrasi kecil yang comel, warna terang tetapi masih kemas dan mudah dibaca",
+    { id: "ceria", cat: "Kreatif", name: "Ceria Mesra Murid", desc: "Riang, mesra, terang", layout: "seimbang",
+      mood: "riang dan mesra murid, tetapi masih kemas dan mudah dibaca",
+      type: "sans-serif bulat yang mesra, tajuk tebal", motif: "bentuk bulat lembut, ilustrasi kecil yang comel, warna terang",
       warna: "Oren, kuning, biru langit dan putih", hd: "#f97316", acc: "#facc15", bg: "#fff7ed", sec: "#ffffff", tx: "#431407", rad: "10px" },
-    { id: "scrapbook", cat: "Kreatif", name: "Scrapbook Pastel", desc: "Kertas, pita washi, polaroid",
-      prompt: "scrapbook pastel: tekstur kertas, pita washi, nota lekat, bingkai gaya polaroid, tulisan tangan untuk sub-tajuk, warna pastel lembut",
+    { id: "scrapbook", cat: "Kreatif", name: "Scrapbook Pastel", desc: "Hangat, peribadi, buatan tangan", layout: "berani",
+      mood: "hangat dan peribadi seperti buku skrap kenangan program",
+      type: "gabungan sans-serif bersih untuk isi dan tulisan tangan untuk sub-tajuk", motif: "tekstur kertas, pita washi, nota lekat, bingkai gaya polaroid",
       warna: "Merah jambu pastel, hijau pudina, krim dan coklat lembut", hd: "#f9a8d4", hdtx: "#4a3b33", acc: "#6ee7b7", bg: "#fdf6ec", sec: "#fffdf8", tx: "#4a3b33", rad: "3px" },
-    { id: "kapur", cat: "Kreatif", name: "Papan Kapur", desc: "Tulisan kapur, nuansa kelas",
-      prompt: "papan hitam hijau dengan tekstur kapur, tajuk dan ikon dilukis seperti tulisan kapur, bingkai kayu nipis, nuansa bilik darjah",
+    { id: "kapur", cat: "Kreatif", name: "Papan Kapur", desc: "Nostalgia bilik darjah", layout: "seimbang",
+      mood: "nostalgia bilik darjah, akrab dan bersifat pendidikan",
+      type: "tulisan gaya kapur untuk tajuk, sans-serif jelas untuk isi", motif: "tekstur papan hitam hijau, garisan dan ikon dilukis kapur, bingkai kayu nipis",
       warna: "Hijau papan hitam, putih kapur, kuning lembut dan coklat kayu", hd: "#1f3b2d", acc: "#fde68a", bg: "#26453a", sec: "#2e5245", tx: "#f1f5ee", rad: "2px" },
-    { id: "editorial", cat: "Kreatif", name: "Editorial Majalah", desc: "Tajuk besar, kolum, berani",
-      prompt: "editorial gaya majalah, tajuk serif yang besar dan berani, susun atur kolum, gambar dominan, garis nipis hitam, aksen merah",
+    { id: "editorial", cat: "Kreatif", name: "Editorial Majalah", desc: "Berani, bercerita, elegan", layout: "berani",
+      mood: "berani dan bercerita seperti muka depan majalah berkualiti",
+      type: "serif besar dan dramatik untuk tajuk, sans-serif kecil untuk isi", motif: "garis nipis hitam, petikan besar, gambar sebagai elemen dominan, aksen merah",
       warna: "Hitam, putih dan aksen merah", hd: "#111111", acc: "#e11d48", bg: "#ffffff", sec: "#fafafa", tx: "#111111", rad: "0px" },
-    { id: "retro", cat: "Kreatif", name: "Retro Pop 80-an", desc: "Halftone, bayang tebal",
-      prompt: "retro pop 80-an: warna terang kuning, merah jambu dan biru, bayang tebal (offset shadow), corak titik halftone, tipografi tebal",
+    { id: "retro", cat: "Kreatif", name: "Retro Pop 80-an", desc: "Ceria, nostalgia, pop", layout: "berani",
+      mood: "ceria dan nostalgia era pop 80-an",
+      type: "display tebal bergaya retro", motif: "bayang tebal (offset shadow), corak titik halftone, warna terang",
       warna: "Biru gelap, kuning, merah jambu dan krim", hd: "#2b2d42", acc: "#ffd23f", bg: "#fff3e2", sec: "#ffffff", tx: "#2b2d42", rad: "6px" },
-    { id: "flat3d", cat: "Kreatif", name: "Ilustrasi Flat 3D", desc: "Ikon isometrik, gradien halus",
-      prompt: "ilustrasi flat dengan sentuhan 3D lembut (soft 3D), ikon berwarna gaya isometrik, latar gradien halus",
+    { id: "flat3d", cat: "Kreatif", name: "Ilustrasi Flat 3D", desc: "Lembut, mesra, berilustrasi", layout: "seimbang",
+      mood: "lembut dan mesra dengan ilustrasi yang menerangkan",
+      type: "sans-serif bulat moden", motif: "ilustrasi flat dengan sentuhan 3D lembut, ikon isometrik berwarna, gradien halus",
       warna: "Ungu, lavender, putih dan aksen pic", hd: "linear-gradient(135deg,#4c2a85,#7c3aed)", acc: "#f4a37c", bg: "#f1ecfa", sec: "#ffffff", tx: "#2e1065", rad: "8px" },
-    { id: "alam", cat: "Tematik", name: "Alam Hijau Lestari", desc: "Daun, kertas kitar semula",
-      prompt: "alam hijau lestari: elemen daun dan tumbuhan, tekstur kertas kitar semula, warna hijau semula jadi, sesuai untuk program alam sekitar",
+    { id: "alam", cat: "Tematik", name: "Alam Hijau Lestari", desc: "Segar, semula jadi", layout: "seimbang",
+      mood: "segar dan semula jadi, sesuai untuk program alam sekitar",
+      type: "sans-serif humanis yang lembut", motif: "daun dan tumbuhan, tekstur kertas kitar semula",
       warna: "Hijau hutan, hijau limau, krim dan putih", hd: "#14532d", acc: "#a3e635", bg: "#f0f7ee", sec: "#ffffff", tx: "#1a2e1a", rad: "8px" },
-    { id: "batik", cat: "Tematik", name: "Batik Warisan", desc: "Motif batik & songket",
-      prompt: "warisan Malaysia: motif batik dan songket yang halus di sudut dan jalur header, elegan dan bermaruah",
+    { id: "batik", cat: "Tematik", name: "Batik Warisan", desc: "Elegan, budaya Malaysia", layout: "kemas",
+      mood: "elegan dan bermaruah dengan jiwa warisan Malaysia",
+      type: "serif elegan untuk tajuk, sans-serif jelas untuk isi", motif: "motif batik dan songket halus di sudut dan jalur hiasan",
       warna: "Maroon, krim, putih dan emas", hd: "#6b1d2a", acc: "#d4a64a", bg: "#f8f0e6", sec: "#fffaf3", tx: "#3b1219", rad: "4px" },
-    { id: "islamik", cat: "Tematik", name: "Islamik Elegan", desc: "Geometri islamik, zamrud & emas",
-      prompt: "islamik elegan: corak geometri islamik yang halus, bingkai berbentuk gerbang, sesuai untuk program keagamaan",
+    { id: "islamik", cat: "Tematik", name: "Islamik Elegan", desc: "Tenang, suci, elegan", layout: "kemas",
+      mood: "tenang, suci dan elegan, sesuai untuk program keagamaan",
+      type: "serif elegan atau sans-serif halus", motif: "corak geometri islamik halus, bingkai berbentuk gerbang",
       warna: "Hijau zamrud, putih, krim dan emas", hd: "#064e3b", acc: "#d4af37", bg: "#f4f8f5", sec: "#ffffff", tx: "#052e24", rad: "4px" },
-    { id: "merdeka", cat: "Tematik", name: "Semangat Merdeka", desc: "Warna Jalur Gemilang",
-      prompt: "semangat kemerdekaan: warna Jalur Gemilang, jalur berkibar, bintang dan anak bulan sebagai hiasan yang sederhana",
+    { id: "merdeka", cat: "Tematik", name: "Semangat Merdeka", desc: "Patriotik, bersemangat", layout: "berani",
+      mood: "patriotik dan bersemangat",
+      type: "sans-serif tebal dan tegas", motif: "warna Jalur Gemilang, jalur berkibar, bintang dan anak bulan secara sederhana",
       warna: "Biru tua, merah, putih dan kuning", hd: "linear-gradient(90deg,#010066 0 60%,#cc0001 60%)", acc: "#ffcc00", bg: "#ffffff", sec: "#f6f7fb", tx: "#0b0b3b", rad: "4px" },
-    { id: "sukan", cat: "Tematik", name: "Sukan Bertenaga", desc: "Diagonal dinamik, laju",
-      prompt: "sukan bertenaga: potongan diagonal yang dinamik, garis kelajuan, tipografi condong dan tebal",
+    { id: "sukan", cat: "Tematik", name: "Sukan Bertenaga", desc: "Dinamik, laju, kuat", layout: "berani",
+      mood: "dinamik, laju dan penuh tenaga",
+      type: "sans-serif condong dan tebal", motif: "potongan diagonal, garis kelajuan",
       warna: "Merah, hitam, putih dan kelabu", hd: "#b91c1c", acc: "#111827", bg: "#ffffff", sec: "#f3f4f6", tx: "#111111", rad: "2px" },
-    { id: "perayaan", cat: "Tematik", name: "Sambutan Perayaan", desc: "Meriah tapi kemas",
-      prompt: "sambutan perayaan: hiasan meriah tetapi kemas, motif pelita, tanglung dan bunga yang neutral untuk pelbagai perayaan",
+    { id: "perayaan", cat: "Tematik", name: "Sambutan Perayaan", desc: "Meriah tapi kemas", layout: "seimbang",
+      mood: "meriah dan mesra tetapi kemas",
+      type: "serif atau sans-serif yang hangat", motif: "pelita, tanglung dan bunga yang neutral untuk pelbagai perayaan",
       warna: "Teal, emas, krim dan putih", hd: "#0f766e", acc: "#fbbf24", bg: "#fffbeb", sec: "#ffffff", tx: "#134e4a", rad: "8px" }
   ];
+
+  var LAYOUTS = {
+    kemas: { label: "Kemas", text: "Susunan tersusun dan formal dengan blok yang jelas. Simetri dibenarkan, tetapi tetap rasa direka oleh pereka profesional, bukan templat Word biasa." },
+    seimbang: { label: "Seimbang", text: "Struktur yang kemas digabung dengan satu elemen tumpuan yang berani, contohnya blok hasil/impak yang besar atau tajuk yang bertindih dengan gambar." },
+    berani: { label: "Berani", text: "Komposisi berani gaya poster atau editorial: asimetri, saiz blok berbeza-beza, tajuk besar yang dominan, ruang kosong digunakan dengan sengaja." }
+  };
+
   var CATS = ["Semua", "Rasmi", "Moden", "Kreatif", "Tematik"];
   var LEGACY_THEME = { rasmi: "kerajaan" };
 
@@ -879,7 +921,7 @@
   };
 
   // ---------- State ----------
-  var state = { orient: "potret", ai: "chatgpt", mode: "kosong", cat: "Semua", files: [], generated: false, tab: "prompt" };
+  var state = { orient: "potret", ai: "chatgpt", mode: "kosong", layout: "kemas", cat: "Semua", files: [], generated: false, tab: "prompt" };
 
   var $ = function (id) { return document.getElementById(id); };
   var form = $("oprForm");
@@ -936,7 +978,7 @@
   function selectTheme(id, setWarna) {
     var t = themeById(id);
     $("gaya").value = t.id;
-    if (setWarna) $("warna").value = t.warna;
+    if (setWarna) { $("warna").value = t.warna; setSeg($("segLayout"), "layout", t.layout); }
     Array.prototype.forEach.call($("themeGrid").children, function (c) {
       c.setAttribute("aria-pressed", c.dataset.id === t.id ? "true" : "false");
     });
@@ -968,6 +1010,7 @@
   }
   bindSeg($("segOrient"), "orient");
   bindSeg($("segAI"), "ai");
+  bindSeg($("segLayout"), "layout");
   bindSeg($("segMode"), "mode");
 
   // ---------- Files ----------
@@ -1039,9 +1082,11 @@
   }
 
   // ---------- Prompt builder ----------
+  // Bahagian A (spine) sama untuk semua tema. Bahagian B (kreatif) sahaja yang berubah ikut tema dan gaya susun atur.
   function buildPrompt(v) {
     var fmt = FORMATS[v.format] || FORMATS.aktiviti;
     var theme = themeById(v.gaya);
+    var lay = LAYOUTS[state.layout] || LAYOUTS.seimbang;
     var orient = state.orient === "landskap" ? "A4 landskap (nisbah 297:210)" : "A4 potret (nisbah 210:297)";
     var nPhotos = parseInt(v.gambar, 10) || 0;
     var docs = state.files.filter(function (f) { return !isImage(f); }).map(function (f) { return f.name; });
@@ -1050,9 +1095,12 @@
     var L = [];
 
     L.push("## TUGASAN");
-    L.push("Hasilkan SATU imej One Page Report (OPR) berformat " + orient + ", resolusi tinggi dan sedia dicetak, untuk " + fmt.label.replace("OPR ", "") + " di bawah. Semua teks dalam imej mesti dalam Bahasa Melayu standard dengan ejaan yang betul.");
+    L.push("Hasilkan SATU imej One Page Report (OPR) " + fmt.label.replace("OPR ", "") + ", format " + orient + ", resolusi tinggi dan sedia dicetak. Semua teks dalam Bahasa Melayu standard.");
+    L.push("Prompt ini ada dua bahagian. BAHAGIAN A ialah spine OPR: wajib diikut tepat. BAHAGIAN B ialah arahan kreatif: anda bebas mereka bentuk dalam ruang itu. Matlamat: OPR yang padu, berkualiti tinggi dan tidak nampak seperti templat biasa.");
     L.push("");
-    L.push("## MAKLUMAT HEADER (gunakan tepat seperti ditulis)");
+    L.push("# BAHAGIAN A: SPINE OPR (WAJIB, JANGAN UBAH)");
+    L.push("");
+    L.push("## A1. MAKLUMAT HEADER (gunakan teks tepat seperti ditulis)");
     L.push("- Tajuk: " + v.tajuk);
     L.push("- Institusi: " + v.institusi);
     if (v.anjuran) L.push("- Anjuran: " + v.anjuran);
@@ -1062,70 +1110,84 @@
     L.push("- Kumpulan sasaran: " + v.sasaran);
     L.push("- Disediakan oleh: " + v.pelapor);
     L.push("");
-    L.push("## RUJUKAN");
+    L.push("## A2. RUJUKAN");
     if (docs.length) {
-      L.push("Saya lampirkan dokumen rujukan berikut: " + docs.join(", ") + ". Baca dokumen ini dengan teliti sebelum menghasilkan imej.");
+      L.push("Saya lampirkan dokumen rujukan: " + docs.join(", ") + ". Baca dengan teliti sebelum mereka bentuk.");
     } else {
-      L.push("Saya akan lampirkan dokumen rujukan bersama prompt ini. Baca dokumen tersebut dengan teliti sebelum menghasilkan imej.");
+      L.push("Saya akan lampirkan dokumen rujukan bersama prompt ini. Baca dengan teliti sebelum mereka bentuk.");
     }
     L.push("Sumber dokumen: " + v.rujukan + ".");
-    L.push("Ekstrak daripada rujukan: " + (v.ekstrak.replace(/[.\s]+$/, "") || "objektif, aktiviti utama, fakta penting, data atau angka, impak dan cadangan tindakan") + ".");
-    L.push("Ringkaskan setiap isi kepada 2 hingga 4 poin pendek (maksimum 12 patah perkataan setiap poin) supaya muat dalam satu halaman dan mudah dibaca.");
+    L.push("Ekstrak: " + (v.ekstrak.replace(/[.\s]+$/, "") || "objektif, aktiviti utama, fakta penting, data atau angka, impak dan cadangan tindakan") + ".");
     L.push("");
-    L.push("## STRUKTUR KANDUNGAN");
-    L.push("1. Header: nama institusi (kecil, di atas), tajuk program (besar dan menonjol), label \"LAPORAN SATU MUKA\" di penjuru.");
-    L.push("2. Jalur maklumat: tarikh, masa, tempat dan kumpulan sasaran dalam 4 kotak kecil dengan ikon masing-masing.");
-    fmt.sections.forEach(function (s, i) { L.push((i + 3) + ". " + s + "."); });
-    var n = fmt.sections.length + 3;
-    if (nPhotos > 0) {
-      L.push(n + ". Ruang gambar: " + nPhotos + " bingkai gambar aktiviti bernisbah 4:3, tersusun kemas dalam grid, dengan ruang kapsyen pendek di bawah setiap satu.");
-      n++;
-    }
-    L.push(n + ". Footer: \"Disediakan oleh: " + v.pelapor + "\" di kiri, ruang tandatangan dan tarikh di kanan.");
+    L.push("## A3. ALIRAN NARATIF (urutan pembaca faham cerita, BUKAN kedudukan dalam layout)");
+    L.push("1. KENAL PROGRAM: tajuk dan maklumat header mesti dapat dikenal pasti dalam 3 saat.");
+    L.push("2. KENAPA: " + fmt.why.join("; ") + ".");
+    L.push("3. APA DIBUAT: " + fmt.what.join("; ") + ".");
+    L.push("4. HASIL & IMPAK (fokus utama OPR): " + fmt.result.join("; ") + ". Pilih 1 hingga 3 hasil paling kuat daripada rujukan (angka, pencapaian atau petikan peserta) dan jadikan ia elemen paling menonjol dalam keseluruhan OPR.");
+    L.push("5. SETERUSNYA: " + fmt.next.join("; ") + ".");
+    var step = 6;
+    if (nPhotos > 0) { L.push(step + ". BUKTI: " + nPhotos + " gambar aktiviti bernisbah 4:3, setiap satu dengan kapsyen pendek."); step++; }
+    L.push(step + ". PENGESAHAN: \"Disediakan oleh: " + v.pelapor + "\" dengan ruang tandatangan dan tarikh.");
+    L.push("");
+    L.push("## A4. PRINSIP OPR PADU");
+    L.push("- Satu muka sahaja dan boleh difahami dalam 30 saat. Mata pembaca mesti pergi ke tajuk dahulu, kemudian terus ke hasil/impak.");
+    L.push("- Isi dalam poin pendek: maksimum 12 patah perkataan setiap poin dan 4 poin setiap blok. Tiada perenggan panjang.");
+    L.push("- Angka dan pencapaian dipaparkan besar dan tebal, bukan tenggelam dalam ayat.");
+    L.push("- Hierarki teks jelas dengan 3 saiz sahaja: tajuk, sub-tajuk dan isi.");
+    L.push("- Ikon satu gaya sahaja dan konsisten. Kontras tinggi supaya masih boleh dibaca bila dicetak hitam putih.");
+    L.push("");
+    L.push("## A5. INTEGRITI KANDUNGAN");
+    L.push("- Gunakan HANYA maklumat daripada rujukan dan maklumat header. Jangan reka nama, angka, statistik atau petikan.");
+    L.push("- Jika sesuatu maklumat tiada dalam rujukan, ringkaskan blok itu. Jangan isi dengan andaian.");
+    if (v.penegasan) L.push("- " + v.penegasan.replace(/\n+/g, " "));
+    L.push("- Ejaan Bahasa Melayu mesti betul. Tiada huruf berselerak atau perkataan yang tidak wujud.");
     L.push("");
 
     if (nPhotos > 0 && state.mode === "kosong") {
-      L.push("## BINGKAI GAMBAR (PENTING)");
+      L.push("## A6. BINGKAI GAMBAR");
       L.push("- JANGAN lukis, jana atau reka sebarang gambar orang atau aktiviti dalam bingkai gambar.");
       L.push("- Isi setiap bingkai dengan warna kelabu rata #D9D9D9 dan label kecil di tengah: " + labels(nPhotos) + ".");
-      L.push("- Bingkai mesti bersih: tiada teks, ikon, corak atau hiasan yang bertindih di atasnya, kerana gambar sebenar akan ditampal kemudian.");
-      L.push("- Bucu bingkai tajam (tidak bulat), tanpa bayang dan tanpa kesan senget, supaya mudah ditampal dengan tepat.");
+      L.push("- Bingkai mesti bersih: tiada teks, ikon atau hiasan bertindih di atasnya, kerana gambar sebenar akan ditampal kemudian.");
+      L.push("- Bucu bingkai tajam, tanpa bayang dan tidak senget, supaya mudah ditampal dengan tepat.");
       L.push("");
     } else if (nPhotos > 0) {
-      L.push("## GAMBAR SEBENAR (PALING PENTING)");
+      L.push("## A6. GAMBAR SEBENAR");
       if (imgs.length) {
         L.push("Saya lampirkan " + imgs.length + " gambar aktiviti sebenar. Padankan ikut turutan:");
         imgs.slice(0, nPhotos).forEach(function (name, i) { L.push("- Gambar " + (i + 1) + " = " + name); });
       } else {
-        L.push("Saya akan lampirkan " + nPhotos + " gambar aktiviti sebenar. Padankan ikut turutan lampiran (gambar pertama untuk bingkai 1, dan seterusnya).");
+        L.push("Saya akan lampirkan " + nPhotos + " gambar aktiviti sebenar. Padankan ikut turutan lampiran.");
       }
-      L.push("- Masukkan setiap gambar SEBAGAI FOTO ASAL, seolah-olah foto itu ditampal ke dalam bingkai. Jangan lukis semula dan jangan jana versi baharu.");
-      L.push("- Kekalkan sepenuhnya wajah, bilangan orang, pakaian, kedudukan, latar belakang, teks dan objek dalam setiap gambar.");
-      L.push("- Jangan tambah filter, kesan kartun atau ilustrasi, pencahayaan baharu, orang tambahan atau objek tambahan.");
-      L.push("- Hanya ubah saiz dan crop sedikit di bahagian tepi supaya gambar muat dalam bingkai.");
-      L.push("- Jika tidak dapat mengekalkan gambar asal dengan tepat, biarkan bingkai itu kelabu kosong berlabel \"GAMBAR n\". Jangan reka gambar pengganti.");
+      L.push("- Masukkan setiap gambar SEBAGAI FOTO ASAL, seolah-olah ditampal ke dalam bingkai. Jangan lukis semula dan jangan jana versi baharu.");
+      L.push("- Kekalkan sepenuhnya wajah, bilangan orang, pakaian, kedudukan, latar belakang, teks dan objek.");
+      L.push("- Jangan tambah filter, kesan kartun, pencahayaan baharu, orang atau objek tambahan. Hanya ubah saiz dan crop sedikit di tepi.");
+      L.push("- Jika tidak dapat mengekalkan gambar asal dengan tepat, biarkan bingkai kelabu kosong berlabel \"GAMBAR n\".");
       L.push("");
     }
 
-    L.push("## TEMA & ARAHAN VISUAL");
-    L.push("- Tema: " + theme.name + ". Gaya: " + theme.prompt + ".");
-    L.push("- Palet warna: " + warna + ". Gunakan warna utama untuk header dan footer, warna aksen untuk ikon dan garis pemisah.");
-    L.push("- Tipografi: tajuk tebal dan besar, sub-tajuk seksyen jelas, teks isi saiz seragam dan mudah dibaca bila dicetak.");
-    L.push("- Setiap seksyen dalam kad atau blok tersendiri dengan ikon kecil yang sesuai dengan tajuknya.");
-    L.push("- Hiasan tema tidak boleh mengganggu kebolehbacaan teks. Margin seimbang, tiada teks bertindih atau terpotong.");
+    L.push("# BAHAGIAN B: ARAHAN KREATIF (BEBAS)");
     L.push("");
-    L.push("## PENEGASAN");
-    L.push("- Gunakan HANYA maklumat daripada rujukan dan maklumat header di atas. Jangan reka nama, angka, statistik atau petikan yang tiada dalam rujukan.");
-    L.push("- Jika sesuatu maklumat tiada dalam rujukan, tinggalkan seksyen itu ringkas, jangan isi dengan andaian.");
-    if (v.penegasan) L.push("- " + v.penegasan.replace(/\n+/g, " "));
-    L.push("- Semak ejaan Bahasa Melayu sebelum menjana imej. Elak huruf berselerak atau perkataan yang tidak wujud.");
+    L.push("## B1. MOOD TEMA: " + theme.name.toUpperCase());
+    L.push("Gunakan ini sebagai rasa dan suasana, bukan templat yang perlu ditiru.");
+    L.push("- Mood: " + theme.mood + ".");
+    L.push("- Palet warna: " + warna + ".");
+    L.push("- Tipografi: " + theme.type + ".");
+    L.push("- Motif dan elemen visual: " + theme.motif + ".");
+    L.push("");
+    L.push("## B2. SUSUN ATUR (" + lay.label.toUpperCase() + ")");
+    L.push("- Anda yang tentukan komposisi terbaik untuk kandungan ini. Kedudukan setiap blok bebas, asalkan aliran naratif A3 masih mudah diikut.");
+    L.push("- " + lay.text);
+    L.push("- Elakkan: grid kotak sama saiz yang membosankan, clipart generik, gradien berlebihan, teks di atas latar yang sibuk, dan hiasan yang mengganggu bacaan.");
+    L.push("");
+    L.push("## B3. SEMAK SEBELUM JANA");
+    L.push("Pastikan: semua item A3 ada; teks header tepat; hasil/impak paling menonjol; tiada teks terpotong atau bertindih; ejaan betul; reka bentuk nampak dibuat oleh pereka profesional.");
     L.push("");
     var ai = state.ai === "gemini" ? "Gemini" : "ChatGPT";
     L.push("## CARA MENJANA (" + ai + ")");
     if (state.ai === "gemini") {
-      L.push("Jana terus sebagai imej. Jika tidak dapat menjana imej dengan teks yang tepat, berikan dahulu ringkasan kandungan setiap seksyen untuk saya semak, kemudian jana imej selepas saya sahkan.");
+      L.push("Jana terus sebagai imej. Jika tidak dapat menjana imej dengan teks yang tepat, berikan dahulu ringkasan kandungan setiap blok untuk saya semak, kemudian jana imej selepas saya sahkan.");
     } else {
-      L.push("Jana terus sebagai imej menggunakan penjana imej ChatGPT. Selepas imej siap, senaraikan teks yang digunakan dalam setiap seksyen supaya saya boleh semak ketepatannya.");
+      L.push("Jana terus sebagai imej menggunakan penjana imej ChatGPT. Selepas imej siap, senaraikan teks yang digunakan dalam setiap blok supaya saya boleh semak ketepatannya.");
     }
     return L.join("\n");
   }
@@ -1138,7 +1200,7 @@
 
   function highlight(text) {
     return esc(text)
-      .replace(/^(## .*)$/gm, '<span class="h">$1</span>')
+      .replace(/^(#{1,2} .*)$/gm, '<span class="h">$1</span>')
       .replace(/^(- [^:\n]{1,28}:)/gm, '<span class="k">$1</span>');
   }
 
@@ -1198,7 +1260,7 @@
     m.innerHTML = html;
 
     var list = $("mockList"); list.innerHTML = "";
-    ["Header & tajuk", "Jalur maklumat program"].concat(fmt.sections, nPhotos ? [nPhotos + " ruang gambar"] : [], ["Footer pelapor"]).forEach(function (s) {
+    ["Kenal program (header)", "Kenapa: " + fmt.why.join(", "), "Apa dibuat: " + fmt.what.join(", "), "Hasil & impak (paling menonjol)", "Seterusnya: " + fmt.next.join(", ")].concat(nPhotos ? ["Bukti: " + nPhotos + " gambar"] : [], ["Pengesahan pelapor"]).forEach(function (s) {
       var li = document.createElement("li"); li.textContent = s; list.appendChild(li);
     });
   }
@@ -1235,6 +1297,7 @@
     $("metaStrip").innerHTML =
       '<span class="tag gold">' + esc(fmt.label) + '</span>' +
       '<span class="tag blue">Tema: ' + esc(t.name) + '</span>' +
+      '<span class="tag">Susun atur: ' + LAYOUTS[state.layout].label + '</span>' +
       '<span class="tag">' + (state.orient === "landskap" ? "A4 Landskap" : "A4 Potret") + '</span>' +
       (nPhotos ? '<span class="tag green">' + (state.mode === "kosong" ? nPhotos + " bingkai kosong" : nPhotos + " gambar asal") + '</span>' : "");
     var isG = state.ai === "gemini";
@@ -1444,6 +1507,7 @@
   var saveTimer;
   function onChange() {
     updateMeter();
+    $("layoutNote").textContent = LAYOUTS[state.layout].text;
     renderSlotMap();
     if (state.generated) renderOutput();
     else if (state.tab === "layout") renderMock(values());
@@ -1509,7 +1573,7 @@
   // ---------- Persistence (per pelayar) ----------
   function save() {
     try {
-      var data = values(); data._orient = state.orient; data._ai = state.ai; data._mode = state.mode;
+      var data = values(); data._orient = state.orient; data._ai = state.ai; data._mode = state.mode; data._layout = state.layout;
       localStorage.setItem(STORE_KEY, JSON.stringify(data));
     } catch (e) { /* storage tak tersedia */ }
   }
@@ -1523,6 +1587,7 @@
       if (d._mode) setSeg($("segMode"), "mode", d._mode);
       if (!$("gambar").value) $("gambar").value = "3";
       selectTheme(d.gaya || "institusi", !d.warna);
+      if (d._layout) setSeg($("segLayout"), "layout", d._layout);
       return true;
     } catch (e) { return false; }
   }
