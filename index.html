@@ -497,7 +497,12 @@
   .note { font-size: 11.5px; padding: 8px 10px; }
   .seg button { padding: 7px; font-size: 12.5px; }
   .logos { grid-template-columns: repeat(3, 1fr); }
-  .logo-slot { aspect-ratio: auto; height: 96px; padding: 6px; }
+  .logo-slot { aspect-ratio: auto; height: auto; min-height: 96px; padding: 6px; }
+  .logo-act { display: block; width: 100%; border: 0; border-radius: 6px; padding: 3px 4px; font-size: 10px; font-weight: 700; cursor: pointer; text-decoration: none; line-height: 1.3; }
+  .logo-act.warn { background: var(--gold-soft); color: #8a5a00; }
+  .logo-act.warn:hover { background: #f6e2b5; }
+  .logo-act.ok { background: var(--ok-soft); color: var(--ok); }
+  .logo-slot.filled img { background: repeating-conic-gradient(#eef1f7 0 25%, #fff 0 50%) 0 0 / 10px 10px; border-radius: 4px; }
   .logo-slot img { max-height: 44px; }
   .mode { padding: 9px 11px; }
   .mode small { font-size: 11.5px; }
@@ -590,7 +595,7 @@
       </div>
     </div>
     <div class="meter" aria-live="polite">
-      <div class="meter-row"><span>Kelengkapan maklumat wajib</span><span id="meterText">0 / 9</span></div>
+      <div class="meter-row"><span>Kelengkapan maklumat wajib</span><span id="meterText">0 / 8</span></div>
       <div class="meter-track"><div class="meter-fill" id="meterFill"></div></div>
     </div>
 
@@ -601,7 +606,7 @@
       <div class="field" data-req>
         <label for="tajuk">Tajuk OPR / program / aktiviti<span><span class="req">*</span></span></label>
         <input class="input" id="tajuk" name="tajuk" placeholder="Contoh: Bengkel Literasi AI untuk Guru">
-        <div class="err-msg">Sila isi tajuk program.</div>
+        <div class="err-msg">Sila isi tajuk program sebenar.</div>
       </div>
       <div class="field" data-req>
         <label for="institusi">Nama institusi<span><span class="req">*</span></span></label>
@@ -650,10 +655,9 @@
         </div>
       </div>
       <div class="row-2">
-        <div class="field" data-req>
-          <label for="rujukan">Sumber rujukan<span><span class="req">*</span></span></label>
+        <div class="field">
+          <label for="rujukan">Sumber rujukan <span class="hint">pilihan</span></label>
           <input class="input" id="rujukan" name="rujukan" placeholder="Contoh: Kertas kerja program">
-          <div class="err-msg">Sila nyatakan sumber rujukan.</div>
         </div>
         <div class="field">
           <label for="anjuran">Anjuran <span class="hint">pilihan</span></label>
@@ -1029,7 +1033,7 @@
   var LEGACY_THEME = { rasmi: "kerajaan" };
 
   var FIELDS = ["tajuk", "institusi", "tarikh", "masa", "tempat", "sasaran", "pelapor", "disahkan", "anjuran", "rujukan", "objektif", "ekstrak", "penegasan", "format", "pembaca", "gaya", "warna", "gambar"];
-  var REQUIRED = ["tajuk", "institusi", "tarikh", "masa", "tempat", "sasaran", "pelapor", "rujukan"];
+  var REQUIRED = ["tajuk", "institusi", "tarikh", "masa", "tempat", "sasaran", "pelapor"];
   var STORE_KEY = "opr-prompt-generator:v1";
 
   var SAMPLE = {
@@ -1245,8 +1249,13 @@
       var d = document.createElement("div");
       d.className = "logo-slot" + (l ? " filled" : "");
       if (l) {
-        d.innerHTML = '<img alt=""><input aria-label="Nama logo ' + (i + 1) + '"><button type="button" class="x" aria-label="Buang logo">&times;</button>';
+        d.innerHTML = '<img alt=""><input aria-label="Nama logo ' + (i + 1) + '" placeholder="Nama logo"><button type="button" class="x" aria-label="Buang logo">&times;</button>' +
+          (l.bg && !l.cleaned ? '<button type="button" class="logo-act warn" data-act="clean">Latar ' + l.bg.name + ' dikesan · Buang</button>' : "") +
+          (l.cleaned ? '<a class="logo-act ok" download>Latar dibuang · Muat turun PNG</a>' : "");
         d.querySelector("img").src = l.item.url;
+        if (l.cleaned) { var a = d.querySelector("a.logo-act"); a.href = l.item.url; a.download = l.fileName; }
+        var act = d.querySelector('[data-act="clean"]');
+        if (act) act.addEventListener("click", function () { act.disabled = true; act.textContent = "Memproses..."; removeLogoBg(l); });
         var inp = d.querySelector("input");
         inp.value = l.label;
         inp.addEventListener("input", function () { l.label = inp.value.trim() || "Logo " + (i + 1); l.item.name = l.label; onChange(); });
@@ -1277,10 +1286,15 @@
     var old = state.logos[i];
     var item = makeItem(file);
     item.kind = "logo";
-    var label = old ? old.label : file.name.replace(/\.[^.]+$/, "");
+    // Nama asal fail kadang ada arahan rupa ("background hitam"); buang supaya tidak mengelirukan AI.
+    var label = old ? old.label : (file.name.replace(/\.[^.]+$/, "").replace(/[\s_-]*\b(background|bg|latar( belakang)?)\b.*$/i, "").trim() || "Logo " + (i + 1));
     item.name = label;
     if (old && old.item.url) URL.revokeObjectURL(old.item.url);
-    state.logos[i] = { item: item, label: label, fileName: file.name };
+    var entry = { item: item, label: label, fileName: file.name, bg: null, cleaned: !!(old && old.cleaning) };
+    state.logos[i] = entry;
+    item.img.addEventListener("load", function () {
+      if (!entry.cleaned) { entry.bg = detectLogoBg(item.img); if (entry.bg) renderLogos(); }
+    });
     $("logoField").classList.remove("invalid");
     renderLogos(); renderSlotList(); onChange();
   }
@@ -1291,6 +1305,61 @@
     if (l.item.url) URL.revokeObjectURL(l.item.url);
     if (i === 0 || state.logos.length === 1) state.logos[i] = null; else state.logos.splice(i, 1);
     renderLogos(); renderSlotList(); drawStudio(true); onChange();
+  }
+
+  // Kesan latar segi empat pekat pada logo (cth logo atas latar hitam) supaya boleh dibuang sebelum dihantar ke AI.
+  function detectLogoBg(img) {
+    var w = img.naturalWidth, h = img.naturalHeight;
+    if (!w || !h) return null;
+    var c = document.createElement("canvas"); c.width = w; c.height = h;
+    var g = c.getContext("2d"); g.drawImage(img, 0, 0);
+    var d = g.getImageData(0, 0, w, h).data;
+    var pts = [[0, 0], [w - 1, 0], [0, h - 1], [w - 1, h - 1], [w >> 1, 0], [w >> 1, h - 1], [0, h >> 1], [w - 1, h >> 1]];
+    var cols = pts.map(function (p) { var o = (p[1] * w + p[0]) * 4; return [d[o], d[o + 1], d[o + 2], d[o + 3]]; });
+    if (cols.some(function (c) { return c[3] < 200; })) return null;
+    var avg = [0, 1, 2].map(function (k) { return cols.reduce(function (a, c) { return a + c[k]; }, 0) / cols.length; });
+    if (cols.some(function (c) { return colorDist(c, avg) > 40; })) return null;
+    var lum = (avg[0] + avg[1] + avg[2]) / 3;
+    return { rgb: avg, name: lum < 60 ? "hitam" : lum > 225 ? "putih" : "berwarna" };
+  }
+  function colorDist(a, b) { return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2) + Math.pow(a[2] - b[2], 2)); }
+
+  // Buang latar dengan flood fill dari tepi imej, jadi warna sama di dalam lambang (cth teks hitam) tidak terjejas.
+  function removeLogoBg(l) {
+    var img = l.item.img, w = img.naturalWidth, h = img.naturalHeight;
+    var c = document.createElement("canvas"); c.width = w; c.height = h;
+    var g = c.getContext("2d"); g.drawImage(img, 0, 0);
+    var id = g.getImageData(0, 0, w, h), d = id.data, bg = l.bg.rgb;
+    var TOL = 60, SOFT = 110;
+    var seen = new Uint8Array(w * h), stack = [];
+    for (var x = 0; x < w; x++) { stack.push(x, (h - 1) * w + x); }
+    for (var y = 0; y < h; y++) { stack.push(y * w, y * w + w - 1); }
+    while (stack.length) {
+      var p = stack.pop();
+      if (seen[p]) continue;
+      seen[p] = 1;
+      var o = p * 4, dist = colorDist([d[o], d[o + 1], d[o + 2]], bg);
+      if (dist > SOFT) continue;
+      if (dist <= TOL) d[o + 3] = 0;
+      else { d[o + 3] = Math.min(d[o + 3], Math.round(255 * (dist - TOL) / (SOFT - TOL))); continue; }
+      var px = p % w;
+      if (px > 0) stack.push(p - 1);
+      if (px < w - 1) stack.push(p + 1);
+      if (p >= w) stack.push(p - w);
+      if (p < w * (h - 1)) stack.push(p + w);
+    }
+    g.putImageData(id, 0, 0);
+    var i = state.logos.indexOf(l);
+    c.toBlob(function (blob) {
+      var base = (l.label || "logo").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-") || "logo";
+      var f = new File([blob], base + "-tanpa-latar.png", { type: "image/png" });
+      l.cleaning = true;
+      var label = l.label;
+      setLogo(i, f);
+      state.logos[i].label = label; state.logos[i].item.name = label;
+      renderLogos(); onChange();
+      toast("Latar logo dibuang. Lampirkan fail PNG baharu ini ke ChatGPT/Gemini.");
+    }, "image/png");
   }
 
   $("logoInput").addEventListener("change", function () {
@@ -1317,10 +1386,32 @@
   function values() {
     var v = {};
     // Bersihkan input supaya prompt sentiasa konsisten: ruang berganda dibuang, petikan berganda ditukar.
+    var fixes = [];
     FIELDS.forEach(function (k) {
-      v[k] = ($(k).value || "").replace(/[ \t]+/g, " ").replace(/\n{2,}/g, "\n").replace(/"/g, "'").trim();
+      var val = ($(k).value || "").replace(/[ \t]+/g, " ").replace(/\n{2,}/g, "\n").replace(/"/g, "'").trim();
+      if (isPlaceholder(val)) val = "";
+      if (HEADER_FIELDS.indexOf(k) >= 0) {
+        var fixed = fixZeroO(val);
+        if (fixed !== val) { fixes.push(k.charAt(0).toUpperCase() + k.slice(1)); val = fixed; }
+      }
+      v[k] = val;
     });
+    v._fixes = fixes;
     return v;
+  }
+
+  // Nilai pemegang tempat seperti "xxxx", "TIADA", "-", "N/A" dianggap kosong supaya tidak masuk ke prompt.
+  function isPlaceholder(val) {
+    var t = val.replace(/\s+/g, "");
+    if (!t) return false;
+    if (/^(.)\1{2,}$/i.test(t)) return true;
+    return /^(tiada|kosong|nil|null|none|n\/?a|tba|-+|\.+|\?+)$/i.test(t);
+  }
+
+  // Betulkan digit 0 yang ditaip dalam perkataan (cth "0KTOBER" -> "OKTOBER").
+  var HEADER_FIELDS = ["tajuk", "institusi", "anjuran", "tarikh", "tempat", "sasaran", "pelapor", "disahkan"];
+  function fixZeroO(val) {
+    return val.replace(/(^|[^0-9])0(?=[A-Za-z]{2,})/g, "$1O").replace(/([A-Za-z])0(?=[A-Za-z])/g, "$1O");
   }
 
   // ---------- Prompt builder ----------
@@ -1336,21 +1427,28 @@
     var warna = v.warna || theme.warna;
     var logos = logoItems();
     var reader = READERS[v.pembaca] || READERS.pentadbir;
+    var hasRef = docs.length > 0 || !!v.rujukan;
+    var blank = state.mode === "kosong";
+    var src = hasRef ? "rujukan" : "maklumat dalam prompt ini";
     var L = [];
 
+    L.push("## PERANAN ANDA");
+    L.push("Anda ialah pakar pencipta OPR (One Page Report) untuk sektor pendidikan Malaysia dan pereka grafik kreatif berpengalaman lebih 20 tahun. Anda menghasilkan reka bentuk bertaraf agensi yang kemas, berimpak dan tepat, dan tidak pernah meletakkan teks pemegang tempat atau elemen yang nampak tidak siap.");
+    L.push("");
     L.push("## TUGASAN");
-    L.push("Hasilkan SATU imej One Page Report (OPR) " + fmt.label.replace("OPR ", "") + ", format " + orient + ", resolusi tinggi dan sedia dicetak. Semua teks dalam Bahasa Melayu standard.");
-    L.push("Prompt ini ada dua bahagian. BAHAGIAN A ialah spine OPR: wajib diikut tepat. BAHAGIAN B ialah arahan kreatif: anda bebas mereka bentuk dalam ruang itu. Matlamat: OPR yang padu, berkualiti tinggi dan tidak nampak seperti templat biasa.");
+    L.push("Hasilkan SATU imej OPR " + fmt.label.replace("OPR ", "") + ", " + orient + ", resolusi tinggi dan sedia dicetak.");
+    L.push("BAHAGIAN A wajib diikut tepat. BAHAGIAN B ialah ruang kreatif anda. Jika ada yang bercanggah, BAHAGIAN A mengatasi BAHAGIAN B.");
     L.push("");
-    L.push("# BAHAGIAN A: SPINE OPR (WAJIB, JANGAN UBAH)");
+
+    // ---------------- BAHAGIAN A ----------------
+    L.push("# BAHAGIAN A: SPINE OPR (WAJIB)");
     L.push("");
-    L.push("## A0. KONTEKS");
-    L.push("- Pembaca OPR: " + reader.label + ".");
-    L.push("- Tujuan: melaporkan pelaksanaan dan hasil program secara ringkas supaya pembaca faham apa yang berlaku dan apa kesannya.");
-    L.push("- Nada bahasa: " + reader.nada + ".");
-    L.push("- Fokus utama untuk pembaca ini: " + reader.fokus + ".");
+    L.push("## A1. PEMBACA & NADA");
+    L.push("- Pembaca: " + reader.label + ". Fokus: " + reader.fokus + ".");
+    L.push("- Nada bahasa: " + reader.nada + ". Bahasa Melayu standard dengan ejaan yang betul.");
     L.push("");
-    L.push("## A1. MAKLUMAT HEADER (salin teks dalam tanda petikan huruf demi huruf)");
+
+    L.push("## A2. TEKS HEADER (salin huruf demi huruf, jangan ubah ejaan atau huruf besar/kecil)");
     L.push("- Tajuk: \"" + v.tajuk + "\"");
     L.push("- Institusi: \"" + v.institusi + "\"");
     if (v.anjuran) L.push("- Anjuran: \"" + v.anjuran + "\"");
@@ -1360,105 +1458,96 @@
     L.push("- Kumpulan sasaran: \"" + v.sasaran + "\"");
     L.push("- Disediakan oleh: \"" + v.pelapor + "\"");
     if (v.disahkan) L.push("- Disahkan oleh: \"" + v.disahkan + "\"");
-    L.push("- Logo: " + logos.length + " logo, " + logos.map(function (l, i) { return "LOGO " + (i + 1) + " = " + l.label; }).join(", ") + ".");
     L.push("");
-    L.push("## A2. RUJUKAN");
-    if (docs.length) {
-      L.push("Saya lampirkan dokumen rujukan: " + docs.join(", ") + ". Baca dengan teliti sebelum mereka bentuk.");
+
+    L.push("## A3. SUMBER KANDUNGAN");
+    if (hasRef) {
+      if (docs.length) L.push("Dokumen rujukan dilampirkan: " + docs.join(", ") + ".");
+      else L.push("Dokumen rujukan" + (v.rujukan ? " (" + v.rujukan + ")" : "") + " dilampirkan bersama prompt ini. Jika tiada lampiran diterima, minta saya lampirkan dahulu.");
+      L.push("Ekstrak: " + (v.ekstrak.replace(/[.\s]+$/, "") || "objektif, aktiviti utama, fakta penting, data atau angka, impak dan cadangan tindakan") + ".");
     } else {
-      L.push("Saya akan lampirkan dokumen rujukan bersama prompt ini. Baca dengan teliti sebelum mereka bentuk.");
+      L.push("Tiada dokumen rujukan." + (v.ekstrak ? " Maklumat program: " + v.ekstrak.replace(/[.\s]+$/, "") + "." : ""));
     }
-    L.push("Sumber dokumen: " + v.rujukan + ".");
-    L.push("Ekstrak: " + (v.ekstrak.replace(/[.\s]+$/, "") || "objektif, aktiviti utama, fakta penting, data atau angka, impak dan cadangan tindakan") + ".");
     L.push("");
-    L.push("## A3. ALIRAN NARATIF (urutan pembaca faham cerita, BUKAN kedudukan dalam layout)");
-    L.push("1. KENAL PROGRAM: logo, tajuk dan maklumat header mesti dapat dikenal pasti dalam 3 saat.");
-    L.push("2. KENAPA: " + fmt.why.join("; ") + "." + (v.objektif ? " Gunakan objektif ini tepat seperti ditulis: \"" + v.objektif.replace(/[.\s]+$/, "") + ".\"" : " Ambil objektif daripada rujukan, maksimum 3 poin."));
+
+    L.push("## A4. ALIRAN CERITA (urutan pembaca faham, bukan kedudukan dalam layout)");
+    L.push("1. KENAL PROGRAM: logo, tajuk dan teks header dikenal pasti dalam 3 saat.");
+    L.push("2. KENAPA: " + (v.objektif ? "objektif ini, tepat seperti ditulis: \"" + v.objektif.replace(/[.\s]+$/, "") + ".\"" : fmt.why.join("; ") + ", maksimum 3 poin."));
     L.push("3. APA DIBUAT: " + fmt.what.join("; ") + ".");
-    L.push("4. HASIL & IMPAK (fokus utama OPR): " + fmt.result.join("; ") + ". Pilih 1 hingga 3 hasil paling kuat daripada rujukan (angka, pencapaian atau petikan peserta) dan jadikan ia elemen paling menonjol dalam keseluruhan OPR.");
+    L.push("4. HASIL & IMPAK (fokus utama): " + fmt.result.join("; ") + ". Pilih 1 hingga 3 hasil paling kuat (angka, pencapaian atau petikan) dan jadikan elemen paling menonjol dalam OPR.");
     L.push("5. SETERUSNYA: " + fmt.next.join("; ") + ".");
     var step = 6;
-    if (nPhotos > 0) { L.push(step + ". BUKTI: " + nPhotos + " gambar aktiviti bernisbah 4:3, setiap satu dengan kapsyen pendek."); step++; }
-    L.push(step + ". PENGESAHAN: \"Disediakan oleh: " + v.pelapor + "\"" + (v.disahkan ? " dan \"Disahkan oleh: " + v.disahkan + "\", masing-masing" : "") + " dengan ruang tandatangan dan tarikh.");
-    L.push("");
-    L.push("## A4. PRINSIP OPR PADU");
-    L.push("- Satu muka sahaja dan boleh difahami dalam 30 saat. Mata pembaca mesti pergi ke tajuk dahulu, kemudian terus ke hasil/impak.");
-    L.push("- Isi dalam poin pendek: maksimum 12 patah perkataan setiap poin dan 4 poin setiap blok. Tiada perenggan panjang.");
-    L.push("- Angka dan pencapaian dipaparkan besar dan tebal, bukan tenggelam dalam ayat.");
-    L.push("- Hierarki teks jelas dengan 3 saiz sahaja: tajuk, sub-tajuk dan isi.");
-    L.push("- Ikon satu gaya sahaja dan konsisten. Kontras tinggi supaya masih boleh dibaca bila dicetak hitam putih.");
-    L.push("");
-    L.push("## A5. INTEGRITI KANDUNGAN");
-    L.push("- Gunakan HANYA maklumat daripada rujukan dan maklumat header. Jangan reka nama, angka, statistik atau petikan.");
-    L.push("- Jika sesuatu maklumat tiada dalam rujukan, ringkaskan blok itu. Jangan isi dengan andaian.");
-    if (v.penegasan) L.push("- " + v.penegasan.replace(/\n+/g, " "));
-    L.push("- Ejaan Bahasa Melayu mesti betul. Tiada huruf berselerak atau perkataan yang tidak wujud.");
+    if (nPhotos > 0) { L.push(step + ". BUKTI: " + nPhotos + " foto aktiviti (lihat A7), setiap satu dengan kapsyen pendek."); step++; }
+    L.push(step + ". PENGESAHAN: " + (v.disahkan ? "\"Disediakan oleh\" dan \"Disahkan oleh\" daripada A2, masing-masing" : "\"Disediakan oleh\" daripada A2") + " dengan ruang tandatangan dan tarikh.");
     L.push("");
 
-    if (state.mode === "kosong") {
-      L.push("## A6. RUANG LOGO");
-      L.push("- JANGAN lukis, reka atau teka mana-mana logo.");
-      L.push("- Sediakan " + logos.length + " ruang logo di kawasan header: kotak putih rata, saiz seragam, sejajar, dengan label kecil " + labels(logos.length, "LOGO") + ".");
-      L.push("- Ruang logo mesti bersih tanpa hiasan bertindih, kerana logo sebenar akan ditampal kemudian.");
+    L.push("## A5. HAD & INTEGRITI");
+    L.push("- Satu muka sahaja, difahami dalam 30 saat. Jumlah teks isi (selain header) maksimum lebih kurang 180 patah perkataan.");
+    L.push("- Maksimum 4 poin setiap blok, 12 patah perkataan setiap poin. Tiada perenggan.");
+    L.push("- Kandungan blok 2 hingga 5 diambil HANYA daripada " + src + ". Jangan reka nama, angka, statistik, petikan atau ayat umum tanpa sumber.");
+    L.push("- Blok yang tiada data: GUGURKAN sepenuhnya dan beri ruangnya kepada blok lain. Jangan tulis \"Maklumat belum diberikan\", \"xxx\", \"TBA\" atau teks pemegang tempat.");
+    L.push("- Jika tiada hasil sebenar untuk blok 4, jadikan tajuk dan foto sebagai fokus visual. Jangan cipta hasil.");
+    if (v.penegasan) L.push("- " + v.penegasan.replace(/\n+/g, " ").replace(/[.\s]+$/, "") + ".");
+    L.push("");
+
+    L.push("## A6. LOGO");
+    if (blank) {
+      L.push("- Sediakan " + logos.length + " ruang logo bersebelahan di header: segi empat sama berlatar putih, saiz sederhana dan seragam, label kecil " + labels(logos.length, "LOGO") + ". Logo sebenar akan saya tampal kemudian.");
+      L.push("- Jangan lukis atau teka logo. Jangan jadikan ruang logo blok gelap atau elemen paling dominan.");
     } else {
-      L.push("## A6. LOGO ASAL");
-      L.push("Saya lampirkan " + logos.length + " fail logo. Padankan ikut turutan:");
-      logos.forEach(function (l, i) { L.push("- LOGO " + (i + 1) + " (" + l.label + ") = " + l.fileName); });
-      L.push("- Letak di kawasan header, saiz seragam dan sejajar.");
-      L.push("- Gunakan logo SEPERTI ASAL. Jangan lukis semula, ubah warna, bentuk, teks atau tambah kesan.");
-      L.push("- Jika tidak dapat mengekalkan logo dengan tepat, biarkan kotak putih kosong berlabel \"LOGO n\".");
+      logos.forEach(function (l, i) { L.push("- LOGO " + (i + 1) + " = fail " + l.fileName + " (" + l.label + "). Nama hanya pengenalan, bukan arahan rupa."); });
+      L.push("- Gunakan lambang logo seperti asal: bentuk, warna dan teks di dalamnya tidak diubah atau dilukis semula.");
+      L.push("- Latar segi empat fail logo BUKAN sebahagian logo. Buang latar itu dan letak lambang terus di atas reka bentuk OPR seperti logo bercetak. Jangan letak logo dalam kotak hitam, kad atau blok warna pekat.");
+      L.push("- Letak di kawasan header yang kontrasnya sesuai (logo bertulisan putih di kawasan gelap, bertulisan gelap di kawasan cerah). Semua logo sama tinggi, sejajar, saiz sederhana.");
     }
     L.push("");
 
-    if (nPhotos > 0 && state.mode === "kosong") {
-      L.push("## A7. BINGKAI GAMBAR");
-      L.push("- JANGAN lukis, jana atau reka sebarang gambar orang atau aktiviti dalam bingkai gambar.");
-      L.push("- Isi setiap bingkai dengan warna kelabu rata #D9D9D9 dan label kecil di tengah: " + labels(nPhotos) + ".");
-      L.push("- Bingkai mesti bersih: tiada teks, ikon atau hiasan bertindih di atasnya, kerana gambar sebenar akan ditampal kemudian.");
-      L.push("- Bucu bingkai tajam, tanpa bayang dan tidak senget, supaya mudah ditampal dengan tepat.");
-      L.push("");
-    } else if (nPhotos > 0) {
-      L.push("## A7. GAMBAR SEBENAR");
-      if (imgs.length) {
-        L.push("Saya lampirkan " + imgs.length + " gambar aktiviti sebenar. Padankan ikut turutan:");
-        imgs.slice(0, nPhotos).forEach(function (name, i) { L.push("- Gambar " + (i + 1) + " = " + name); });
+    if (nPhotos > 0) {
+      L.push("## A7. FOTO AKTIVITI");
+      if (blank) {
+        L.push("- Sediakan " + nPhotos + " bingkai foto bernisbah 4:3, diisi warna kelabu rata #D9D9D9 dengan label kecil " + labels(nPhotos) + ". Foto sebenar akan saya tampal kemudian.");
+        L.push("- Jangan lukis atau jana foto. Bingkai bersih tanpa teks atau hiasan bertindih, bucu tajam, tanpa bayang dan tidak senget.");
       } else {
-        L.push("Saya akan lampirkan " + nPhotos + " gambar aktiviti sebenar. Padankan ikut turutan lampiran.");
+        if (imgs.length) {
+          L.push("Foto dilampirkan ikut turutan:");
+          imgs.slice(0, nPhotos).forEach(function (name, i) { L.push("- GAMBAR " + (i + 1) + " = " + name); });
+        } else {
+          L.push("- " + nPhotos + " foto dilampirkan; padankan ikut turutan lampiran.");
+        }
+        L.push("- Letak setiap foto seperti ditampal ke dalam bingkai: hanya ubah saiz dan crop sedikit di tepi. Jangan lukis semula, tambah filter, ubah wajah, orang, objek atau latar.");
+        L.push("- Jika fail ialah tangkapan skrin dokumen atau slaid, jangan jadikan ia bukti foto. Gunakan maklumatnya sebagai kandungan sahaja.");
+        L.push("- Jika foto tidak dapat dikekalkan dengan tepat, biarkan bingkai kelabu berlabel \"GAMBAR n\". Ini satu-satunya ruang kosong yang dibenarkan.");
       }
-      L.push("- Masukkan setiap gambar SEBAGAI FOTO ASAL, seolah-olah ditampal ke dalam bingkai. Jangan lukis semula dan jangan jana versi baharu.");
-      L.push("- Kekalkan sepenuhnya wajah, bilangan orang, pakaian, kedudukan, latar belakang, teks dan objek.");
-      L.push("- Jangan tambah filter, kesan kartun, pencahayaan baharu, orang atau objek tambahan. Hanya ubah saiz dan crop sedikit di tepi.");
-      L.push("- Jika tidak dapat mengekalkan gambar asal dengan tepat, biarkan bingkai kelabu kosong berlabel \"GAMBAR n\".");
       L.push("");
     }
 
-    L.push("# BAHAGIAN B: ARAHAN KREATIF (BEBAS)");
+    // ---------------- BAHAGIAN B ----------------
+    L.push("# BAHAGIAN B: ARAHAN KREATIF");
     L.push("");
-    L.push("## B1. MOOD TEMA: " + theme.name.toUpperCase());
-    L.push("Gunakan ini sebagai rasa dan suasana, bukan templat yang perlu ditiru.");
+    L.push("## B1. TEMA: " + theme.name.toUpperCase() + " (rasa dan suasana, bukan templat untuk ditiru)");
     L.push("- Mood: " + theme.mood + ".");
     L.push("- Palet warna: " + warna + ".");
-    L.push("- Tipografi: " + theme.type + ".");
-    L.push("- Motif dan elemen visual: " + theme.motif + ".");
+    L.push("- Tipografi: " + theme.type + ". Hanya 3 saiz teks: tajuk, sub-tajuk dan isi.");
+    L.push("- Motif: " + theme.motif + ". Ikon satu gaya sahaja.");
     L.push("");
-    L.push("## B2. SUSUN ATUR (" + lay.label.toUpperCase() + ")");
-    L.push("- Anda yang tentukan komposisi terbaik untuk kandungan ini. Kedudukan setiap blok bebas, asalkan aliran naratif A3 masih mudah diikut.");
+    L.push("## B2. SUSUN ATUR: " + lay.label.toUpperCase());
     L.push("- " + lay.text);
-    L.push("- Elakkan: grid kotak sama saiz yang membosankan, clipart generik, gradien berlebihan, teks di atas latar yang sibuk, dan hiasan yang mengganggu bacaan.");
+    L.push("- Kedudukan blok bebas, asalkan aliran cerita A4 mudah diikut dan logo kekal di header.");
+    L.push("- Angka hasil dipaparkan besar dan tebal. Kontras tinggi supaya masih terbaca bila dicetak hitam putih.");
+    L.push("- Elakkan grid kotak sama saiz, clipart generik, gradien berlebihan dan teks di atas latar sibuk.");
     L.push("");
-    L.push("## B3. SEMAK SEBELUM JANA");
-    L.push("Pastikan: semua item A3 ada; teks header sama huruf demi huruf; nada sesuai untuk " + reader.label + "; hasil/impak paling menonjol; tiada teks terpotong atau bertindih; ejaan betul; reka bentuk nampak dibuat oleh pereka profesional.");
-    L.push("");
+
+    // ---------------- Langkah ----------------
     var ai = state.ai === "gemini" ? "Gemini" : "ChatGPT";
     L.push("## CARA MENJANA (" + ai + ")");
     if (state.semak) {
-      L.push("LANGKAH 1: Jangan jana imej dahulu. Tunjukkan draf teks untuk setiap blok dalam A3 (termasuk 1 hingga 3 hasil utama yang anda pilih) dalam bentuk senarai. Tandakan dengan jelas jika ada maklumat yang tiada dalam rujukan.");
-      L.push("LANGKAH 2: Selepas saya balas \"OK\" atau beri pembetulan, jana imej OPR menggunakan teks yang disahkan sahaja, huruf demi huruf.");
-    } else if (state.ai === "gemini") {
-      L.push("Jana terus sebagai imej. Jika tidak dapat menjana imej dengan teks yang tepat, berikan dahulu ringkasan kandungan setiap blok untuk saya semak, kemudian jana imej selepas saya sahkan.");
+      L.push("LANGKAH 1: Jangan jana imej dahulu. Senaraikan teks akhir setiap blok A4 yang akan dipaparkan, nyatakan blok yang digugurkan dan sebabnya" + (nPhotos && !blank ? ", dan fail yang tidak sesuai dijadikan foto bukti" : "") + ".");
+      L.push("LANGKAH 2: Selepas saya balas \"OK\" atau beri pembetulan, jana imej menggunakan teks yang disahkan, huruf demi huruf.");
     } else {
-      L.push("Jana terus sebagai imej menggunakan penjana imej ChatGPT. Selepas imej siap, senaraikan teks yang digunakan dalam setiap blok supaya saya boleh semak ketepatannya.");
+      L.push("Jana terus sebagai imej. Selepas itu, senaraikan teks yang digunakan dalam setiap blok supaya saya boleh semak.");
     }
+    L.push("");
+    L.push("Semakan akhir sebelum jana: teks header sama dengan A2; tiada teks pemegang tempat; hasil/impak paling menonjol; tiada teks terpotong atau bertindih; logo tanpa kotak latar.");
     return L.join("\n");
   }
 
@@ -1547,9 +1636,10 @@
   }
   function validate() {
     var first = null;
+    var v = values();
     REQUIRED.forEach(function (k) {
       var f = $(k).closest(".field");
-      var bad = !$(k).value.trim();
+      var bad = !v[k];
       f.classList.toggle("invalid", bad);
       if (bad && !first) first = $(k);
     });
@@ -1575,6 +1665,8 @@
       '<span class="tag">Susun atur: ' + LAYOUTS[state.layout].label + '</span>' +
       '<span class="tag">' + (state.orient === "landskap" ? "A4 Landskap" : "A4 Potret") + '</span>' +
       '<span class="tag">' + logoItems().length + ' logo</span>' +
+      (v._fixes.length ? '<span class="tag gold" title="Angka 0 yang ditaip dalam perkataan ditukar kepada huruf O dalam prompt">Sifar (0) ditukar ke huruf O: ' + esc(v._fixes.join(", ")) + '</span>' : "") +
+      (!state.files.some(function (f) { return !isImage(f); }) && !v.rujukan ? '<span class="tag">Tiada rujukan: blok tanpa data digugurkan</span>' : "") +
       (nPhotos ? '<span class="tag green">' + (state.mode === "kosong" ? nPhotos + " bingkai kosong" : nPhotos + " gambar asal") + '</span>' : "");
     var isG = state.ai === "gemini";
     var aiName = isG ? "Gemini" : "ChatGPT";
